@@ -159,8 +159,8 @@ export function AdminCategoriesPage() {
 
     setSubmitSuccess(
       editingCategory
-        ? 'Categoria actualizada correctamente.'
-        : 'Categoria creada correctamente.',
+        ? `Categoria "${values.name.trim()}" actualizada correctamente.`
+        : `Categoria "${values.name.trim()}" creada correctamente.`,
     )
     setEditingCategory(null)
     form.reset(defaultValues)
@@ -190,8 +190,8 @@ export function AdminCategoriesPage() {
 
     setSubmitSuccess(
       category.is_active
-        ? 'Categoria desactivada.'
-        : 'Categoria activada nuevamente.',
+        ? `Categoria "${category.name}" desactivada. Los productos asociados no se eliminan ni se modifican.`
+        : `Categoria "${category.name}" activada nuevamente.`,
     )
     await reloadPage()
   }
@@ -253,6 +253,8 @@ export function AdminCategoriesPage() {
             </p>
             <p className="text-sm leading-6 text-muted">
               Si dejas el slug vacio, se genera automaticamente desde el nombre.
+              Desactivar una categoria no elimina productos: solo deja de mostrarla
+              como categoria activa en la tienda.
             </p>
           </div>
 
@@ -322,7 +324,8 @@ export function AdminCategoriesPage() {
           <div className="space-y-3">
             {categories.length === 0 ? (
               <div className="rounded-[22px] border border-dashed border-stone-900/10 bg-stone-50/80 px-4 py-8 text-sm text-muted">
-                No hay categorias cargadas todavia.
+                Todavia no hay categorias cargadas. Crea la primera para ordenar
+                el catalogo sin afectar productos existentes.
               </div>
             ) : null}
 
@@ -348,6 +351,12 @@ export function AdminCategoriesPage() {
                     <div className="space-y-1 text-sm text-muted">
                       <p>Slug: {category.slug}</p>
                       <p>{category.description || 'Sin descripcion.'}</p>
+                      {!category.is_active ? (
+                        <p>
+                          La categoria esta inactiva. Los productos asociados siguen
+                          existiendo y pueden reasignarse o mostrarse en otras categorias.
+                        </p>
+                      ) : null}
                     </div>
                   </div>
 

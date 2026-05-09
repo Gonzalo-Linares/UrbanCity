@@ -39,7 +39,7 @@ const orderStatusOptions: Array<{ value: 'all' | OrderStatus; label: string }> =
   { value: 'pending', label: 'Pendiente' },
   { value: 'confirmed', label: 'Confirmado' },
   { value: 'ready_for_pickup', label: 'Listo para retirar' },
-  { value: 'completed', label: 'Entregado / Pagado' },
+  { value: 'completed', label: 'Entregado / Pagado manualmente' },
   { value: 'cancelled', label: 'Cancelado' },
 ]
 
@@ -89,11 +89,11 @@ function buildCustomerFollowUpMessage(
   }
 
   if (order.status === 'ready_for_pickup') {
-    lines.push('Tu pedido esta listo para retirar. Coordinamos retiro y pago por este medio.')
+    lines.push('Tu pedido esta listo para retirar. Coordinamos retiro y pago por WhatsApp.')
   }
 
   if (order.status === 'completed') {
-    lines.push('Marcamos tu pedido como entregado. Gracias por tu compra.')
+    lines.push('Marcamos tu pedido como entregado/pagado manualmente. Gracias por tu compra.')
   }
 
   if (order.status === 'cancelled') {
@@ -223,6 +223,30 @@ export function AdminOrdersPage() {
       return
     }
 
+    if (status === order.status) {
+      return
+    }
+
+    if (
+      typeof window !== 'undefined' &&
+      status === 'cancelled' &&
+      !window.confirm(
+        `Cancelar el pedido ${order.order_code}? Esta accion corta el circuito comercial actual.`,
+      )
+    ) {
+      return
+    }
+
+    if (
+      typeof window !== 'undefined' &&
+      status === 'completed' &&
+      !window.confirm(
+        `Marcar ${order.order_code} como entregado/pagado manualmente? Esto no registra ningun pago online.`,
+      )
+    ) {
+      return
+    }
+
     setBusyOrderId(order.id)
     setActionError(null)
     setActionSuccess(null)
@@ -235,11 +259,18 @@ export function AdminOrdersPage() {
     setBusyOrderId(null)
 
     if (error) {
-      setActionError(formatCrudError(error.message, error.code))
+      setActionError(
+        `No se pudo actualizar ${order.order_code} a ${formatOrderStatus(status).toLowerCase()}. ${formatCrudError(
+          error.message,
+          error.code,
+        )}`,
+      )
       return
     }
 
-    setActionSuccess(`Pedido ${order.order_code} actualizado a ${formatOrderStatus(status)}.`)
+    setActionSuccess(
+      `Pedido ${order.order_code} actualizado a ${formatOrderStatus(status)}. El pago sigue coordinado por WhatsApp.`,
+    )
     await reloadPage()
   }
 
@@ -251,9 +282,9 @@ export function AdminOrdersPage() {
     try {
       await navigator.clipboard.writeText(message)
       setActionError(null)
-      setActionSuccess(`Mensaje del pedido ${order.order_code} copiado.`)
+      setActionSuccess(`Resumen del pedido ${order.order_code} copiado.`)
     } catch {
-      setActionError('No se pudo copiar el mensaje al portapapeles.')
+      setActionError(`No se pudo copiar el resumen del pedido ${order.order_code}.`)
     }
   }
 
@@ -358,10 +389,24 @@ export function AdminOrdersPage() {
         </div>
       </Card>
 
-      {filteredOrders.length === 0 ? (
+      {orders.length === 0 ? (
+        <EmptyState
+          title="Todavia no hay pedidos generados"
+          description="Los pedidos apareceran aqui cuando un cliente complete el checkout y envie su pedido por WhatsApp."
+          action={
+            <Button
+              type="button"
+              variant="secondary"
+              onClick={() => void reloadPage()}
+            >
+              Revisar nuevamente
+            </Button>
+          }
+        />
+      ) : filteredOrders.length === 0 ? (
         <EmptyState
           title="No encontramos pedidos con ese filtro"
-          description="Prueba otro estado o limpia la busqueda para volver al listado completo."
+          description="Prueba otro estado, otro termino de busqueda o limpia los filtros para volver al listado completo."
           action={
             <Button
               type="button"
@@ -472,7 +517,7 @@ export function AdminOrdersPage() {
                     className="inline-flex h-10 items-center justify-center gap-2 rounded-full bg-success px-4 text-sm font-medium text-white transition hover:bg-emerald-700"
                   >
                     <MessageCircle className="h-4 w-4" />
-                    Abrir WhatsApp
+                    Abrir WhatsApp del cliente
                   </a>
                   <Button
                     type="button"
@@ -480,7 +525,7 @@ export function AdminOrdersPage() {
                     onClick={() => void copyMessage(selectedOrder)}
                   >
                     <Copy className="h-4 w-4" />
-                    Copiar mensaje
+                    Copiar resumen
                   </Button>
                 </div>
               </div>
@@ -519,6 +564,10 @@ export function AdminOrdersPage() {
                         </option>
                       ))}
                   </SelectField>
+                  <p className="mt-3 text-sm leading-6 text-muted">
+                    Entregado / Pagado manualmente solo marca cierre operativo.
+                    No registra pagos online ni reemplaza la coordinacion por WhatsApp.
+                  </p>
                 </div>
               </div>
 
@@ -555,7 +604,7 @@ export function AdminOrdersPage() {
               <div className="grid gap-4 lg:grid-cols-[1fr_auto] lg:items-start">
                 <div className="rounded-[24px] border border-stone-900/8 bg-stone-50/80 p-4">
                   <p className="text-sm font-medium text-stone-950">
-                    Mensaje para copiar o enviar
+                    Resumen para copiar o enviar
                   </p>
                   <pre className="mt-3 overflow-x-auto whitespace-pre-wrap text-sm leading-6 text-stone-700">
                     {selectedOrderMessage}
