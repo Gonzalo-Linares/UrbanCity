@@ -242,6 +242,13 @@ Configuracion recomendada:
 
 El archivo [public/_redirects](public/_redirects) deja lista la app para SPA routing.
 
+## Deploy y demo
+
+Para preparar una demo real y revisar el paso a paso operativo:
+
+- [Deployment Checklist](DEPLOYMENT_CHECKLIST.md)
+- [Demo Script](DEMO_SCRIPT.md)
+
 ## Proximo paso recomendado
 
 El siguiente paso sano es pulir los flujos admin restantes y reforzar detalles operativos, manteniendo la logica de checkout sin pagos online ni usuarios compradores.
