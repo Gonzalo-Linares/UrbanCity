@@ -12,28 +12,23 @@ export interface Database {
       admin_users: {
         Row: {
           id: string
-          email: string
-          display_name: string | null
+          user_id: string
           is_active: boolean
           created_at: string
-          updated_at: string
         }
         Insert: {
-          id: string
-          email: string
-          display_name?: string | null
+          id?: string
+          user_id: string
           is_active?: boolean
           created_at?: string
-          updated_at?: string
         }
         Update: {
           id?: string
-          email?: string
-          display_name?: string | null
+          user_id?: string
           is_active?: boolean
           created_at?: string
-          updated_at?: string
         }
+        Relationships: []
       }
       categories: {
         Row: {
@@ -60,6 +55,7 @@ export interface Database {
           is_active?: boolean
           created_at?: string
         }
+        Relationships: []
       }
       products: {
         Row: {
@@ -101,6 +97,7 @@ export interface Database {
           created_at?: string
           updated_at?: string
         }
+        Relationships: []
       }
       product_images: {
         Row: {
@@ -127,6 +124,7 @@ export interface Database {
           sort_order?: number
           created_at?: string
         }
+        Relationships: []
       }
       orders: {
         Row: {
@@ -165,6 +163,7 @@ export interface Database {
           created_at?: string
           updated_at?: string
         }
+        Relationships: []
       }
       order_items: {
         Row: {
@@ -197,6 +196,7 @@ export interface Database {
           subtotal?: number
           created_at?: string
         }
+        Relationships: []
       }
       store_settings: {
         Row: {
@@ -232,6 +232,7 @@ export interface Database {
           created_at?: string
           updated_at?: string
         }
+        Relationships: []
       }
     }
     Views: Record<string, never>
@@ -242,7 +243,6 @@ export interface Database {
           p_customer_name: string
           p_customer_phone: string
           p_customer_message?: string | null
-          p_whatsapp_message?: string | null
           p_items: {
             product_id: string
             quantity: number
@@ -252,7 +252,6 @@ export interface Database {
           order_id: string
           order_code: string
           total: number
-          whatsapp_message: string | null
         }[]
       }
     }
@@ -262,6 +261,7 @@ export interface Database {
 }
 
 export type CategoryRow = Database['public']['Tables']['categories']['Row']
+export type AdminUserRow = Database['public']['Tables']['admin_users']['Row']
 export type ProductRow = Database['public']['Tables']['products']['Row']
 export type ProductImageRow = Database['public']['Tables']['product_images']['Row']
 export type OrderRow = Database['public']['Tables']['orders']['Row']

@@ -1,5 +1,6 @@
 import { ArrowRight } from 'lucide-react'
 import { Link } from 'react-router-dom'
+import { Button } from '@/components/ui/Button'
 import { buttonStyles } from '@/components/ui/buttonStyles'
 import { Card } from '@/components/ui/Card'
 import { formatCurrency } from '@/lib/formatters'
@@ -8,9 +9,14 @@ import { cn } from '@/lib/cn'
 interface CartSummaryProps {
   itemCount: number
   total: number
+  onClearCart: () => void
 }
 
-export function CartSummary({ itemCount, total }: CartSummaryProps) {
+export function CartSummary({
+  itemCount,
+  total,
+  onClearCart,
+}: CartSummaryProps) {
   return (
     <Card className="space-y-5">
       <div className="space-y-1">
@@ -51,6 +57,10 @@ export function CartSummary({ itemCount, total }: CartSummaryProps) {
         Continuar al checkout
         <ArrowRight className="h-4 w-4" />
       </Link>
+
+      <Button type="button" variant="ghost" className="w-full" onClick={onClearCart}>
+        Vaciar carrito
+      </Button>
     </Card>
   )
 }

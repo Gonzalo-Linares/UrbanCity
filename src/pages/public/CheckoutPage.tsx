@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { MessageCircle, ShieldCheck, ShoppingBag } from 'lucide-react'
 import { useForm } from 'react-hook-form'
@@ -21,15 +21,69 @@ import { checkoutSchema, type CheckoutSchema } from '@/schemas/checkout'
 import { useCartStore } from '@/store/cartStore'
 import type { GeneratedOrderDraft } from '@/types/store'
 
+const checkoutDraftStorageKey = 'urbancity-checkout-draft'
+
+interface PersistedCheckoutDraft extends GeneratedOrderDraft {
+  cartFingerprint: string
+}
+
+function buildCartFingerprint(
+  items: ReturnType<typeof useCartStore.getState>['items'],
+) {
+  return items
+    .map((item) => `${item.productId}:${item.quantity}`)
+    .sort()
+    .join('|')
+}
+
+function readPersistedDraft(cartFingerprint: string) {
+  if (typeof window === 'undefined') {
+    return null
+  }
+
+  if (!cartFingerprint) {
+    window.localStorage.removeItem(checkoutDraftStorageKey)
+    return null
+  }
+
+  const storedDraft = window.localStorage.getItem(checkoutDraftStorageKey)
+
+  if (!storedDraft) {
+    return null
+  }
+
+  try {
+    const parsedDraft = JSON.parse(storedDraft) as PersistedCheckoutDraft
+
+    if (parsedDraft.cartFingerprint !== cartFingerprint) {
+      window.localStorage.removeItem(checkoutDraftStorageKey)
+      return null
+    }
+
+    return parsedDraft
+  } catch {
+    window.localStorage.removeItem(checkoutDraftStorageKey)
+    return null
+  }
+}
+
 export function CheckoutPage() {
   const items = useCartStore((state) => state.items)
   const { storeSettings } = useStorefrontData()
-  const [draft, setDraft] = useState<GeneratedOrderDraft | null>(null)
+  const [draftState, setDraftState] = useState<PersistedCheckoutDraft | null>(null)
   const [submitError, setSubmitError] = useState<string | null>(null)
   const total = items.reduce(
     (subtotal, item) => subtotal + item.price * item.quantity,
     0,
   )
+  const hasWhatsApp = Boolean(storeSettings.whatsapp_phone)
+  const cartFingerprint = buildCartFingerprint(items)
+  const persistedDraft = useMemo(
+    () => readPersistedDraft(cartFingerprint),
+    [cartFingerprint],
+  )
+  const draft =
+    draftState?.cartFingerprint === cartFingerprint ? draftState : persistedDraft
 
   const form = useForm<CheckoutSchema>({
     resolver: zodResolver(checkoutSchema),
@@ -44,7 +98,7 @@ export function CheckoutPage() {
     return (
       <EmptyState
         title="No hay productos para enviar"
-        description="Agregá al menos un producto al carrito antes de pasar al checkout."
+        description="Agrega al menos un producto al carrito antes de pasar al checkout."
         action={
           <Link to="/catalogo" className="text-sm font-medium text-brand-strong">
             Ver catalogo
@@ -55,30 +109,24 @@ export function CheckoutPage() {
   }
 
   async function handleSubmit(values: CheckoutSchema) {
+    if (draft || !hasWhatsApp) {
+      return
+    }
+
     setSubmitError(null)
 
     const orderCode = generateOrderCode()
+    let finalOrderCode = orderCode
     let finalTotal = total
-    let whatsappMessage = buildWhatsAppMessage({
-      orderCode,
-      storeName: storeSettings.store_name,
-      customerName: values.customerName,
-      customerPhone: values.customerPhone,
-      customerMessage: values.customerMessage ?? '',
-      checkoutMessage: storeSettings.checkout_message,
-      items,
-      total,
-    })
 
     if (isSupabaseConfigured && supabase) {
-      const { data, error } = await supabase.rpc(
+      const { data, error: rpcError } = await supabase.rpc(
         'create_order_with_items',
         {
           p_order_code: orderCode,
           p_customer_name: values.customerName,
           p_customer_phone: values.customerPhone,
           p_customer_message: values.customerMessage || null,
-          p_whatsapp_message: whatsappMessage,
           p_items: items.map((item) => ({
             product_id: item.productId,
             quantity: item.quantity,
@@ -86,9 +134,9 @@ export function CheckoutPage() {
         } as never,
       )
 
-      if (error) {
+      if (rpcError) {
         setSubmitError(
-          'No se pudo guardar el pedido en Supabase. Revisá la RPC create_order_with_items y las politicas RLS.',
+          'No se pudo guardar el pedido en Supabase. Revisa la RPC create_order_with_items.',
         )
         return
       }
@@ -99,24 +147,34 @@ export function CheckoutPage() {
               order_id: string
               order_code: string
               total: number
-              whatsapp_message: string | null
             }[]
           | null
       )?.[0]
 
       if (!savedOrder) {
         setSubmitError(
-          'Supabase no devolvio confirmacion del pedido. Reintentá la operacion.',
+          'Supabase no devolvio confirmacion del pedido. Reintenta la operacion.',
         )
         return
       }
 
+      finalOrderCode = savedOrder.order_code || orderCode
       finalTotal = Number(savedOrder.total)
-      whatsappMessage = savedOrder.whatsapp_message ?? whatsappMessage
     }
 
-    setDraft({
-      orderCode,
+    const whatsappMessage = buildWhatsAppMessage({
+      orderCode: finalOrderCode,
+      storeName: storeSettings.store_name,
+      customerName: values.customerName,
+      customerPhone: values.customerPhone,
+      customerMessage: values.customerMessage ?? '',
+      checkoutMessage: storeSettings.checkout_message,
+      items,
+      total: finalTotal,
+    })
+
+    const nextDraft: PersistedCheckoutDraft = {
+      orderCode: finalOrderCode,
       customerName: values.customerName,
       customerPhone: values.customerPhone,
       customerMessage: values.customerMessage ?? '',
@@ -128,7 +186,14 @@ export function CheckoutPage() {
       total: finalTotal,
       status: 'pending',
       createdAt: new Date().toISOString(),
-    })
+      cartFingerprint,
+    }
+
+    setDraftState(nextDraft)
+    window.localStorage.setItem(
+      checkoutDraftStorageKey,
+      JSON.stringify(nextDraft),
+    )
   }
 
   return (
@@ -136,13 +201,19 @@ export function CheckoutPage() {
       <section className="surface-panel p-6 sm:p-8 lg:p-10">
         <SectionTitle
           eyebrow="Checkout"
-          title="Dejá tus datos y generá el pedido para WhatsApp."
+          title="Deja tus datos y genera el pedido para WhatsApp."
           description="La orden queda pendiente de confirmacion. El comercio valida disponibilidad, retiro y pago manualmente."
         />
       </section>
 
       <div className="grid gap-6 lg:grid-cols-[1fr_360px] lg:items-start">
         <Card className="space-y-6">
+          {!hasWhatsApp ? (
+            <div className="rounded-[22px] border border-rose-500/15 bg-rose-500/8 px-4 py-3 text-sm text-rose-700">
+              Falta configurar `store_settings.whatsapp_phone` en Supabase.
+            </div>
+          ) : null}
+
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="rounded-[24px] border border-stone-900/8 bg-white p-4">
               <p className="text-xs uppercase tracking-[0.22em] text-muted">
@@ -196,12 +267,16 @@ export function CheckoutPage() {
               variant="secondary"
               size="lg"
               className="w-full sm:w-auto"
-              disabled={form.formState.isSubmitting}
+              disabled={
+                form.formState.isSubmitting || Boolean(draft) || !hasWhatsApp
+              }
             >
               <MessageCircle className="h-4 w-4" />
-              {form.formState.isSubmitting
-                ? 'Generando pedido...'
-                : 'Generar pedido para WhatsApp'}
+              {draft
+                ? 'Pedido ya generado'
+                : form.formState.isSubmitting
+                  ? 'Generando pedido...'
+                  : 'Generar pedido para WhatsApp'}
             </Button>
           </form>
 

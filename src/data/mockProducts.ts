@@ -5,19 +5,20 @@ import type {
   StoreSettingsRow,
 } from '@/types/database'
 
-const createdAt = '2026-05-07T18:00:00.000Z'
+const createdAt = '2026-05-08T00:00:00.000Z'
+
 const categoryIds = {
   gifts: '1aabf95e-f18d-418a-aedb-d44f6d04f001',
   home: '1aabf95e-f18d-418a-aedb-d44f6d04f002',
   desk: '1aabf95e-f18d-418a-aedb-d44f6d04f003',
 }
 
-export const demoStoreSettings: StoreSettingsRow = {
+export const mockStoreSettings: StoreSettingsRow = {
   id: 'ce8a2b1f-74df-43ef-95d4-8f4d50ac1110',
   store_name: 'UrbanCity Atelier',
   whatsapp_phone: '5491123456789',
   instagram_url: 'https://instagram.com/urbancity.atelier',
-  address: 'Av. Directorio 1420, Caballito, Buenos Aires',
+  address: 'Peatonal San Juan',
   opening_hours: 'Lunes a sabados de 10:00 a 19:30',
   checkout_message:
     'La disponibilidad final y el pago se coordinan por WhatsApp.',
@@ -25,12 +26,12 @@ export const demoStoreSettings: StoreSettingsRow = {
   updated_at: createdAt,
 }
 
-export const demoCategories: CategoryRow[] = [
+export const mockCategories: CategoryRow[] = [
   {
     id: categoryIds.gifts,
     name: 'Regalos',
     slug: 'regalos',
-    description: 'Selecciones listas para regalar o resolver compras rapidas.',
+    description: 'Selecciones simples para regalos y compras rapidas.',
     is_active: true,
     created_at: createdAt,
   },
@@ -38,7 +39,7 @@ export const demoCategories: CategoryRow[] = [
     id: categoryIds.home,
     name: 'Hogar',
     slug: 'hogar',
-    description: 'Piezas calidas para sumar estilo a espacios cotidianos.',
+    description: 'Objetos calidos para sumar presencia a espacios cotidianos.',
     is_active: true,
     created_at: createdAt,
   },
@@ -46,13 +47,13 @@ export const demoCategories: CategoryRow[] = [
     id: categoryIds.desk,
     name: 'Escritorio',
     slug: 'escritorio',
-    description: 'Objetos funcionales con terminacion cuidada.',
+    description: 'Piezas funcionales con terminacion prolija.',
     is_active: true,
     created_at: createdAt,
   },
 ]
 
-export const demoProducts: ProductRow[] = [
+export const mockProducts: ProductRow[] = [
   {
     id: '5c77f34a-cbc0-48fd-b57e-6b61f2a0d001',
     category_id: categoryIds.gifts,
@@ -87,7 +88,7 @@ export const demoProducts: ProductRow[] = [
     name: 'Cuaderno Grain A5',
     slug: 'cuaderno-grain-a5',
     description:
-      'Cuaderno de tapa texturada y hojas lisas. Una opcion prolija para notas y regalos corporativos.',
+      'Cuaderno de tapa texturada y hojas lisas. Una opcion prolija para notas y regalos.',
     price: 12800,
     availability: 'available',
     is_active: true,
@@ -139,4 +140,4 @@ export const demoProducts: ProductRow[] = [
   },
 ]
 
-export const demoProductImages: ProductImageRow[] = []
+export const mockProductImages: ProductImageRow[] = []

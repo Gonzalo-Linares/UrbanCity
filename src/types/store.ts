@@ -45,5 +45,5 @@ export interface StorefrontState {
   categories: CategoryRow[]
   products: StorefrontProduct[]
   storeSettings: StoreSettingsRow
-  source: 'demo' | 'supabase'
+  source: 'mock' | 'supabase'
 }

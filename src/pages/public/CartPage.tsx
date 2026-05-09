@@ -7,6 +7,7 @@ import { useCartStore } from '@/store/cartStore'
 
 export function CartPage() {
   const items = useCartStore((state) => state.items)
+  const clearCart = useCartStore((state) => state.clearCart)
   const itemCount = items.reduce((total, item) => total + item.quantity, 0)
   const total = items.reduce(
     (subtotal, item) => subtotal + item.price * item.quantity,
@@ -44,7 +45,11 @@ export function CartPage() {
           ))}
         </div>
         <div className="lg:sticky lg:top-28">
-          <CartSummary itemCount={itemCount} total={total} />
+          <CartSummary
+            itemCount={itemCount}
+            total={total}
+            onClearCart={clearCart}
+          />
         </div>
       </div>
     </div>

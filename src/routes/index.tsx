@@ -1,7 +1,12 @@
 import { createBrowserRouter } from 'react-router-dom'
+import { AdminLayout } from '@/components/admin/AdminLayout'
+import { AdminCategoriesPage } from '@/pages/admin/AdminCategoriesPage'
 import { PublicLayout } from '@/components/layout/PublicLayout'
 import { AdminDashboardPage } from '@/pages/admin/AdminDashboardPage'
 import { AdminLoginPage } from '@/pages/admin/AdminLoginPage'
+import { AdminOrdersPage } from '@/pages/admin/AdminOrdersPage'
+import { AdminProductsPage } from '@/pages/admin/AdminProductsPage'
+import { AdminSettingsPage } from '@/pages/admin/AdminSettingsPage'
 import { CartPage } from '@/pages/public/CartPage'
 import { CatalogPage } from '@/pages/public/CatalogPage'
 import { CheckoutPage } from '@/pages/public/CheckoutPage'
@@ -11,6 +16,36 @@ import { NotFoundPage } from '@/pages/public/NotFoundPage'
 import { ProductDetailPage } from '@/pages/public/ProductDetailPage'
 
 export const router = createBrowserRouter([
+  {
+    path: '/admin/login',
+    element: <AdminLoginPage />,
+  },
+  {
+    path: '/admin',
+    element: <AdminLayout />,
+    children: [
+      {
+        index: true,
+        element: <AdminDashboardPage />,
+      },
+      {
+        path: 'productos',
+        element: <AdminProductsPage />,
+      },
+      {
+        path: 'categorias',
+        element: <AdminCategoriesPage />,
+      },
+      {
+        path: 'pedidos',
+        element: <AdminOrdersPage />,
+      },
+      {
+        path: 'configuracion',
+        element: <AdminSettingsPage />,
+      },
+    ],
+  },
   {
     path: '/',
     element: <PublicLayout />,
@@ -40,14 +75,6 @@ export const router = createBrowserRouter([
         element: <ContactPage />,
       },
     ],
-  },
-  {
-    path: '/admin/login',
-    element: <AdminLoginPage />,
-  },
-  {
-    path: '/admin',
-    element: <AdminDashboardPage />,
   },
   {
     path: '*',

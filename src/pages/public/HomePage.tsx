@@ -9,7 +9,8 @@ import { useStorefrontData } from '@/hooks/useStorefrontData'
 import { buildWhatsAppUrl } from '@/lib/whatsapp'
 
 export function HomePage() {
-  const { products, storeSettings, loading, error } = useStorefrontData()
+  const { products, storeSettings, loading } = useStorefrontData()
+  const hasWhatsApp = Boolean(storeSettings.whatsapp_phone)
 
   if (loading) {
     return <LoadingState label="Preparando el storefront..." />
@@ -41,18 +42,20 @@ export function HomePage() {
                 Ver catalogo
                 <ArrowRight className="h-4 w-4" />
               </Link>
-              <a
-                href={buildWhatsAppUrl(
-                  storeSettings.whatsapp_phone,
-                  'Hola, quiero consultar productos del catalogo.',
-                )}
-                target="_blank"
-                rel="noreferrer"
-                className={buttonStyles({ variant: 'whatsapp', size: 'lg' })}
-              >
-                <MessageCircle className="h-4 w-4" />
-                Consultar por WhatsApp
-              </a>
+              {hasWhatsApp ? (
+                <a
+                  href={buildWhatsAppUrl(
+                    storeSettings.whatsapp_phone,
+                    'Hola, quiero consultar productos del catalogo.',
+                  )}
+                  target="_blank"
+                  rel="noreferrer"
+                  className={buttonStyles({ variant: 'whatsapp', size: 'lg' })}
+                >
+                  <MessageCircle className="h-4 w-4" />
+                  Consultar por WhatsApp
+                </a>
+              ) : null}
             </div>
 
             <div className="grid gap-3 sm:grid-cols-3">
@@ -124,12 +127,6 @@ export function HomePage() {
         </div>
       </section>
 
-      {error ? (
-        <div className="rounded-[24px] border border-amber-500/15 bg-amber-500/10 px-5 py-4 text-sm text-amber-900">
-          {error}
-        </div>
-      ) : null}
-
       <section className="space-y-6">
         <SectionTitle
           eyebrow="Destacados"
@@ -190,18 +187,20 @@ export function HomePage() {
             </p>
           </div>
           <div className="flex flex-wrap gap-3">
-            <a
-              href={buildWhatsAppUrl(
-                storeSettings.whatsapp_phone,
-                'Hola, quiero asesoramiento para elegir un producto.',
-              )}
-              target="_blank"
-              rel="noreferrer"
-              className={buttonStyles({ variant: 'whatsapp' })}
-            >
-              <MessageCircle className="h-4 w-4" />
-              Abrir WhatsApp
-            </a>
+            {hasWhatsApp ? (
+              <a
+                href={buildWhatsAppUrl(
+                  storeSettings.whatsapp_phone,
+                  'Hola, quiero asesoramiento para elegir un producto.',
+                )}
+                target="_blank"
+                rel="noreferrer"
+                className={buttonStyles({ variant: 'whatsapp' })}
+              >
+                <MessageCircle className="h-4 w-4" />
+                Abrir WhatsApp
+              </a>
+            ) : null}
             {storeSettings.instagram_url ? (
               <a
                 href={storeSettings.instagram_url}

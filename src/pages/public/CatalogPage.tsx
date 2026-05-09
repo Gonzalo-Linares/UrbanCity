@@ -9,7 +9,7 @@ import { SectionTitle } from '@/components/ui/SectionTitle'
 import { useStorefrontData } from '@/hooks/useStorefrontData'
 
 export function CatalogPage() {
-  const { categories, products, loading, error } = useStorefrontData()
+  const { categories, products, loading } = useStorefrontData()
   const [searchValue, setSearchValue] = useState('')
   const [selectedCategory, setSelectedCategory] = useState('all')
   const deferredSearch = useDeferredValue(searchValue)
@@ -39,12 +39,6 @@ export function CatalogPage() {
           description="Buscador simple, filtros por categoria y estados de disponibilidad legibles para que el cliente resuelva rapido."
         />
       </section>
-
-      {error ? (
-        <div className="rounded-[24px] border border-amber-500/15 bg-amber-500/10 px-5 py-4 text-sm text-amber-900">
-          {error}
-        </div>
-      ) : null}
 
       <ProductFilters
         categories={categories}

@@ -7,6 +7,7 @@ import { buildWhatsAppUrl } from '@/lib/whatsapp'
 
 export function ContactPage() {
   const { storeSettings } = useStorefrontData()
+  const hasWhatsApp = Boolean(storeSettings.whatsapp_phone)
 
   return (
     <div className="space-y-8">
@@ -69,18 +70,20 @@ export function ContactPage() {
         </div>
 
         <div className="flex flex-wrap gap-3">
-          <a
-            href={buildWhatsAppUrl(
-              storeSettings.whatsapp_phone,
-              'Hola, quiero consultar disponibilidad y formas de retiro.',
-            )}
-            target="_blank"
-            rel="noreferrer"
-            className={buttonStyles({ variant: 'whatsapp' })}
-          >
-            <MessageCircle className="h-4 w-4" />
-            Abrir WhatsApp
-          </a>
+          {hasWhatsApp ? (
+            <a
+              href={buildWhatsAppUrl(
+                storeSettings.whatsapp_phone,
+                'Hola, quiero consultar disponibilidad y formas de retiro.',
+              )}
+              target="_blank"
+              rel="noreferrer"
+              className={buttonStyles({ variant: 'whatsapp' })}
+            >
+              <MessageCircle className="h-4 w-4" />
+              Abrir WhatsApp
+            </a>
+          ) : null}
           {storeSettings.instagram_url ? (
             <a
               href={storeSettings.instagram_url}

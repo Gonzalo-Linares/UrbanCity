@@ -7,6 +7,11 @@ const currencyFormatter = new Intl.NumberFormat('es-AR', {
   maximumFractionDigits: 2,
 })
 
+const dateTimeFormatter = new Intl.DateTimeFormat('es-AR', {
+  dateStyle: 'medium',
+  timeStyle: 'short',
+})
+
 export function formatCurrency(value: number) {
   return currencyFormatter.format(value)
 }
@@ -41,4 +46,8 @@ export function formatOrderStatus(status: OrderStatus) {
     default:
       return 'Pendiente'
   }
+}
+
+export function formatDateTime(value: string) {
+  return dateTimeFormatter.format(new Date(value))
 }

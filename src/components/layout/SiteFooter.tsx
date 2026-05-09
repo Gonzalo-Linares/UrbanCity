@@ -5,6 +5,7 @@ import { buildWhatsAppUrl } from '@/lib/whatsapp'
 
 export function SiteFooter() {
   const { storeSettings } = useStorefrontData()
+  const hasWhatsApp = Boolean(storeSettings.whatsapp_phone)
 
   return (
     <footer className="mt-12 border-t border-stone-900/8 bg-white/55">
@@ -31,17 +32,21 @@ export function SiteFooter() {
             </div>
             <div className="flex items-start gap-3 rounded-2xl border border-stone-900/8 bg-white/75 p-4">
               <MessageCircle className="mt-0.5 h-4 w-4 text-brand" />
-              <a
-                href={buildWhatsAppUrl(
-                  storeSettings.whatsapp_phone,
-                  'Hola, quiero hacer una consulta.',
-                )}
-                target="_blank"
-                rel="noreferrer"
-                className="hover:text-stone-950"
-              >
-                WhatsApp directo
-              </a>
+              {hasWhatsApp ? (
+                <a
+                  href={buildWhatsAppUrl(
+                    storeSettings.whatsapp_phone,
+                    'Hola, quiero hacer una consulta.',
+                  )}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="hover:text-stone-950"
+                >
+                  WhatsApp directo
+                </a>
+              ) : (
+                <span>WhatsApp pendiente de configurar</span>
+              )}
             </div>
           </div>
         </div>

@@ -17,15 +17,10 @@ export function normalizeWhatsAppPhone(phone: string) {
 }
 
 export function generateOrderCode() {
-  const now = new Date()
-  const datePart = [
-    now.getFullYear().toString().slice(-2),
-    `${now.getMonth() + 1}`.padStart(2, '0'),
-    `${now.getDate()}`.padStart(2, '0'),
-  ].join('')
-  const randomPart = Math.random().toString(36).slice(2, 6).toUpperCase()
-
-  return `UC-${datePart}-${randomPart}`
+  const randomBuffer = new Uint16Array(1)
+  globalThis.crypto.getRandomValues(randomBuffer)
+  const randomPart = String((randomBuffer.at(0) ?? 0) % 10000).padStart(4, '0')
+  return `PED-${randomPart}`
 }
 
 export function buildWhatsAppMessage({
@@ -51,7 +46,7 @@ export function buildWhatsAppMessage({
         `- ${item.name} x${item.quantity} | ${formatCurrency(item.price * item.quantity)}`,
     ),
     '',
-    `Total estimado: ${formatCurrency(total)}`,
+    `Total del pedido: ${formatCurrency(total)}`,
     'Estado inicial: pendiente de confirmacion',
   ]
 

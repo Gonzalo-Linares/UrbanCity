@@ -14,6 +14,7 @@ const navLinks = [
 
 export function SiteHeader() {
   const { storeSettings } = useStorefrontData()
+  const hasWhatsApp = Boolean(storeSettings.whatsapp_phone)
   const itemCount = useCartStore((state) =>
     state.items.reduce((total, item) => total + item.quantity, 0),
   )
@@ -21,14 +22,11 @@ export function SiteHeader() {
   return (
     <header className="sticky top-0 z-10 border-b border-stone-900/8 bg-white/72 backdrop-blur-xl">
       <div className="border-b border-stone-900/6">
-        <div className="shell-container flex min-h-10 items-center justify-between gap-3 text-xs text-muted">
+        <div className="shell-container flex min-h-10 items-center gap-3 text-xs text-muted">
           <p className="truncate">
             Pedidos por WhatsApp. Pago manual y disponibilidad confirmada por el
             comercio.
           </p>
-          <Link to="/admin/login" className="hidden sm:inline hover:text-stone-950">
-            Acceso admin
-          </Link>
         </div>
       </div>
 
@@ -41,7 +39,7 @@ export function SiteHeader() {
               </div>
               <div className="min-w-0">
                 <p className="truncate text-lg font-semibold tracking-[-0.03em] text-stone-950">
-                  {storeSettings.store_name}
+                  {storeSettings.store_name || 'UrbanCity'}
                 </p>
                 <p className="truncate text-xs text-muted">
                   Curaduria simple para compras rapidas
@@ -95,18 +93,20 @@ export function SiteHeader() {
                 Instagram
               </a>
             ) : null}
-            <a
-              href={buildWhatsAppUrl(
-                storeSettings.whatsapp_phone,
-                'Hola, quiero hacer una consulta sobre un producto.',
-              )}
-              target="_blank"
-              rel="noreferrer"
-              className={buttonStyles({ variant: 'whatsapp', size: 'sm' })}
-            >
-              <MessageCircle className="h-4 w-4" />
-              WhatsApp
-            </a>
+            {hasWhatsApp ? (
+              <a
+                href={buildWhatsAppUrl(
+                  storeSettings.whatsapp_phone,
+                  'Hola, quiero hacer una consulta sobre un producto.',
+                )}
+                target="_blank"
+                rel="noreferrer"
+                className={buttonStyles({ variant: 'whatsapp', size: 'sm' })}
+              >
+                <MessageCircle className="h-4 w-4" />
+                WhatsApp
+              </a>
+            ) : null}
             <Link
               to="/carrito"
               className={cn(

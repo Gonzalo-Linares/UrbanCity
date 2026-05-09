@@ -6,11 +6,11 @@ import {
   type PropsWithChildren,
 } from 'react'
 import {
-  demoCategories,
-  demoProductImages,
-  demoProducts,
-  demoStoreSettings,
-} from '@/data/demoStorefront'
+  mockCategories,
+  mockProductImages,
+  mockProducts,
+  mockStoreSettings,
+} from '@/data/mockProducts'
 import { isSupabaseConfigured, supabase } from '@/lib/supabase'
 import type {
   CategoryRow,
@@ -24,12 +24,24 @@ interface StorefrontContextValue {
   categories: CategoryRow[]
   products: StorefrontProduct[]
   storeSettings: StoreSettingsRow
-  source: 'demo' | 'supabase'
+  source: 'mock' | 'supabase'
   loading: boolean
   error: string | null
 }
 
 const StorefrontContext = createContext<StorefrontContextValue | null>(null)
+
+const emptyStoreSettings: StoreSettingsRow = {
+  id: '',
+  store_name: 'UrbanCity',
+  whatsapp_phone: '',
+  instagram_url: null,
+  address: null,
+  opening_hours: null,
+  checkout_message: null,
+  created_at: '',
+  updated_at: '',
+}
 
 function hydrateProducts(
   products: ProductRow[],
@@ -41,7 +53,8 @@ function hydrateProducts(
 
     return {
       ...product,
-      category: categories.find((category) => category.id === product.category_id) ?? null,
+      category:
+        categories.find((category) => category.id === product.category_id) ?? null,
       images: productImages,
       primaryImage: productImages[0] ?? null,
     }
@@ -50,11 +63,13 @@ function hydrateProducts(
 
 export function StorefrontDataProvider({ children }: PropsWithChildren) {
   const [value, setValue] = useState<StorefrontContextValue>({
-    categories: [],
-    products: [],
-    storeSettings: demoStoreSettings,
-    source: 'demo',
-    loading: true,
+    categories: isSupabaseConfigured ? [] : mockCategories,
+    products: isSupabaseConfigured
+      ? []
+      : hydrateProducts(mockProducts, mockCategories, mockProductImages),
+    storeSettings: isSupabaseConfigured ? emptyStoreSettings : mockStoreSettings,
+    source: isSupabaseConfigured ? 'supabase' : 'mock',
+    loading: isSupabaseConfigured,
     error: null,
   })
 
@@ -65,14 +80,14 @@ export function StorefrontDataProvider({ children }: PropsWithChildren) {
       if (!isSupabaseConfigured || !supabase) {
         if (!ignore) {
           setValue({
-            categories: demoCategories,
+            categories: mockCategories,
             products: hydrateProducts(
-              demoProducts,
-              demoCategories,
-              demoProductImages,
+              mockProducts,
+              mockCategories,
+              mockProductImages,
             ),
-            storeSettings: demoStoreSettings,
-            source: 'demo',
+            storeSettings: mockStoreSettings,
+            source: 'mock',
             loading: false,
             error: null,
           })
@@ -106,21 +121,18 @@ export function StorefrontDataProvider({ children }: PropsWithChildren) {
         return
       }
 
-      const error =
-        categoriesResult.error ??
-        productsResult.error ??
-        imagesResult.error ??
-        settingsResult.error
+      const loadError =
+        categoriesResult.error ?? productsResult.error ?? imagesResult.error
 
-      if (error) {
+      if (loadError) {
         setValue({
           categories: [],
           products: [],
-          storeSettings: demoStoreSettings,
+          storeSettings: emptyStoreSettings,
           source: 'supabase',
           loading: false,
           error:
-            'No se pudieron cargar los datos del storefront. Revisá la configuracion de Supabase y las politicas RLS.',
+            'No se pudieron cargar los datos del storefront desde Supabase.',
         })
         return
       }
@@ -128,12 +140,25 @@ export function StorefrontDataProvider({ children }: PropsWithChildren) {
       const categories = categoriesResult.data ?? []
       const products = productsResult.data ?? []
       const images = imagesResult.data ?? []
-      const storeSettings = settingsResult.data ?? demoStoreSettings
+      const hydratedProducts = hydrateProducts(products, categories, images)
+
+      if (settingsResult.error || !settingsResult.data) {
+        setValue({
+          categories,
+          products: hydratedProducts,
+          storeSettings: emptyStoreSettings,
+          source: 'supabase',
+          loading: false,
+          error:
+            'Supabase esta configurado pero falta una fila valida en store_settings.',
+        })
+        return
+      }
 
       setValue({
         categories,
-        products: hydrateProducts(products, categories, images),
-        storeSettings,
+        products: hydratedProducts,
+        storeSettings: settingsResult.data,
         source: 'supabase',
         loading: false,
         error: null,
