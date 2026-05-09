@@ -256,7 +256,6 @@ Para una salida online controlada con Supabase y Cloudflare Pages:
 
 - [Demo Precheck](DEMO_PRECHECK.md)
 - [Supabase Setup](SUPABASE_SETUP.md)
-
 ## Proximo paso recomendado
 
 El siguiente paso sano es pulir los flujos admin restantes y reforzar detalles operativos, manteniendo la logica de checkout sin pagos online ni usuarios compradores.
