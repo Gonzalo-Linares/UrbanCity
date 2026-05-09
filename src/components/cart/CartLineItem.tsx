@@ -25,7 +25,7 @@ export function CartLineItem({ item }: { item: CartItem }) {
   const removeItem = useCartStore((state) => state.removeItem)
 
   return (
-    <div className="surface-card grid gap-4 border border-black/10 p-4 sm:grid-cols-[130px_1fr] sm:p-5">
+    <div className="grid gap-4 rounded-[28px] border border-white/10 bg-[#151515] p-4 shadow-[0_24px_54px_rgba(0,0,0,0.26)] sm:grid-cols-[130px_1fr] sm:p-5">
       <Link to={`/catalogo/${item.slug}`}>
         <ProductVisual
           seed={item.slug}
@@ -40,7 +40,7 @@ export function CartLineItem({ item }: { item: CartItem }) {
           <div className="space-y-2">
             <Link
               to={`/catalogo/${item.slug}`}
-              className="text-xl font-semibold tracking-[-0.03em] text-stone-950"
+              className="text-xl font-semibold tracking-[-0.03em] text-white"
             >
               {item.name}
             </Link>
@@ -48,33 +48,33 @@ export function CartLineItem({ item }: { item: CartItem }) {
               <StatusBadge tone={availabilityTone(item)}>
                 {formatAvailabilityLabel(item.availability)}
               </StatusBadge>
-              <span className="rounded-full bg-black/6 px-3 py-1 text-xs font-medium text-stone-700">
+              <span className="rounded-full border border-white/10 bg-[#101010] px-3 py-1 text-xs font-medium text-white/70">
                 {formatCurrency(item.price)} c/u
               </span>
             </div>
           </div>
 
-          <p className="text-2xl font-semibold tracking-[-0.03em] text-stone-950">
+          <p className="text-2xl font-semibold tracking-[-0.03em] text-white">
             {formatCurrency(item.price * item.quantity)}
           </p>
         </div>
 
         <div className="flex flex-wrap items-center justify-between gap-3">
-          <div className="inline-flex items-center gap-2 rounded-full border border-black/10 bg-white px-2 py-2">
+          <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-[#101010] px-2 py-2">
             <button
               type="button"
-              className="flex h-9 w-9 items-center justify-center rounded-full text-stone-700 hover:bg-black/6"
+              className="flex h-9 w-9 items-center justify-center rounded-full text-white/76 hover:bg-white/8"
               onClick={() => updateQuantity(item.productId, item.quantity - 1)}
               aria-label={`Restar una unidad de ${item.name}`}
             >
               <Minus className="h-4 w-4" />
             </button>
-            <span className="min-w-7 text-center text-sm font-semibold text-stone-950">
+            <span className="min-w-7 text-center text-sm font-semibold text-white">
               {item.quantity}
             </span>
             <button
               type="button"
-              className="flex h-9 w-9 items-center justify-center rounded-full text-stone-700 hover:bg-black/6"
+              className="flex h-9 w-9 items-center justify-center rounded-full text-white/76 hover:bg-white/8"
               onClick={() => updateQuantity(item.productId, item.quantity + 1)}
               aria-label={`Sumar una unidad de ${item.name}`}
             >
@@ -85,6 +85,7 @@ export function CartLineItem({ item }: { item: CartItem }) {
           <Button
             type="button"
             variant="ghost"
+            className="text-white/72 hover:bg-white/8 hover:text-white"
             onClick={() => removeItem(item.productId)}
           >
             <Trash2 className="h-4 w-4" />

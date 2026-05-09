@@ -18,15 +18,15 @@ export function CartSummary({
   onClearCart,
 }: CartSummaryProps) {
   return (
-    <Card className="space-y-5 border border-black/10">
+    <Card className="space-y-5 border border-white/10 bg-[#151515]">
       <div className="space-y-1">
         <p className="eyebrow">Resumen</p>
-        <h2 className="text-2xl font-semibold tracking-[-0.03em] text-stone-950">
+        <h2 className="text-2xl font-semibold tracking-[-0.03em] text-white">
           Total estimado
         </h2>
       </div>
 
-      <div className="grid gap-3 rounded-[24px] border border-white/10 bg-[#111111] p-5 text-white">
+      <div className="grid gap-3 rounded-[24px] border border-white/10 bg-[#101010] p-5 text-white">
         <div className="flex items-center justify-between text-sm text-white/70">
           <span>Productos</span>
           <span>{itemCount}</span>
@@ -44,10 +44,10 @@ export function CartSummary({
         </div>
       </div>
 
-      <div className="space-y-2 rounded-2xl border border-brand-strong/18 bg-brand-soft p-4 text-sm leading-6 text-stone-800">
+      <div className="space-y-2 rounded-2xl border border-brand-strong/16 bg-brand-soft p-4 text-sm leading-6 text-white/82">
         <p>Pedido pendiente de confirmacion.</p>
         <p>El pago se coordina con el comercio.</p>
-        <p>La disponibilidad sera confirmada por WhatsApp.</p>
+        <p>La disponibilidad se confirma por WhatsApp.</p>
       </div>
 
       <Link
@@ -58,7 +58,12 @@ export function CartSummary({
         <ArrowRight className="h-4 w-4" />
       </Link>
 
-      <Button type="button" variant="ghost" className="w-full" onClick={onClearCart}>
+      <Button
+        type="button"
+        variant="ghost"
+        className="w-full text-white/72 hover:bg-white/8 hover:text-white"
+        onClick={onClearCart}
+      >
         Vaciar carrito
       </Button>
     </Card>

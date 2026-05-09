@@ -20,7 +20,7 @@ function availabilityTone(availability: StorefrontProduct['availability']) {
 
 export function ProductCard({ product }: { product: StorefrontProduct }) {
   return (
-    <article className="surface-card group overflow-hidden border border-black/10 p-3 transition hover:-translate-y-0.5 hover:shadow-[0_24px_44px_rgba(0,0,0,0.18)]">
+    <article className="surface-card group overflow-hidden border border-black/8 p-2.5 transition hover:-translate-y-0.5 hover:shadow-[0_20px_36px_rgba(0,0,0,0.16)]">
       <Link to={`/catalogo/${product.slug}`} className="block">
         <ProductVisual
           seed={product.slug}
@@ -31,7 +31,7 @@ export function ProductCard({ product }: { product: StorefrontProduct }) {
         />
       </Link>
 
-      <div className="space-y-4 p-3 sm:p-4">
+      <div className="space-y-4 p-3 sm:p-3.5">
         <div className="flex items-start justify-between gap-3">
           <div className="space-y-1">
             <p className="text-xs uppercase tracking-[0.22em] text-[#506d00]">

@@ -20,19 +20,19 @@ export function ProductFilters({
   onCategoryChange,
 }: ProductFiltersProps) {
   return (
-    <div className="surface-card space-y-5 border border-black/10 p-5 sm:p-6">
+    <div className="space-y-5 rounded-[28px] border border-white/10 bg-[#151515] p-5 shadow-[0_24px_50px_rgba(0,0,0,0.26)] sm:p-6">
       <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
         <label className="relative block w-full max-w-xl">
-          <Search className="pointer-events-none absolute top-1/2 left-4 h-4 w-4 -translate-y-1/2 text-muted" />
+          <Search className="pointer-events-none absolute top-1/2 left-4 h-4 w-4 -translate-y-1/2 text-white/44" />
           <input
             value={searchValue}
             onChange={(event) => onSearchChange(event.target.value)}
             placeholder="Buscar por nombre o descripcion"
-            className="h-12 w-full rounded-2xl border border-black/10 bg-white pl-11 pr-4 text-sm text-stone-950 placeholder:text-muted/80 focus:border-brand-strong/60 focus:ring-4 focus:ring-brand-strong/12"
+            className="h-12 w-full rounded-2xl border border-white/10 bg-[#101010] pl-11 pr-4 text-sm text-white placeholder:text-white/38 focus:border-brand-strong/55 focus:ring-4 focus:ring-brand-strong/10"
           />
         </label>
 
-        <p className="text-sm text-stone-600">
+        <p className="text-sm text-white/68">
           {resultCount} producto{resultCount === 1 ? '' : 's'} visible
           {resultCount === 1 ? '' : 's'}
         </p>
@@ -45,7 +45,7 @@ export function ProductFilters({
             'rounded-full px-4 py-2 text-sm font-medium transition',
             selectedCategory === 'all'
               ? 'bg-brand-strong text-black'
-              : 'border border-black/10 bg-white text-stone-700 hover:border-black/18 hover:text-stone-950',
+              : 'border border-white/12 bg-white/6 text-white/78 hover:bg-white/10 hover:text-white',
           )}
           onClick={() => onCategoryChange('all')}
         >
@@ -59,7 +59,7 @@ export function ProductFilters({
               'rounded-full px-4 py-2 text-sm font-medium transition',
               selectedCategory === category.slug
                 ? 'bg-brand-strong text-black'
-                : 'border border-black/10 bg-white text-stone-700 hover:border-black/18 hover:text-stone-950',
+                : 'border border-white/12 bg-white/6 text-white/78 hover:bg-white/10 hover:text-white',
             )}
             onClick={() => onCategoryChange(category.slug)}
           >

@@ -28,13 +28,10 @@ export function HomePage() {
           <div className="space-y-6">
             <p className="eyebrow">Streetwear | Sneakers | WhatsApp</p>
             <div className="space-y-4">
-              <h1 className="page-title">
-                Calzado urbano listo para verse bien y vender rapido.
-              </h1>
+              <h1 className="page-title">Zapatillas urbanas para todos los dias.</h1>
               <p className="page-copy">
-                {storeSettings.store_name} muestra catalogo, carrito y cierre por
-                WhatsApp en un recorrido simple. El cliente elige, arma su pedido
-                y el local coordina disponibilidad, retiro y pago manualmente.
+                Elegi tu modelo, arma tu pedido y coordinamos por WhatsApp.
+                Consulta disponibilidad, combina talles y retira en el local.
               </p>
             </div>
 
@@ -94,7 +91,7 @@ export function HomePage() {
                 <div className="flex items-center gap-3 text-white/68">
                   <Sparkles className="h-4 w-4 text-brand-strong" />
                   <span className="text-xs uppercase tracking-[0.24em]">
-                    Identidad comercial
+                    City Calzado Urbano
                   </span>
                 </div>
                 <img
@@ -104,11 +101,11 @@ export function HomePage() {
                 />
                 <div className="space-y-3">
                   <h2 className="text-3xl font-semibold tracking-[-0.04em]">
-                    Negro, blanco y grises con una sola salida clara: vender mejor.
+                    Modelos urbanos para usar todos los dias.
                   </h2>
                   <p className="text-sm leading-7 text-white/72">
-                    El foco esta en mostrar producto, dejar claro el circuito de
-                    compra y llevar la conversacion al canal que el comercio ya usa.
+                    Mira modelos, consulta talles y deja el pedido listo para
+                    seguir la coordinacion por WhatsApp.
                   </p>
                 </div>
               </div>
@@ -138,8 +135,8 @@ export function HomePage() {
       <section className="space-y-6">
         <SectionTitle
           eyebrow="Destacados"
-          title="Modelos destacados para rotar rapido"
-          description="Producto claro, lectura rapida y una identidad visual mas cercana al streetwear que a una tienda generica."
+          title="Modelos destacados"
+          description="Zapatillas urbanas, comodas y listas para combinar con tu estilo diario."
           tone="light"
         />
         <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-4">
@@ -150,35 +147,36 @@ export function HomePage() {
       </section>
 
       <section className="grid gap-6 lg:grid-cols-[1fr_0.95fr]">
-        <div className="surface-card space-y-5">
+        <div className="rounded-[32px] border border-white/10 bg-[#151515] p-5 shadow-[0_26px_56px_rgba(0,0,0,0.26)] sm:p-6">
           <SectionTitle
-            eyebrow="Proceso"
-            title="Todo lo importante queda claro"
-            description="Sin letras chicas, sin pasarela de pago y sin promesas falsas. Solo producto, pedido y cierre comercial por WhatsApp."
+            eyebrow="Como comprar"
+            title="Elegi tu par y coordina facil"
+            description="Filtra por categoria, revisa disponibilidad y deja tu pedido listo para coordinar por WhatsApp."
+            tone="light"
           />
           <div className="grid gap-4">
             {[
               {
-                title: 'Catalogo limpio',
-                copy: 'Categorias, buscador y estados de disponibilidad legibles para que el cliente no se pierda.',
+                title: 'Modelos faciles de ver',
+                copy: 'Categorias y buscador para encontrar zapatillas urbanas sin dar vueltas.',
               },
               {
                 title: 'Carrito persistente',
-                copy: 'El pedido sigue ahi si la persona vuelve mas tarde o recarga la pagina.',
+                copy: 'Tu pedido sigue guardado si vuelves mas tarde o recargas la pagina.',
               },
               {
-                title: 'Checkout corto',
-                copy: 'Nombre, telefono y mensaje opcional antes de pasar a WhatsApp sin friccion extra.',
+                title: 'Pedido por WhatsApp',
+                copy: 'Dejas nombre, telefono y mensaje para seguir la coordinacion con el local.',
               },
             ].map((item) => (
               <div
                 key={item.title}
-                className="rounded-[24px] border border-black/8 bg-white p-5"
+                className="rounded-[24px] border border-white/10 bg-[#101010] p-5"
               >
-                <h3 className="text-lg font-semibold tracking-[-0.03em] text-stone-950">
+                <h3 className="text-lg font-semibold tracking-[-0.03em] text-white">
                   {item.title}
                 </h3>
-                <p className="mt-2 text-sm leading-7 text-stone-600">{item.copy}</p>
+                <p className="mt-2 text-sm leading-7 text-white/68">{item.copy}</p>
               </div>
             ))}
           </div>
@@ -188,11 +186,11 @@ export function HomePage() {
           <div className="space-y-4">
             <p className="eyebrow">Contacto directo</p>
             <h2 className="text-3xl font-semibold tracking-[-0.04em] text-white">
-              Instagram y WhatsApp visibles para cerrar consultas rapido.
+              Consulta disponibilidad y coordina directo con el local.
             </h2>
             <p className="text-sm leading-7 text-white/72">
-              La tienda no obliga a registrarse ni simula un pago online. El cierre
-              comercial sigue donde mejor funciona para el local: la conversacion.
+              Elegi tu modelo, revisa talles y retira en el local con una
+              conversacion simple por WhatsApp.
             </p>
           </div>
           <div className="flex flex-wrap gap-3">

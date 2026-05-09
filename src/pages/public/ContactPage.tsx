@@ -14,57 +14,57 @@ export function ContactPage() {
       <section className="surface-panel p-6 sm:p-8 lg:p-10">
         <SectionTitle
           eyebrow="Contacto"
-          title="Canales visibles para convertir consultas en pedidos."
-          description="WhatsApp, Instagram y datos del local a mano para que la persona llegue rapido a la conversacion comercial."
+          title="Coordina tu pedido por WhatsApp"
+          description="Consulta disponibilidad, horarios y retiro directamente con el local."
           tone="light"
         />
       </section>
 
       <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-4">
-        <Card className="space-y-3 border border-black/10">
+        <Card className="space-y-3 border border-white/10 bg-[#151515]">
           <MapPin className="h-5 w-5 text-brand-strong" />
-          <h2 className="text-xl font-semibold tracking-[-0.03em] text-stone-950">
+          <h2 className="text-xl font-semibold tracking-[-0.03em] text-white">
             Direccion
           </h2>
-          <p className="text-sm leading-7 text-muted">
+          <p className="text-sm leading-7 text-white/68">
             {storeSettings.address ?? 'Definila desde la configuracion del comercio.'}
           </p>
         </Card>
-        <Card className="space-y-3 border border-black/10">
+        <Card className="space-y-3 border border-white/10 bg-[#151515]">
           <Timer className="h-5 w-5 text-brand-strong" />
-          <h2 className="text-xl font-semibold tracking-[-0.03em] text-stone-950">
+          <h2 className="text-xl font-semibold tracking-[-0.03em] text-white">
             Horarios
           </h2>
-          <p className="text-sm leading-7 text-muted">
+          <p className="text-sm leading-7 text-white/68">
             {storeSettings.opening_hours ?? 'Horarios a completar.'}
           </p>
         </Card>
-        <Card className="space-y-3 border border-black/10">
+        <Card className="space-y-3 border border-white/10 bg-[#151515]">
           <MessageCircle className="h-5 w-5 text-brand-strong" />
-          <h2 className="text-xl font-semibold tracking-[-0.03em] text-stone-950">
+          <h2 className="text-xl font-semibold tracking-[-0.03em] text-white">
             WhatsApp
           </h2>
-          <p className="text-sm leading-7 text-muted">
+          <p className="text-sm leading-7 text-white/68">
             Canal principal para confirmar disponibilidad, retiro y pago.
           </p>
         </Card>
-        <Card className="space-y-3 border border-black/10">
+        <Card className="space-y-3 border border-white/10 bg-[#151515]">
           <AtSign className="h-5 w-5 text-brand-strong" />
-          <h2 className="text-xl font-semibold tracking-[-0.03em] text-stone-950">
+          <h2 className="text-xl font-semibold tracking-[-0.03em] text-white">
             Instagram
           </h2>
-          <p className="text-sm leading-7 text-muted">
+          <p className="text-sm leading-7 text-white/68">
             Ideal para mostrar novedades y derivar trafico al catalogo.
           </p>
         </Card>
       </div>
 
-      <Card className="grid gap-6 border border-black/10 lg:grid-cols-[1fr_auto] lg:items-center">
+      <Card className="grid gap-6 border border-white/10 bg-[#151515] lg:grid-cols-[1fr_auto] lg:items-center">
         <div className="space-y-3">
-          <h2 className="text-3xl font-semibold tracking-[-0.04em] text-stone-950">
-            La disponibilidad sera confirmada por WhatsApp.
+          <h2 className="text-3xl font-semibold tracking-[-0.04em] text-white">
+            Hablemos por WhatsApp para confirmar tu pedido.
           </h2>
-          <p className="max-w-2xl text-sm leading-7 text-muted">
+          <p className="max-w-2xl text-sm leading-7 text-white/68">
             No hay pago online en esta version. El comercio toma el pedido, valida
             stock o tiempos y coordina el cierre manualmente.
           </p>

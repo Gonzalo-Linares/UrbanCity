@@ -35,8 +35,8 @@ export function CatalogPage() {
       <section className="surface-panel p-6 sm:p-8 lg:p-10">
         <SectionTitle
           eyebrow="Catalogo"
-          title="Modelos con lectura clara y cierre simple."
-          description="Buscador simple, filtros por categoria y disponibilidad visible para que la persona resuelva rapido y pase al pedido por WhatsApp."
+          title="Encontra tu proximo par"
+          description="Filtra por categoria, revisa disponibilidad y hace tu pedido por WhatsApp."
           tone="light"
         />
       </section>

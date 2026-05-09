@@ -9,7 +9,7 @@ const variantStyles: Record<ButtonVariant, string> = {
   secondary:
     'bg-brand-strong text-black hover:bg-[#d1ff52] shadow-[0_14px_28px_rgba(182,255,0,0.2)]',
   outline:
-    'border border-black/10 bg-white text-black hover:bg-[#ecece7] shadow-[0_10px_24px_rgba(0,0,0,0.12)]',
+    'border border-white/14 bg-white/6 text-[#f7f7f2] hover:bg-white/10',
   ghost: 'text-stone-700 hover:bg-stone-900/6',
   whatsapp:
     'bg-success text-white hover:bg-emerald-700 shadow-[0_12px_24px_rgba(22,130,93,0.18)]',

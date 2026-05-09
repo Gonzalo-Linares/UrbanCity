@@ -6,7 +6,7 @@
   --background: #050505;
   --surface: #181818;
   --surface-strong: #111111;
-  --surface-card: #f7f7f2;
+  --surface-card: #f1f1ec;
   --surface-dark: #050505;
   --text: #f7f7f2;
   --muted: #a3a3a3;
@@ -79,10 +79,10 @@
   }
 
   .surface-card {
-    @apply rounded-[28px] border border-black/10 bg-[var(--surface-card)];
+    @apply rounded-[28px] border border-black/8 bg-[var(--surface-card)];
     box-shadow:
-      0 22px 44px rgba(0, 0, 0, 0.16),
-      0 1px 0 rgba(255, 255, 255, 0.36) inset;
+      0 18px 34px rgba(0, 0, 0, 0.14),
+      0 1px 0 rgba(255, 255, 255, 0.22) inset;
   }
 
   .surface-panel {
