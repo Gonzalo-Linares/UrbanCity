@@ -14,6 +14,7 @@ UrbanCity es una tienda web simple para un comercio chico que vende por catalogo
 - Login admin real implementado con Supabase Auth y validacion contra `public.admin_users`.
 - Layout admin responsive implementado con sidebar, header y conteos basicos.
 - CRUD de categorias y productos implementado desde el panel admin.
+- Panel admin de pedidos con filtros, resumen copiable, acceso directo a WhatsApp y confirmacion antes de cancelar o marcar como entregado/pagado manualmente.
 - Configuracion del comercio editable desde `/admin/configuracion`.
 - Subida de imagenes de productos implementada con Supabase Storage en el bucket `product-images`.
 

@@ -93,7 +93,7 @@ function readPersistedDraft(cartFingerprint: string) {
 export function CheckoutPage() {
   const items = useCartStore((state) => state.items)
   const clearCart = useCartStore((state) => state.clearCart)
-  const { storeSettings } = useStorefrontData()
+  const { products, storeSettings } = useStorefrontData()
   const [draftState, setDraftState] = useState<PersistedCheckoutDraft | null>(null)
   const [submitError, setSubmitError] = useState<string | null>(null)
   const total = items.reduce(
@@ -108,6 +108,30 @@ export function CheckoutPage() {
   )
   const draft =
     draftState?.cartFingerprint === cartFingerprint ? draftState : persistedDraft
+  const sellableProductsMap = useMemo(
+    () =>
+      new Map(
+        products
+          .filter(
+            (product) =>
+              product.is_active &&
+              (product.availability === 'available' ||
+                product.availability === 'inquiry'),
+          )
+          .map((product) => [product.id, product]),
+      ),
+    [products],
+  )
+  const invalidAvailabilityItems = isSupabaseConfigured
+    ? items.filter((item) => !sellableProductsMap.has(item.productId))
+    : []
+  const invalidQuantityItems = items.filter((item) => item.quantity > 99)
+  const checkoutBlockingMessage =
+    invalidAvailabilityItems.length > 0
+      ? 'Hay productos del carrito que ya no estan disponibles para pedir. Revisa el carrito antes de generar el pedido.'
+      : invalidQuantityItems.length > 0
+        ? 'Hay cantidades fuera del limite permitido. Revisa el carrito antes de generar el pedido.'
+        : null
 
   const form = useForm<CheckoutSchema>({
     resolver: zodResolver(checkoutSchema),
@@ -145,6 +169,11 @@ export function CheckoutPage() {
       return
     }
 
+    if (checkoutBlockingMessage) {
+      setSubmitError(checkoutBlockingMessage)
+      return
+    }
+
     setSubmitError(null)
 
     const orderCode = generateOrderCode()
@@ -169,7 +198,7 @@ export function CheckoutPage() {
 
       if (rpcError) {
         setSubmitError(
-          'No se pudo guardar el pedido en Supabase. Revisa la RPC create_order_with_items.',
+          'No pudimos confirmar el pedido en este momento. Intenta nuevamente en unos minutos.',
         )
         return
       }
@@ -179,7 +208,7 @@ export function CheckoutPage() {
 
       if (!savedOrder) {
         setSubmitError(
-          'Supabase no devolvio confirmacion del pedido. Reintenta la operacion.',
+          'No pudimos confirmar el pedido en este momento. Intenta nuevamente en unos minutos.',
         )
         return
       }
@@ -244,7 +273,7 @@ export function CheckoutPage() {
         <Card className="space-y-6">
           {!hasWhatsApp ? (
             <div className="rounded-[22px] border border-rose-500/15 bg-rose-500/8 px-4 py-3 text-sm text-rose-700">
-              Falta configurar `store_settings.whatsapp_phone` en Supabase.
+              El canal de WhatsApp del comercio no esta disponible en este momento.
             </div>
           ) : null}
 
@@ -302,7 +331,10 @@ export function CheckoutPage() {
               size="lg"
               className="w-full sm:w-auto"
               disabled={
-                form.formState.isSubmitting || Boolean(draft) || !hasWhatsApp
+                form.formState.isSubmitting ||
+                Boolean(draft) ||
+                !hasWhatsApp ||
+                Boolean(checkoutBlockingMessage)
               }
             >
               <MessageCircle className="h-4 w-4" />
@@ -320,13 +352,19 @@ export function CheckoutPage() {
             </div>
           ) : null}
 
+          {!submitError && checkoutBlockingMessage ? (
+            <div className="rounded-[22px] border border-amber-500/15 bg-amber-500/10 px-4 py-3 text-sm text-amber-900">
+              {checkoutBlockingMessage}
+            </div>
+          ) : null}
+
           {draft ? (
             <div className="space-y-4 rounded-[28px] border border-success/15 bg-success/8 p-5">
               <div className="flex items-start gap-3">
                 <ShieldCheck className="mt-0.5 h-5 w-5 text-success" />
                 <div className="space-y-1">
                   <p className="text-sm font-semibold text-stone-950">
-                    Pedido preparado para envio
+                    Pedido generado
                   </p>
                   <p className="text-sm leading-6 text-stone-700">
                     Codigo {draft.orderCode}. La disponibilidad sera confirmada

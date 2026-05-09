@@ -121,7 +121,7 @@ export function ProductDetailPage() {
                 <button
                   type="button"
                   className="flex h-10 w-10 items-center justify-center rounded-full text-stone-700 hover:bg-stone-900/6"
-                  onClick={() => setQuantity((current) => current + 1)}
+                  onClick={() => setQuantity((current) => Math.min(99, current + 1))}
                   aria-label="Sumar cantidad"
                 >
                   <Plus className="h-4 w-4" />

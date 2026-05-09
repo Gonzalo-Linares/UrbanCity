@@ -10,24 +10,39 @@ interface CartState {
   clearCart: () => void
 }
 
+const maxCartQuantity = 99
+
+function clampQuantity(quantity: number) {
+  return Math.min(Math.max(Math.trunc(quantity), 0), maxCartQuantity)
+}
+
 export const useCartStore = create<CartState>()(
   persist(
     (set) => ({
       items: [],
       addItem: (product, quantity = 1) =>
         set((state) => {
+          const normalizedQuantity = clampQuantity(quantity)
           const existingItem = state.items.find(
             (item) => item.productId === product.id,
           )
 
           if (existingItem) {
+            const nextQuantity = clampQuantity(
+              existingItem.quantity + normalizedQuantity,
+            )
+
             return {
               items: state.items.map((item) =>
                 item.productId === product.id
-                  ? { ...item, quantity: item.quantity + quantity }
+                  ? { ...item, quantity: nextQuantity }
                   : item,
               ),
             }
+          }
+
+          if (normalizedQuantity === 0) {
+            return state
           }
 
           return {
@@ -38,7 +53,7 @@ export const useCartStore = create<CartState>()(
                 slug: product.slug,
                 name: product.name,
                 price: product.price,
-                quantity,
+                quantity: normalizedQuantity,
                 availability: product.availability,
                 imageUrl: product.primaryImage?.url ?? null,
               },
@@ -53,7 +68,9 @@ export const useCartStore = create<CartState>()(
         set((state) => ({
           items: state.items
             .map((item) =>
-              item.productId === productId ? { ...item, quantity } : item,
+              item.productId === productId
+                ? { ...item, quantity: clampQuantity(quantity) }
+                : item,
             )
             .filter((item) => item.quantity > 0),
         })),

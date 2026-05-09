@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { zodResolver } from '@hookform/resolvers/zod'
 import {
+  CircleHelp,
   Eye,
   EyeOff,
   Package,
@@ -57,6 +58,31 @@ const availabilityOptions: Availability[] = [
   'out_of_stock',
   'hidden',
 ]
+
+function productVisibilityMeta(product: Pick<ProductRow, 'is_active' | 'availability'>) {
+  if (!product.is_active) {
+    return {
+      label: 'Inactivo',
+      tone: 'muted' as const,
+      description: 'No se muestra en la tienda, pero el producto sigue guardado.',
+    }
+  }
+
+  if (product.availability === 'hidden') {
+    return {
+      label: 'Oculto por disponibilidad',
+      tone: 'muted' as const,
+      description:
+        'Sigue activo internamente, pero availability=hidden lo retira del storefront.',
+    }
+  }
+
+  return {
+    label: 'Visible',
+    tone: 'success' as const,
+    description: 'El producto aparece en la tienda segun su disponibilidad.',
+  }
+}
 
 const defaultValues: AdminProductSchemaInput = {
   name: '',
@@ -302,7 +328,7 @@ export function AdminProductsPage() {
 
     if (product.hasOrders) {
       setSubmitError(
-        'No se puede eliminar el producto porque tiene pedidos asociados.',
+        `"${product.name}" no se puede eliminar porque ya aparece en ${product.orderCount} pedido${product.orderCount === 1 ? '' : 's'}. Si necesitas retirarlo de la tienda, dejalo inactivo o usa la disponibilidad hidden.`,
       )
       return
     }
@@ -385,6 +411,64 @@ export function AdminProductsPage() {
         />
       </div>
 
+      <Card className="space-y-5 border border-stone-900/8 bg-white/88">
+        <div className="flex items-start gap-3">
+          <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-stone-950 text-white">
+            <CircleHelp className="h-5 w-5" />
+          </span>
+          <div className="space-y-2">
+            <p className="text-sm font-medium text-stone-950">
+              Guia rapida de visibilidad y disponibilidad
+            </p>
+            <p className="text-sm leading-6 text-muted">
+              `Visible en tienda` controla si el producto puede mostrarse. La
+              `Disponibilidad` define como se ofrece comercialmente. No son lo mismo.
+            </p>
+          </div>
+        </div>
+
+        <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+          {[
+            {
+              title: 'Visible en tienda',
+              copy:
+                'Si esta activo y no esta hidden, el producto aparece en el storefront.',
+            },
+            {
+              title: 'Inactivo',
+              copy:
+                'Retira el producto de la tienda sin borrar datos, imagenes ni pedidos asociados.',
+            },
+            {
+              title: 'Disponible',
+              copy: 'Se puede pedir normalmente desde el checkout.',
+            },
+            {
+              title: 'Consultar disponibilidad',
+              copy:
+                'El cliente puede pedirlo, pero el comercio confirma stock por WhatsApp.',
+            },
+            {
+              title: 'Sin stock',
+              copy: 'Sigue visible, pero deja claro que hoy no esta disponible.',
+            },
+            {
+              title: 'Oculto',
+              copy:
+                'Lo saca del storefront aunque siga activo dentro del panel admin.',
+            },
+          ].map((item) => (
+            <div
+              key={item.title}
+              className="rounded-[22px] border border-stone-900/8 bg-stone-50/80 p-4"
+            >
+              <p className="text-sm font-medium text-stone-950">{item.title}</p>
+              <p className="mt-2 text-sm leading-6 text-muted">{item.copy}</p>
+            </div>
+          ))}
+        </div>
+      </Card>
+
       {pageError ? (
         <div className="rounded-[22px] border border-rose-500/15 bg-rose-500/8 px-4 py-3 text-sm text-rose-700">
           {pageError}
@@ -410,8 +494,8 @@ export function AdminProductsPage() {
               {editingProduct ? 'Editar producto' : 'Nuevo producto'}
             </p>
             <p className="text-sm leading-6 text-muted">
-              El slug se genera automaticamente si lo dejas vacio. La visibilidad
-              usa `is_active`; la disponibilidad sigue siendo un estado separado.
+              El slug se genera automaticamente si lo dejas vacio. Si quitas
+              `Visible en tienda`, el producto queda inactivo sin borrarse.
             </p>
           </div>
 
@@ -451,6 +535,7 @@ export function AdminProductsPage() {
 
               <SelectField
                 label="Disponibilidad"
+                hint="Available e inquiry permiten pedido. Out of stock informa falta. Hidden lo retira del storefront."
                 error={form.formState.errors.availability?.message}
                 {...form.register('availability')}
               >
@@ -536,6 +621,7 @@ export function AdminProductsPage() {
             {products.map((product) => {
               const visible = isProductVisible(product)
               const isBusy = busyProductId === product.id
+              const visibility = productVisibilityMeta(product)
 
               return (
                 <div
@@ -549,8 +635,8 @@ export function AdminProductsPage() {
                           <p className="text-lg font-semibold tracking-[-0.03em] text-stone-950">
                             {product.name}
                           </p>
-                          <StatusBadge tone={visible ? 'success' : 'muted'}>
-                            {visible ? 'Visible' : 'Oculto'}
+                          <StatusBadge tone={visibility.tone}>
+                            {visibility.label}
                           </StatusBadge>
                           <StatusBadge tone={adminAvailabilityTone(product.availability)}>
                             {formatAvailabilityLabel(product.availability)}
@@ -583,6 +669,9 @@ export function AdminProductsPage() {
 
                         <p className="text-sm leading-7 text-muted">
                           {product.description || 'Sin descripcion.'}
+                        </p>
+                        <p className="text-sm leading-6 text-muted">
+                          {visibility.description}
                         </p>
                       </div>
 
@@ -634,8 +723,8 @@ export function AdminProductsPage() {
                                       : {}),
                                   },
                               visible
-                                ? 'Producto ocultado.'
-                                : 'Producto visible nuevamente.',
+                                ? 'Producto retirado de la tienda. Sigue guardado en el panel.'
+                                : 'Producto visible nuevamente en la tienda.',
                             )
                           }
                         >
@@ -644,13 +733,13 @@ export function AdminProductsPage() {
                           ) : (
                             <Eye className="h-4 w-4" />
                           )}
-                          {visible ? 'Ocultar' : 'Mostrar'}
+                          {visible ? 'Sacar de tienda' : 'Volver a mostrar'}
                         </Button>
 
                         <Button
                           type="button"
                           variant="ghost"
-                          disabled={isBusy || product.hasOrders}
+                          disabled={isBusy}
                           onClick={() => void handleDelete(product)}
                         >
                           <Trash2 className="h-4 w-4" />
@@ -670,7 +759,9 @@ export function AdminProductsPage() {
                             {
                               availability: event.target.value as Availability,
                             },
-                            'Disponibilidad actualizada.',
+                            `Disponibilidad actualizada a ${formatAvailabilityLabel(
+                              event.target.value as Availability,
+                            )}.`,
                           )
                         }
                       >
@@ -683,8 +774,8 @@ export function AdminProductsPage() {
 
                       <div className="rounded-[20px] border border-stone-900/8 bg-white/82 px-4 py-3 text-sm text-muted">
                         {product.hasOrders
-                          ? 'No se permite eliminacion fisica porque el producto ya aparece en pedidos.'
-                          : 'Sin pedidos asociados. El producto se puede eliminar fisicamente si ya no se necesita.'}
+                          ? 'Este producto ya forma parte de pedidos guardados. No se borra fisicamente: retiralo de la tienda o cambia su disponibilidad.'
+                          : 'Sin pedidos asociados. Puedes eliminarlo fisicamente si ya no se necesita.'}
                       </div>
                     </div>
                   </div>
