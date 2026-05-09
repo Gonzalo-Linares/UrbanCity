@@ -35,8 +35,9 @@ export function CatalogPage() {
       <section className="surface-panel p-6 sm:p-8 lg:p-10">
         <SectionTitle
           eyebrow="Catalogo"
-          title="Productos con foco comercial, sin capas innecesarias."
-          description="Buscador simple, filtros por categoria y estados de disponibilidad legibles para que el cliente resuelva rapido."
+          title="Modelos con lectura clara y cierre simple."
+          description="Buscador simple, filtros por categoria y disponibilidad visible para que la persona resuelva rapido y pase al pedido por WhatsApp."
+          tone="light"
         />
       </section>
 
@@ -52,7 +53,7 @@ export function CatalogPage() {
       {visibleProducts.length === 0 ? (
         <EmptyState
           title="No encontramos productos con ese filtro"
-          description="Probá limpiar la busqueda o cambiar de categoria para volver al catalogo completo."
+          description="Proba limpiar la busqueda o cambiar de categoria para volver al catalogo completo."
           action={
             <Button
               type="button"
@@ -74,13 +75,13 @@ export function CatalogPage() {
         </div>
       )}
 
-      <div className="surface-card flex flex-col gap-4 p-5 sm:flex-row sm:items-center sm:justify-between">
+      <div className="surface-panel flex flex-col gap-4 p-5 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <p className="text-sm font-medium text-stone-950">
+          <p className="text-sm font-medium text-white">
             El pago se coordina con el comercio.
           </p>
-          <p className="text-sm text-muted">
-            Si un producto figura como “consultar disponibilidad”, el cierre se
+          <p className="text-sm text-white/72">
+            Si un producto figura como consultar disponibilidad, el cierre se
             termina por WhatsApp.
           </p>
         </div>

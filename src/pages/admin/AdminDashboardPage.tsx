@@ -27,6 +27,7 @@ export function AdminDashboardPage() {
           eyebrow="Admin"
           title={`Resumen de ${storeName}`}
           description="Vista operativa simple para saber si el catalogo, los pedidos y la configuracion base del comercio estan en orden."
+          tone="light"
         />
       </section>
 

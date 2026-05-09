@@ -18,7 +18,7 @@ export function CartPage() {
     return (
       <EmptyState
         title="Tu carrito esta vacio"
-        description="Sumá productos desde el catalogo para generar un pedido por WhatsApp."
+        description="Suma productos desde el catalogo para generar un pedido por WhatsApp."
         action={
           <Link to="/catalogo" className="text-sm font-medium text-brand-strong">
             Ir al catalogo
@@ -33,8 +33,9 @@ export function CartPage() {
       <section className="surface-panel p-6 sm:p-8 lg:p-10">
         <SectionTitle
           eyebrow="Carrito"
-          title="Revisá cantidades y total estimado antes del checkout."
+          title="Revisa cantidades y total estimado antes del checkout."
           description="Nada se cobra online en esta etapa. El pedido queda pendiente de confirmacion hasta que el comercio responda por WhatsApp."
+          tone="light"
         />
       </section>
 

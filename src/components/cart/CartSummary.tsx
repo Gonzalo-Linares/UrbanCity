@@ -18,7 +18,7 @@ export function CartSummary({
   onClearCart,
 }: CartSummaryProps) {
   return (
-    <Card className="space-y-5">
+    <Card className="space-y-5 border border-black/10">
       <div className="space-y-1">
         <p className="eyebrow">Resumen</p>
         <h2 className="text-2xl font-semibold tracking-[-0.03em] text-stone-950">
@@ -26,7 +26,7 @@ export function CartSummary({
         </h2>
       </div>
 
-      <div className="grid gap-3 rounded-[24px] border border-stone-900/8 bg-stone-950 p-5 text-white">
+      <div className="grid gap-3 rounded-[24px] border border-white/10 bg-[#111111] p-5 text-white">
         <div className="flex items-center justify-between text-sm text-white/70">
           <span>Productos</span>
           <span>{itemCount}</span>
@@ -44,7 +44,7 @@ export function CartSummary({
         </div>
       </div>
 
-      <div className="space-y-2 rounded-2xl border border-brand/12 bg-brand/7 p-4 text-sm leading-6 text-stone-700">
+      <div className="space-y-2 rounded-2xl border border-brand-strong/18 bg-brand-soft p-4 text-sm leading-6 text-stone-800">
         <p>Pedido pendiente de confirmacion.</p>
         <p>El pago se coordina con el comercio.</p>
         <p>La disponibilidad sera confirmada por WhatsApp.</p>

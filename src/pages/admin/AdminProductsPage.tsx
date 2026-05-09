@@ -73,7 +73,7 @@ function productVisibilityMeta(product: Pick<ProductRow, 'is_active' | 'availabi
       label: 'Oculto por disponibilidad',
       tone: 'muted' as const,
       description:
-        'Sigue activo internamente, pero availability=hidden lo retira del storefront.',
+        'Sigue activo internamente, pero availability=hidden lo retira de la tienda.',
     }
   }
 
@@ -387,6 +387,7 @@ export function AdminProductsPage() {
           eyebrow="Productos"
           title="CRUD del catalogo comercial"
           description="Alta, edicion y ajustes operativos de precio, disponibilidad, destacado, visibilidad y categoria sin tocar pagos ni stock transaccional."
+          tone="light"
         />
       </section>
 
@@ -432,7 +433,7 @@ export function AdminProductsPage() {
             {
               title: 'Visible en tienda',
               copy:
-                'Si esta activo y no esta hidden, el producto aparece en el storefront.',
+                'Si esta activo y no esta hidden, el producto aparece en la tienda.',
             },
             {
               title: 'Inactivo',
@@ -455,7 +456,7 @@ export function AdminProductsPage() {
             {
               title: 'Oculto',
               copy:
-                'Lo saca del storefront aunque siga activo dentro del panel admin.',
+                'Lo saca de la tienda aunque siga activo dentro del panel admin.',
             },
           ].map((item) => (
             <div
@@ -535,7 +536,7 @@ export function AdminProductsPage() {
 
               <SelectField
                 label="Disponibilidad"
-                hint="Available e inquiry permiten pedido. Out of stock informa falta. Hidden lo retira del storefront."
+                hint="Available e inquiry permiten pedido. Out of stock informa falta. Hidden lo retira de la tienda."
                 error={form.formState.errors.availability?.message}
                 {...form.register('availability')}
               >

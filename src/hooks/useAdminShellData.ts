@@ -48,7 +48,7 @@ export function useAdminShellData() {
   const [reloadKey, setReloadKey] = useState(0)
   const [state, setState] = useState<Omit<AdminShellOutletContext, 'refresh'>>({
     storeSettings: null,
-    storeName: 'UrbanCity',
+    storeName: 'City Calzado Urbano',
     counts: emptyCounts,
     loading: isSupabaseConfigured,
     error: isSupabaseConfigured

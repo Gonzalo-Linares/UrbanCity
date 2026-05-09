@@ -189,8 +189,9 @@ export function AdminSettingsPage() {
       <section className="surface-panel p-6 sm:p-8 lg:p-10">
         <SectionTitle
           eyebrow="Configuracion"
-          title="Edita la ficha comercial del storefront"
+          title="Edita la ficha comercial de la tienda"
           description="Estos datos impactan en header, footer, contacto y checkout. La app espera una unica fila en store_settings y siempre usa la primera segun created_at ascendente."
+          tone="light"
         />
       </section>
 
@@ -230,7 +231,7 @@ export function AdminSettingsPage() {
             <div className="grid gap-5 sm:grid-cols-2">
               <Input
                 label="Nombre del comercio"
-                placeholder="UrbanCity"
+                placeholder="City Calzado Urbano"
                 autoComplete="organization"
                 error={form.formState.errors.storeName?.message}
                 {...form.register('storeName')}

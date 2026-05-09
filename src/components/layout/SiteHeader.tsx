@@ -1,3 +1,4 @@
+import cityLogo from '@/assets/city-logo.jpg'
 import { AtSign, MessageCircle, ShoppingBag } from 'lucide-react'
 import { Link, NavLink } from 'react-router-dom'
 import { buttonStyles } from '@/components/ui/buttonStyles'
@@ -20,11 +21,12 @@ export function SiteHeader() {
   )
 
   return (
-    <header className="sticky top-0 z-10 border-b border-stone-900/8 bg-white/72 backdrop-blur-xl">
-      <div className="border-b border-stone-900/6">
-        <div className="shell-container flex min-h-10 items-center gap-3 text-xs text-muted">
+    <header className="sticky top-0 z-20 border-b border-white/10 bg-[#050505]/94 backdrop-blur-xl">
+      <div className="border-b border-white/8">
+        <div className="shell-container flex min-h-11 items-center gap-3 text-xs text-white/68">
+          <span className="inline-flex h-2 w-2 rounded-full bg-brand-strong" />
           <p className="truncate">
-            Pedidos por WhatsApp. Pago manual y disponibilidad confirmada por el
+            Pedidos por WhatsApp. El pago y la disponibilidad se coordinan con el
             comercio.
           </p>
         </div>
@@ -34,15 +36,17 @@ export function SiteHeader() {
         <div className="flex items-center justify-between gap-4">
           <Link to="/" className="min-w-0">
             <div className="flex items-center gap-3">
-              <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-stone-950 text-sm font-semibold text-white">
-                UC
-              </div>
+              <img
+                src={cityLogo}
+                alt="City Calzado Urbano"
+                className="h-12 w-12 rounded-full border border-white/10 object-cover shadow-[0_14px_34px_rgba(0,0,0,0.28)]"
+              />
               <div className="min-w-0">
-                <p className="truncate text-lg font-semibold tracking-[-0.03em] text-stone-950">
-                  {storeSettings.store_name || 'UrbanCity'}
+                <p className="truncate text-lg font-semibold tracking-[-0.03em] text-white">
+                  {storeSettings.store_name || 'City Calzado Urbano'}
                 </p>
-                <p className="truncate text-xs text-muted">
-                  Curaduria simple para compras rapidas
+                <p className="truncate text-xs uppercase tracking-[0.18em] text-white/48">
+                  Sneakers y calzado urbano
                 </p>
               </div>
             </div>
@@ -69,10 +73,10 @@ export function SiteHeader() {
                 end={link.to === '/'}
                 className={({ isActive }) =>
                   cn(
-                    'rounded-full px-4 py-2 text-sm font-medium transition',
+                    'rounded-full border px-4 py-2 text-sm font-medium transition',
                     isActive
-                      ? 'bg-stone-950 text-white'
-                      : 'text-stone-700 hover:bg-stone-900/6 hover:text-stone-950',
+                      ? 'border-brand-strong bg-brand-strong text-black'
+                      : 'border-white/10 text-white/72 hover:bg-white/6 hover:text-white',
                   )
                 }
               >
@@ -87,7 +91,7 @@ export function SiteHeader() {
                 href={storeSettings.instagram_url}
                 target="_blank"
                 rel="noreferrer"
-                className={buttonStyles({ variant: 'ghost', size: 'sm' })}
+                className={buttonStyles({ variant: 'outline', size: 'sm' })}
               >
                 <AtSign className="h-4 w-4" />
                 Instagram
@@ -97,7 +101,7 @@ export function SiteHeader() {
               <a
                 href={buildWhatsAppUrl(
                   storeSettings.whatsapp_phone,
-                  'Hola, quiero hacer una consulta sobre un producto.',
+                  'Hola, quiero consultar por calzado y stock disponible.',
                 )}
                 target="_blank"
                 rel="noreferrer"
@@ -116,7 +120,7 @@ export function SiteHeader() {
             >
               <ShoppingBag className="h-4 w-4" />
               Carrito
-              <span className="rounded-full bg-stone-950 px-2 py-0.5 text-[0.7rem] font-semibold text-white">
+              <span className="rounded-full bg-black px-2 py-0.5 text-[0.7rem] font-semibold text-brand-strong">
                 {itemCount}
               </span>
             </Link>

@@ -24,7 +24,7 @@ function AdminShell() {
   const currentTitle = pageTitles[location.pathname] ?? 'Panel admin'
 
   return (
-    <div className="min-h-screen bg-[linear-gradient(180deg,rgba(246,243,238,0.92)_0%,rgba(255,255,255,1)_48%,rgba(246,243,238,0.96)_100%)] lg:grid lg:grid-cols-[18rem_1fr]">
+    <div className="min-h-screen bg-[linear-gradient(180deg,#050505_0%,#0c0c0c_18%,#151515_100%)] lg:grid lg:grid-cols-[18rem_1fr]">
       <AdminSidebar
         counts={adminData.counts}
         storeName={adminData.storeName}
@@ -34,12 +34,12 @@ function AdminShell() {
       />
 
       <div className="min-w-0">
-        <header className="sticky top-0 z-30 border-b border-stone-900/8 bg-white/82 backdrop-blur-xl">
+        <header className="sticky top-0 z-30 border-b border-white/10 bg-[#050505]/88 backdrop-blur-xl">
           <div className="shell-container flex min-h-20 items-center justify-between gap-4 py-4">
             <div className="flex min-w-0 items-center gap-3">
               <button
                 type="button"
-                className="inline-flex h-11 w-11 items-center justify-center rounded-2xl border border-stone-900/10 bg-white text-stone-950 lg:hidden"
+                className="inline-flex h-11 w-11 items-center justify-center rounded-2xl border border-white/10 bg-white/6 text-white lg:hidden"
                 onClick={() => setMobileOpen(true)}
                 aria-label="Abrir navegacion admin"
               >
@@ -47,23 +47,23 @@ function AdminShell() {
               </button>
 
               <div className="flex min-w-0 items-center gap-3">
-                <span className="hidden h-11 w-11 items-center justify-center rounded-2xl bg-stone-950 text-white sm:inline-flex">
+                <span className="hidden h-11 w-11 items-center justify-center rounded-2xl border border-white/10 bg-white/6 text-brand-strong sm:inline-flex">
                   <ShieldCheck className="h-5 w-5" />
                 </span>
                 <div className="min-w-0">
-                  <p className="truncate text-lg font-semibold tracking-[-0.03em] text-stone-950">
+                  <p className="truncate text-lg font-semibold tracking-[-0.03em] text-white">
                     {adminData.storeName}
                   </p>
-                  <p className="truncate text-sm text-muted">{currentTitle}</p>
+                  <p className="truncate text-sm text-white/62">{currentTitle}</p>
                 </div>
               </div>
             </div>
 
             <div className="flex items-center gap-2 sm:gap-3">
-              <div className="hidden items-center gap-3 rounded-full border border-stone-900/10 bg-white px-4 py-2 sm:flex">
-                <span className="inline-flex h-2.5 w-2.5 rounded-full bg-emerald-500" />
-                <span className="text-sm text-stone-700">Sesion activa</span>
-                <span className="text-sm font-medium text-stone-950">
+              <div className="hidden items-center gap-3 rounded-full border border-white/10 bg-white/6 px-4 py-2 sm:flex">
+                <span className="inline-flex h-2.5 w-2.5 rounded-full bg-brand-strong" />
+                <span className="text-sm text-white/70">Sesion activa</span>
+                <span className="text-sm font-medium text-white">
                   {user?.email ?? 'admin'}
                 </span>
               </div>
@@ -71,7 +71,7 @@ function AdminShell() {
               <button
                 type="button"
                 onClick={adminData.refresh}
-                className="inline-flex h-11 w-11 items-center justify-center rounded-2xl border border-stone-900/10 bg-white text-stone-950 transition hover:bg-stone-50"
+                className="inline-flex h-11 w-11 items-center justify-center rounded-2xl border border-white/10 bg-white/6 text-white transition hover:bg-white/10"
                 aria-label="Actualizar datos del panel"
               >
                 <RefreshCw className="h-4 w-4" />
@@ -79,7 +79,7 @@ function AdminShell() {
 
               <Link
                 to="/"
-                className="hidden text-sm text-muted hover:text-stone-950 sm:inline"
+                className="hidden text-sm text-white/68 hover:text-white sm:inline"
               >
                 Ver tienda
               </Link>
@@ -87,6 +87,7 @@ function AdminShell() {
               <Button
                 type="button"
                 variant="outline"
+                className="border-white/10 bg-white/6 text-white hover:bg-white/10 hover:text-white"
                 onClick={() => void signOut()}
               >
                 <LogOut className="h-4 w-4" />
@@ -97,7 +98,7 @@ function AdminShell() {
 
           {adminData.error ? (
             <div className="shell-container pb-4">
-              <div className="rounded-[20px] border border-amber-500/15 bg-amber-500/10 px-4 py-3 text-sm text-amber-900">
+              <div className="rounded-[20px] border border-amber-400/20 bg-amber-400/12 px-4 py-3 text-sm text-amber-100">
                 {adminData.error}
               </div>
             </div>

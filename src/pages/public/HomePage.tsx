@@ -1,8 +1,9 @@
+import cityLogo from '@/assets/city-logo.jpg'
 import { ArrowRight, AtSign, MessageCircle, Sparkles } from 'lucide-react'
 import { Link } from 'react-router-dom'
+import { buttonStyles } from '@/components/ui/buttonStyles'
 import { ProductCard } from '@/components/product/ProductCard'
 import { Button } from '@/components/ui/Button'
-import { buttonStyles } from '@/components/ui/buttonStyles'
 import { LoadingState } from '@/components/ui/LoadingState'
 import { SectionTitle } from '@/components/ui/SectionTitle'
 import { useStorefrontData } from '@/hooks/useStorefrontData'
@@ -13,7 +14,7 @@ export function HomePage() {
   const hasWhatsApp = Boolean(storeSettings.whatsapp_phone)
 
   if (loading) {
-    return <LoadingState label="Preparando el storefront..." />
+    return <LoadingState label="Preparando la tienda..." />
   }
 
   const featuredProducts = products.filter((product) => product.featured)
@@ -22,23 +23,23 @@ export function HomePage() {
 
   return (
     <div className="space-y-10 sm:space-y-14">
-      <section className="surface-panel overflow-hidden">
-        <div className="grid gap-8 p-6 sm:p-8 lg:grid-cols-[1.15fr_0.85fr] lg:p-10">
+      <section className="surface-panel subtle-grid overflow-hidden">
+        <div className="grid gap-8 p-6 sm:p-8 lg:grid-cols-[1.08fr_0.92fr] lg:p-10">
           <div className="space-y-6">
-            <p className="eyebrow">Storefront v1</p>
+            <p className="eyebrow">Streetwear | Sneakers | WhatsApp</p>
             <div className="space-y-4">
               <h1 className="page-title">
-                Una tienda simple para vender bien, sin complicar el cierre.
+                Calzado urbano listo para verse bien y vender rapido.
               </h1>
               <p className="page-copy">
-                {storeSettings.store_name} combina catalogo, carrito y checkout
-                resuelto por WhatsApp para que el comercio confirme disponibilidad,
-                retiro y pago de forma manual.
+                {storeSettings.store_name} muestra catalogo, carrito y cierre por
+                WhatsApp en un recorrido simple. El cliente elige, arma su pedido
+                y el local coordina disponibilidad, retiro y pago manualmente.
               </p>
             </div>
 
             <div className="flex flex-wrap gap-3">
-              <Link to="/catalogo" className={buttonStyles({ size: 'lg' })}>
+              <Link to="/catalogo" className={buttonStyles({ size: 'lg', variant: 'secondary' })}>
                 Ver catalogo
                 <ArrowRight className="h-4 w-4" />
               </Link>
@@ -46,11 +47,11 @@ export function HomePage() {
                 <a
                   href={buildWhatsAppUrl(
                     storeSettings.whatsapp_phone,
-                    'Hola, quiero consultar productos del catalogo.',
+                    'Hola, quiero consultar modelos y talles disponibles.',
                   )}
                   target="_blank"
                   rel="noreferrer"
-                  className={buttonStyles({ variant: 'whatsapp', size: 'lg' })}
+                  className={buttonStyles({ variant: 'outline', size: 'lg' })}
                 >
                   <MessageCircle className="h-4 w-4" />
                   Consultar por WhatsApp
@@ -59,63 +60,70 @@ export function HomePage() {
             </div>
 
             <div className="grid gap-3 sm:grid-cols-3">
-              <div className="rounded-[24px] border border-stone-900/8 bg-white/82 p-4">
-                <p className="text-xs uppercase tracking-[0.22em] text-muted">
+              <div className="rounded-[24px] border border-white/10 bg-white/5 p-4">
+                <p className="text-xs uppercase tracking-[0.22em] text-white/46">
                   Pedido
                 </p>
-                <p className="mt-2 text-lg font-semibold tracking-[-0.03em] text-stone-950">
+                <p className="mt-2 text-lg font-semibold tracking-[-0.03em] text-white">
                   Pendiente de confirmacion
                 </p>
               </div>
-              <div className="rounded-[24px] border border-stone-900/8 bg-white/82 p-4">
-                <p className="text-xs uppercase tracking-[0.22em] text-muted">
+              <div className="rounded-[24px] border border-white/10 bg-white/5 p-4">
+                <p className="text-xs uppercase tracking-[0.22em] text-white/46">
                   Pago
                 </p>
-                <p className="mt-2 text-lg font-semibold tracking-[-0.03em] text-stone-950">
-                  Manual y coordinado
+                <p className="mt-2 text-lg font-semibold tracking-[-0.03em] text-white">
+                  Coordinado con el local
                 </p>
               </div>
-              <div className="rounded-[24px] border border-stone-900/8 bg-white/82 p-4">
-                <p className="text-xs uppercase tracking-[0.22em] text-muted">
+              <div className="rounded-[24px] border border-white/10 bg-white/5 p-4">
+                <p className="text-xs uppercase tracking-[0.22em] text-white/46">
                   Canal
                 </p>
-                <p className="mt-2 text-lg font-semibold tracking-[-0.03em] text-stone-950">
+                <p className="mt-2 text-lg font-semibold tracking-[-0.03em] text-white">
                   WhatsApp directo
                 </p>
               </div>
             </div>
           </div>
 
-          <div className="subtle-grid relative overflow-hidden rounded-[32px] border border-stone-900/10 bg-stone-950 p-6 text-white">
-            <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(255,255,255,0.18),transparent_22%)]" />
+          <div className="relative overflow-hidden rounded-[32px] border border-white/10 bg-[#050505] p-6 text-white">
+            <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(182,255,0,0.18),transparent_22%)]" />
             <div className="relative flex h-full flex-col justify-between gap-6">
-              <div className="space-y-4">
-                <div className="flex items-center gap-3 text-white/70">
-                  <Sparkles className="h-4 w-4" />
+              <div className="space-y-5">
+                <div className="flex items-center gap-3 text-white/68">
+                  <Sparkles className="h-4 w-4 text-brand-strong" />
                   <span className="text-xs uppercase tracking-[0.24em]">
-                    Flujo recomendado
+                    Identidad comercial
                   </span>
                 </div>
-                <h2 className="text-3xl font-semibold tracking-[-0.04em]">
-                  Menos friccion, mejor cierre para un comercio chico.
-                </h2>
-                <p className="text-sm leading-7 text-white/72">
-                  El cliente arma el pedido, deja sus datos y el comercio toma el
-                  control en la conversacion final.
-                </p>
+                <img
+                  src={cityLogo}
+                  alt="City Calzado Urbano"
+                  className="h-28 w-28 rounded-full border border-white/10 object-cover shadow-[0_18px_40px_rgba(0,0,0,0.32)]"
+                />
+                <div className="space-y-3">
+                  <h2 className="text-3xl font-semibold tracking-[-0.04em]">
+                    Negro, blanco y grises con una sola salida clara: vender mejor.
+                  </h2>
+                  <p className="text-sm leading-7 text-white/72">
+                    El foco esta en mostrar producto, dejar claro el circuito de
+                    compra y llevar la conversacion al canal que el comercio ya usa.
+                  </p>
+                </div>
               </div>
 
               <div className="grid gap-3">
                 {[
-                  'El cliente agrega productos al carrito.',
-                  'Completa nombre, telefono y mensaje opcional.',
-                  'El pedido viaja por WhatsApp con total estimado.',
+                  'El cliente filtra, elige y suma productos al carrito.',
+                  'Completa nombre, telefono y mensaje sin crear cuenta.',
+                  'El pedido sale por WhatsApp con total y resumen listo.',
                 ].map((item, index) => (
                   <div
                     key={item}
                     className="flex items-start gap-3 rounded-[22px] border border-white/10 bg-white/6 p-4"
                   >
-                    <span className="flex h-8 w-8 items-center justify-center rounded-full bg-white/10 text-sm font-semibold">
+                    <span className="flex h-8 w-8 items-center justify-center rounded-full bg-brand-strong text-sm font-semibold text-black">
                       0{index + 1}
                     </span>
                     <p className="text-sm leading-6 text-white/80">{item}</p>
@@ -130,8 +138,9 @@ export function HomePage() {
       <section className="space-y-6">
         <SectionTitle
           eyebrow="Destacados"
-          title="Productos listos para empezar"
-          description="El storefront arranca con una curaduria simple, productos claros y un recorrido de compra corto."
+          title="Modelos destacados para rotar rapido"
+          description="Producto claro, lectura rapida y una identidad visual mas cercana al streetwear que a una tienda generica."
+          tone="light"
         />
         <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-4">
           {visibleProducts.map((product) => (
@@ -144,46 +153,46 @@ export function HomePage() {
         <div className="surface-card space-y-5">
           <SectionTitle
             eyebrow="Proceso"
-            title="Lo importante esta visible"
-            description="La app evita promesas falsas: no cobra online, no reserva stock en tiempo real y deja claros los siguientes pasos."
+            title="Todo lo importante queda claro"
+            description="Sin letras chicas, sin pasarela de pago y sin promesas falsas. Solo producto, pedido y cierre comercial por WhatsApp."
           />
           <div className="grid gap-4">
             {[
               {
-                title: 'Catalogo claro',
-                copy: 'Categorias, buscador y estados de disponibilidad sin ruido innecesario.',
+                title: 'Catalogo limpio',
+                copy: 'Categorias, buscador y estados de disponibilidad legibles para que el cliente no se pierda.',
               },
               {
                 title: 'Carrito persistente',
-                copy: 'El cliente no pierde el pedido si recarga o vuelve mas tarde.',
+                copy: 'El pedido sigue ahi si la persona vuelve mas tarde o recarga la pagina.',
               },
               {
                 title: 'Checkout corto',
-                copy: 'Solo nombre, telefono y mensaje opcional antes de pasar a WhatsApp.',
+                copy: 'Nombre, telefono y mensaje opcional antes de pasar a WhatsApp sin friccion extra.',
               },
             ].map((item) => (
               <div
                 key={item.title}
-                className="rounded-[24px] border border-stone-900/8 bg-white/75 p-5"
+                className="rounded-[24px] border border-black/8 bg-white p-5"
               >
                 <h3 className="text-lg font-semibold tracking-[-0.03em] text-stone-950">
                   {item.title}
                 </h3>
-                <p className="mt-2 text-sm leading-7 text-muted">{item.copy}</p>
+                <p className="mt-2 text-sm leading-7 text-stone-600">{item.copy}</p>
               </div>
             ))}
           </div>
         </div>
 
-        <div className="surface-card flex flex-col justify-between gap-6 bg-stone-950 text-white">
+        <div className="surface-panel flex flex-col justify-between gap-6 p-6 sm:p-8">
           <div className="space-y-4">
-            <p className="eyebrow bg-white/10 text-white">Contacto directo</p>
-            <h2 className="text-3xl font-semibold tracking-[-0.04em]">
-              Botones visibles para cerrar consultas sin friccion.
+            <p className="eyebrow">Contacto directo</p>
+            <h2 className="text-3xl font-semibold tracking-[-0.04em] text-white">
+              Instagram y WhatsApp visibles para cerrar consultas rapido.
             </h2>
             <p className="text-sm leading-7 text-white/72">
-              Instagram y WhatsApp quedan siempre a mano para captar mensajes sin
-              forzar un registro previo ni una pasarela de pago.
+              La tienda no obliga a registrarse ni simula un pago online. El cierre
+              comercial sigue donde mejor funciona para el local: la conversacion.
             </p>
           </div>
           <div className="flex flex-wrap gap-3">
@@ -191,7 +200,7 @@ export function HomePage() {
               <a
                 href={buildWhatsAppUrl(
                   storeSettings.whatsapp_phone,
-                  'Hola, quiero asesoramiento para elegir un producto.',
+                  'Hola, quiero asesoramiento para elegir un modelo.',
                 )}
                 target="_blank"
                 rel="noreferrer"
@@ -216,10 +225,10 @@ export function HomePage() {
           <Button
             type="button"
             variant="ghost"
-            className="justify-start border border-white/10 bg-white/6 text-white hover:bg-white/10"
+            className="justify-start border border-white/10 bg-white/6 text-white hover:bg-white/10 hover:text-white"
             disabled
           >
-            La disponibilidad sera confirmada por WhatsApp
+            La disponibilidad y el pago se coordinan con el comercio
           </Button>
         </div>
       </section>

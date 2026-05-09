@@ -266,6 +266,7 @@ export function CheckoutPage() {
           eyebrow="Checkout"
           title="Deja tus datos y genera el pedido para WhatsApp."
           description="La orden queda pendiente de confirmacion. El comercio valida disponibilidad, retiro y pago manualmente."
+          tone="light"
         />
       </section>
 

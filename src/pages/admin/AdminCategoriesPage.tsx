@@ -202,7 +202,8 @@ export function AdminCategoriesPage() {
         <SectionTitle
           eyebrow="Categorias"
           title="Administra la taxonomia del catalogo"
-          description="Alta, edicion y activacion de categorias con slugs consistentes para que la navegacion publica se mantenga prolija."
+          description="Alta, edicion y activacion de categorias con slugs consistentes para que la navegacion publica de la tienda se mantenga prolija."
+          tone="light"
         />
       </section>
 
@@ -216,7 +217,7 @@ export function AdminCategoriesPage() {
         <AdminMetricCard
           title="Activas"
           value={counts.categoriesActive}
-          description="Categorias visibles en el storefront."
+          description="Categorias visibles en la tienda."
           icon={Tag}
         />
         <AdminMetricCard
@@ -276,7 +277,7 @@ export function AdminCategoriesPage() {
 
             <Textarea
               label="Descripcion"
-              placeholder="Breve contexto para el panel o para el storefront."
+                placeholder="Breve contexto para el panel o para la tienda."
               error={form.formState.errors.description?.message}
               {...form.register('description')}
             />

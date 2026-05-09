@@ -7,6 +7,7 @@ import {
   X,
 } from 'lucide-react'
 import { NavLink } from 'react-router-dom'
+import cityLogo from '@/assets/city-logo.jpg'
 import { cn } from '@/lib/cn'
 import type { AdminShellOutletContext } from '@/hooks/useAdminShellData'
 
@@ -61,14 +62,20 @@ export function AdminSidebar({
   const sidebarContent = (
     <div className="flex h-full flex-col">
       <div className="flex items-start justify-between gap-4 border-b border-white/10 px-5 py-5 lg:px-6">
-        <div className="space-y-1">
+        <div className="space-y-3">
+          <img
+            src={cityLogo}
+            alt="City Calzado Urbano"
+            className="h-14 w-14 rounded-2xl border border-white/10 object-cover shadow-[0_20px_44px_rgba(0,0,0,0.35)]"
+          />
           <p className="text-xs uppercase tracking-[0.24em] text-white/45">
             Admin
           </p>
           <p className="text-lg font-semibold tracking-[-0.03em] text-white">
             {storeName}
           </p>
-          <p className="text-xs text-white/55">{sessionEmail}</p>
+          <p className="text-xs text-white/55">Catalogo, pedidos y operacion.</p>
+          <p className="text-xs text-white/40">{sessionEmail}</p>
         </div>
 
         <button
@@ -97,7 +104,7 @@ export function AdminSidebar({
                 cn(
                   'flex items-center justify-between gap-3 rounded-2xl px-4 py-3 text-sm font-medium transition',
                   isActive
-                    ? 'bg-white text-stone-950 shadow-[0_18px_40px_rgba(0,0,0,0.16)]'
+                    ? 'bg-brand-strong text-black shadow-[0_18px_40px_rgba(0,0,0,0.26)]'
                     : 'text-white/72 hover:bg-white/10 hover:text-white',
                 )
               }
@@ -107,7 +114,7 @@ export function AdminSidebar({
                 {item.label}
               </span>
               {badgeValue !== null ? (
-                <span className="rounded-full bg-stone-950/10 px-2.5 py-1 text-xs text-current">
+                <span className="rounded-full bg-black/10 px-2.5 py-1 text-xs text-current">
                   {badgeValue}
                 </span>
               ) : null}

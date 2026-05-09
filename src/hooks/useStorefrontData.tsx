@@ -34,7 +34,7 @@ const StorefrontContext = createContext<StorefrontContextValue | null>(null)
 
 const emptyStoreSettings: StoreSettingsRow = {
   id: '',
-  store_name: 'UrbanCity',
+  store_name: 'City Calzado Urbano',
   whatsapp_phone: '',
   instagram_url: null,
   address: null,
@@ -138,8 +138,7 @@ export function StorefrontDataProvider({ children }: PropsWithChildren) {
           storeSettings: emptyStoreSettings,
           source: 'supabase',
           loading: false,
-          error:
-            'No se pudieron cargar los datos del storefront desde Supabase.',
+          error: 'No se pudieron cargar los datos de la tienda en este momento.',
         })
         return
       }
@@ -156,8 +155,7 @@ export function StorefrontDataProvider({ children }: PropsWithChildren) {
           storeSettings: emptyStoreSettings,
           source: 'supabase',
           loading: false,
-          error:
-            'Supabase esta configurado pero falta una fila valida en store_settings.',
+          error: 'Falta configurar los datos del comercio.',
         })
         return
       }

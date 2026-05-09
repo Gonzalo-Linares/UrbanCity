@@ -18,7 +18,7 @@ export const SelectField = forwardRef<HTMLSelectElement, SelectFieldProps>(
           ref={ref}
           id={fieldId}
           className={cn(
-            'h-12 w-full rounded-2xl border border-stone-900/10 bg-white px-4 text-sm text-stone-950 focus:border-brand/50 focus:ring-4 focus:ring-brand/10',
+            'h-12 w-full rounded-2xl border border-stone-900/10 bg-white/96 px-4 text-sm text-stone-950 focus:border-[#b6ff00]/60 focus:ring-4 focus:ring-[#b6ff00]/12',
             error
               ? 'border-rose-400/60 focus:border-rose-500 focus:ring-rose-500/10'
               : '',

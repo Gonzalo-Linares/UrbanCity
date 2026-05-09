@@ -3,6 +3,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { LockKeyhole, LogOut } from 'lucide-react'
 import { useForm } from 'react-hook-form'
 import { Navigate } from 'react-router-dom'
+import cityLogo from '@/assets/city-logo.jpg'
 import { AdminAccessState } from '@/components/admin/AdminAccessState'
 import { Button } from '@/components/ui/Button'
 import { Card } from '@/components/ui/Card'
@@ -67,7 +68,14 @@ export function AdminLoginPage() {
           <div className="space-y-5">
             <p className="eyebrow">Admin</p>
             <div className="space-y-4">
-              <h1 className="page-title">Ingreso seguro para gestionar UrbanCity.</h1>
+              <img
+                src={cityLogo}
+                alt="City Calzado Urbano"
+                className="h-20 w-20 rounded-3xl border border-white/10 object-cover shadow-[0_20px_46px_rgba(0,0,0,0.34)]"
+              />
+              <h1 className="page-title">
+                Ingreso seguro para gestionar City Calzado Urbano.
+              </h1>
               <p className="page-copy">
                 El acceso admin usa Supabase Auth y valida que el usuario exista
                 como admin activo en <code>public.admin_users</code>.
@@ -76,10 +84,10 @@ export function AdminLoginPage() {
           </div>
 
           <div className="grid gap-3">
-            <div className="rounded-[24px] border border-stone-900/8 bg-white/80 p-4 text-sm leading-6 text-stone-700">
+            <div className="rounded-[24px] border border-white/10 bg-white/6 p-4 text-sm leading-6 text-white/78">
               No hay usuarios compradores ni registro publico.
             </div>
-            <div className="rounded-[24px] border border-stone-900/8 bg-white/80 p-4 text-sm leading-6 text-stone-700">
+            <div className="rounded-[24px] border border-white/10 bg-white/6 p-4 text-sm leading-6 text-white/78">
               Si el usuario autentica pero no figura activo en la tabla admin, el
               panel queda bloqueado.
             </div>
@@ -97,7 +105,9 @@ export function AdminLoginPage() {
 
             {!isSupabaseConfigured ? (
               <div className="rounded-[22px] border border-rose-500/15 bg-rose-500/8 px-4 py-3 text-sm text-rose-700">
-                Configura <code>VITE_SUPABASE_URL</code> y <code>VITE_SUPABASE_ANON_KEY</code> para habilitar el login admin.
+                Configura <code>VITE_SUPABASE_URL</code> y{' '}
+                <code>VITE_SUPABASE_ANON_KEY</code> para habilitar el login
+                admin.
               </div>
             ) : null}
 
@@ -111,7 +121,7 @@ export function AdminLoginPage() {
               label="Email"
               type="email"
               autoComplete="email"
-              placeholder="admin@urbancity.com"
+              placeholder="admin@citycalzado.com"
               error={form.formState.errors.email?.message}
               {...form.register('email')}
             />
@@ -120,7 +130,7 @@ export function AdminLoginPage() {
               label="Password"
               type="password"
               autoComplete="current-password"
-              placeholder="••••••••"
+              placeholder="********"
               error={form.formState.errors.password?.message}
               {...form.register('password')}
             />

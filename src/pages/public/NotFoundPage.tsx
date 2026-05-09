@@ -6,7 +6,7 @@ export function NotFoundPage() {
     <div className="shell-container py-10">
       <EmptyState
         title="No encontramos esa pagina"
-        description="La ruta no existe dentro de este storefront. Volvé al inicio para seguir navegando."
+        description="La ruta no existe dentro de esta tienda. Volve al inicio para seguir navegando."
         action={
           <Link to="/" className="text-sm font-medium text-brand-strong">
             Ir al inicio

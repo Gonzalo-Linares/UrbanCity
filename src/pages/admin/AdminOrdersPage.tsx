@@ -300,6 +300,7 @@ export function AdminOrdersPage() {
           eyebrow="Pedidos"
           title="Seguimiento operativo de pedidos"
           description="Listado, filtros, detalle, contacto por WhatsApp y cambios de estado sin mezclar el flujo con pagos online."
+          tone="light"
         />
       </section>
 

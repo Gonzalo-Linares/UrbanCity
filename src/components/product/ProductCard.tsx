@@ -20,7 +20,7 @@ function availabilityTone(availability: StorefrontProduct['availability']) {
 
 export function ProductCard({ product }: { product: StorefrontProduct }) {
   return (
-    <article className="surface-card group overflow-hidden p-3">
+    <article className="surface-card group overflow-hidden border border-black/10 p-3 transition hover:-translate-y-0.5 hover:shadow-[0_24px_44px_rgba(0,0,0,0.18)]">
       <Link to={`/catalogo/${product.slug}`} className="block">
         <ProductVisual
           seed={product.slug}
@@ -34,12 +34,12 @@ export function ProductCard({ product }: { product: StorefrontProduct }) {
       <div className="space-y-4 p-3 sm:p-4">
         <div className="flex items-start justify-between gap-3">
           <div className="space-y-1">
-            <p className="text-xs uppercase tracking-[0.22em] text-muted">
+            <p className="text-xs uppercase tracking-[0.22em] text-[#506d00]">
               {product.category?.name ?? 'Catalogo'}
             </p>
             <Link
               to={`/catalogo/${product.slug}`}
-              className="block text-xl font-semibold tracking-[-0.03em] text-stone-950 transition group-hover:text-brand-strong"
+              className="block text-xl font-semibold tracking-[-0.03em] text-stone-950 transition group-hover:text-black"
             >
               {product.name}
             </Link>
@@ -64,7 +64,7 @@ export function ProductCard({ product }: { product: StorefrontProduct }) {
           </div>
           <Link
             to={`/catalogo/${product.slug}`}
-            className="inline-flex items-center gap-2 text-sm font-medium text-stone-950"
+            className="inline-flex items-center gap-2 rounded-full bg-black px-4 py-2 text-xs font-semibold uppercase tracking-[0.18em] text-white"
           >
             Ver detalle
             <ArrowUpRight className="h-4 w-4 transition group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />

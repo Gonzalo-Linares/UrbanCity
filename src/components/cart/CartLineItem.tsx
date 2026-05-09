@@ -25,7 +25,7 @@ export function CartLineItem({ item }: { item: CartItem }) {
   const removeItem = useCartStore((state) => state.removeItem)
 
   return (
-    <div className="surface-card grid gap-4 p-4 sm:grid-cols-[130px_1fr] sm:p-5">
+    <div className="surface-card grid gap-4 border border-black/10 p-4 sm:grid-cols-[130px_1fr] sm:p-5">
       <Link to={`/catalogo/${item.slug}`}>
         <ProductVisual
           seed={item.slug}
@@ -48,7 +48,7 @@ export function CartLineItem({ item }: { item: CartItem }) {
               <StatusBadge tone={availabilityTone(item)}>
                 {formatAvailabilityLabel(item.availability)}
               </StatusBadge>
-              <span className="rounded-full bg-stone-900/6 px-3 py-1 text-xs font-medium text-stone-700">
+              <span className="rounded-full bg-black/6 px-3 py-1 text-xs font-medium text-stone-700">
                 {formatCurrency(item.price)} c/u
               </span>
             </div>
@@ -60,10 +60,10 @@ export function CartLineItem({ item }: { item: CartItem }) {
         </div>
 
         <div className="flex flex-wrap items-center justify-between gap-3">
-          <div className="inline-flex items-center gap-2 rounded-full border border-stone-900/10 bg-white px-2 py-2">
+          <div className="inline-flex items-center gap-2 rounded-full border border-black/10 bg-white px-2 py-2">
             <button
               type="button"
-              className="flex h-9 w-9 items-center justify-center rounded-full text-stone-700 hover:bg-stone-900/6"
+              className="flex h-9 w-9 items-center justify-center rounded-full text-stone-700 hover:bg-black/6"
               onClick={() => updateQuantity(item.productId, item.quantity - 1)}
               aria-label={`Restar una unidad de ${item.name}`}
             >
@@ -74,7 +74,7 @@ export function CartLineItem({ item }: { item: CartItem }) {
             </span>
             <button
               type="button"
-              className="flex h-9 w-9 items-center justify-center rounded-full text-stone-700 hover:bg-stone-900/6"
+              className="flex h-9 w-9 items-center justify-center rounded-full text-stone-700 hover:bg-black/6"
               onClick={() => updateQuantity(item.productId, item.quantity + 1)}
               aria-label={`Sumar una unidad de ${item.name}`}
             >
