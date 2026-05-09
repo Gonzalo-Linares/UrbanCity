@@ -26,7 +26,7 @@ export function formatCrudError(message: string, code?: string) {
   }
 
   if (message.toLowerCase().includes('violates foreign key constraint')) {
-    return 'No se puede eliminar el producto porque tiene pedidos asociados.'
+    return 'No se puede eliminar este registro porque ya tiene pedidos asociados. Retiralo de la tienda o dejalo inactivo en lugar de borrarlo.'
   }
 
   if (message.toLowerCase().includes('duplicate key')) {

@@ -40,7 +40,7 @@ export function formatOrderStatus(status: OrderStatus) {
     case 'ready_for_pickup':
       return 'Listo para retirar'
     case 'completed':
-      return 'Entregado / Pagado'
+      return 'Entregado / Pagado manualmente'
     case 'cancelled':
       return 'Cancelado'
     default:
