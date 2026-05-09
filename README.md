@@ -14,6 +14,7 @@ UrbanCity es una tienda web simple para un comercio chico que vende por catalogo
 - Login admin real implementado con Supabase Auth y validacion contra `public.admin_users`.
 - Layout admin responsive implementado con sidebar, header y conteos basicos.
 - CRUD de categorias y productos implementado desde el panel admin.
+- Configuracion del comercio editable desde `/admin/configuracion`.
 - Subida de imagenes de productos implementada con Supabase Storage en el bucket `product-images`.
 
 ## Stack
@@ -151,9 +152,10 @@ Para preparar el proyecto en Supabase:
 2. Abrir el SQL Editor.
 3. Ejecutar [supabase/schema.sql](supabase/schema.sql).
 4. Configurar `VITE_SUPABASE_URL` y `VITE_SUPABASE_ANON_KEY` en `.env`.
-5. Crear al menos una fila en `store_settings`.
+5. Ingresar al panel admin y crear la primera configuracion desde `/admin/configuracion`.
 
 Sin una fila valida en `store_settings`, el storefront no usa telefono demo: muestra error y deshabilita las acciones de WhatsApp.
+La app espera una unica fila en `store_settings` y siempre usa la primera segun `created_at asc`.
 
 El schema crea estas tablas:
 
@@ -196,6 +198,26 @@ Ademas, el schema ahora:
 El CRUD de productos no permite eliminacion fisica cuando existen pedidos asociados; el bloqueo queda respaldado por la relacion con `order_items`.
 El panel admin de productos permite subir imagenes, guardar su URL publica en `product_images`, reordenarlas y eliminarlas.
 
+## Configuracion del comercio
+
+La configuracion comercial ya se edita desde `/admin/configuracion`.
+
+Desde esa pantalla puedes crear o actualizar:
+
+- `store_name`
+- `whatsapp_phone`
+- `instagram_url`
+- `address`
+- `opening_hours`
+- `checkout_message`
+
+Notas importantes:
+
+- ya no hace falta modificar Supabase manualmente para cambiar WhatsApp, Instagram, direccion, horarios o el mensaje de checkout
+- el formulario hace `insert` si no existe ninguna fila y `update` sobre la primera fila existente si ya hay configuracion
+- el storefront, el header, el footer, la pagina de contacto y el checkout consumen estos datos
+- `store_settings` sigue con lectura publica y escritura solo para admin autenticado por RLS
+
 ## Primer admin
 
 1. Crea el usuario en Supabase Auth con email y password.
@@ -222,4 +244,4 @@ El archivo [public/_redirects](public/_redirects) deja lista la app para SPA rou
 
 ## Proximo paso recomendado
 
-El siguiente paso sano es completar la configuracion del comercio y pulir los flujos admin restantes, manteniendo la logica de checkout sin pagos online ni usuarios compradores.
+El siguiente paso sano es pulir los flujos admin restantes y reforzar detalles operativos, manteniendo la logica de checkout sin pagos online ni usuarios compradores.

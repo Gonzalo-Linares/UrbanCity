@@ -85,7 +85,12 @@ export function useAdminShellData() {
         ordersCompletedResult,
         ordersCancelledResult,
       ] = await Promise.all([
-        client.from('store_settings').select('*').limit(1).maybeSingle(),
+        client
+          .from('store_settings')
+          .select('*')
+          .order('created_at', { ascending: true })
+          .limit(1)
+          .maybeSingle(),
         client.from('products').select('id', { count: 'exact', head: true }),
         client
           .from('products')

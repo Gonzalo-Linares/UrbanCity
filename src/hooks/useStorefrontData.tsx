@@ -27,6 +27,7 @@ interface StorefrontContextValue {
   source: 'mock' | 'supabase'
   loading: boolean
   error: string | null
+  refresh: () => void
 }
 
 const StorefrontContext = createContext<StorefrontContextValue | null>(null)
@@ -62,7 +63,8 @@ function hydrateProducts(
 }
 
 export function StorefrontDataProvider({ children }: PropsWithChildren) {
-  const [value, setValue] = useState<StorefrontContextValue>({
+  const [reloadKey, setReloadKey] = useState(0)
+  const [value, setValue] = useState<Omit<StorefrontContextValue, 'refresh'>>({
     categories: isSupabaseConfigured ? [] : mockCategories,
     products: isSupabaseConfigured
       ? []
@@ -114,7 +116,12 @@ export function StorefrontDataProvider({ children }: PropsWithChildren) {
             .from('product_images')
             .select('*')
             .order('sort_order', { ascending: true }),
-          supabase.from('store_settings').select('*').limit(1).maybeSingle(),
+          supabase
+            .from('store_settings')
+            .select('*')
+            .order('created_at', { ascending: true })
+            .limit(1)
+            .maybeSingle(),
         ])
 
       if (ignore) {
@@ -170,10 +177,15 @@ export function StorefrontDataProvider({ children }: PropsWithChildren) {
     return () => {
       ignore = true
     }
-  }, [])
+  }, [reloadKey])
 
   return (
-    <StorefrontContext.Provider value={value}>
+    <StorefrontContext.Provider
+      value={{
+        ...value,
+        refresh: () => setReloadKey((current) => current + 1),
+      }}
+    >
       {children}
     </StorefrontContext.Provider>
   )
