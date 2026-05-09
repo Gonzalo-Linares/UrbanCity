@@ -198,7 +198,7 @@ export function CheckoutPage() {
 
       if (rpcError) {
         setSubmitError(
-          'No se pudo generar el pedido en este momento. Revisa el carrito o intenta nuevamente en unos minutos.',
+          'No pudimos confirmar el pedido en este momento. Intenta nuevamente en unos minutos.',
         )
         return
       }
@@ -208,7 +208,7 @@ export function CheckoutPage() {
 
       if (!savedOrder) {
         setSubmitError(
-          'Supabase no devolvio confirmacion del pedido. Reintenta la operacion.',
+          'No pudimos confirmar el pedido en este momento. Intenta nuevamente en unos minutos.',
         )
         return
       }
@@ -273,7 +273,7 @@ export function CheckoutPage() {
         <Card className="space-y-6">
           {!hasWhatsApp ? (
             <div className="rounded-[22px] border border-rose-500/15 bg-rose-500/8 px-4 py-3 text-sm text-rose-700">
-              Falta configurar `store_settings.whatsapp_phone` en Supabase.
+              El canal de WhatsApp del comercio no esta disponible en este momento.
             </div>
           ) : null}
 

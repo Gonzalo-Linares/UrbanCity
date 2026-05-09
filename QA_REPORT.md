@@ -17,15 +17,15 @@ No quedan bugs criticos abiertos despues de esta revision.
 
 Hallazgos criticos simples corregidos en esta rama:
 
-- checkout con Supabase permitia intentar generar pedidos con items ya no vendibles (`hidden`, `out_of_stock` o removidos del storefront`) y recien fallaba al pegarle a la RPC. Se corrigio en [src/pages/public/CheckoutPage.tsx](/C:/Users/gonza/Documents/UrbanCity/src/pages/public/CheckoutPage.tsx).
-- la UI permitia cantidades mayores a `99`, pero la RPC `create_order_with_items` las rechaza. Se alineo el limite en [src/store/cartStore.ts](/C:/Users/gonza/Documents/UrbanCity/src/store/cartStore.ts) y [src/pages/public/ProductDetailPage.tsx](/C:/Users/gonza/Documents/UrbanCity/src/pages/public/ProductDetailPage.tsx).
-- el checkout mostraba un mensaje tecnico hablando de la RPC si Supabase fallaba. Se reemplazo por un mensaje apto para cliente final en [src/pages/public/CheckoutPage.tsx](/C:/Users/gonza/Documents/UrbanCity/src/pages/public/CheckoutPage.tsx).
+- checkout con Supabase permitia intentar generar pedidos con items ya no vendibles (`hidden`, `out_of_stock` o removidos del storefront) y recien fallaba al pegarle a la RPC. Se corrigio en `src/pages/public/CheckoutPage.tsx`.
+- la UI permitia cantidades mayores a `99`, pero la RPC `create_order_with_items` las rechaza. Se alineo el limite en `src/store/cartStore.ts` y `src/pages/public/ProductDetailPage.tsx`.
+- el checkout mostraba un mensaje tecnico hablando de la RPC si Supabase fallaba. Se reemplazo por un mensaje apto para cliente final en `src/pages/public/CheckoutPage.tsx`.
 
 ## Bugs menores
 
-- productos asociados a una categoria inactiva siguen visibles en el storefront, pero pierden su categoria y quedan como `Catalogo` o sin filtro claro. Esto sale de la combinacion entre [src/hooks/useStorefrontData.tsx](/C:/Users/gonza/Documents/UrbanCity/src/hooks/useStorefrontData.tsx), [src/components/product/ProductCard.tsx](/C:/Users/gonza/Documents/UrbanCity/src/components/product/ProductCard.tsx) y [src/pages/public/ProductDetailPage.tsx](/C:/Users/gonza/Documents/UrbanCity/src/pages/public/ProductDetailPage.tsx).
-- la home no tiene empty state explicito si el catalogo queda vacio: la seccion de destacados puede renderizar una grilla vacia sin contexto en [src/pages/public/HomePage.tsx](/C:/Users/gonza/Documents/UrbanCity/src/pages/public/HomePage.tsx).
-- el login admin convierte cualquier error de autenticacion en `Email o password invalidos.`. Si Supabase Auth estuviera caido o devolviera otro error, el mensaje seria engañoso en [src/pages/admin/AdminLoginPage.tsx](/C:/Users/gonza/Documents/UrbanCity/src/pages/admin/AdminLoginPage.tsx).
+- productos asociados a una categoria inactiva siguen visibles en el storefront, pero pierden su categoria y quedan como `Catalogo` o sin filtro claro. Esto sale de la combinacion entre `src/hooks/useStorefrontData.tsx`, `src/components/product/ProductCard.tsx` y `src/pages/public/ProductDetailPage.tsx`.
+- la home no tiene empty state explicito si el catalogo queda vacio: la seccion de destacados puede renderizar una grilla vacia sin contexto en `src/pages/public/HomePage.tsx`.
+- el login admin convierte cualquier error de autenticacion en `Email o password invalidos.`. Si Supabase Auth estuviera caido o devolviera otro error, el mensaje seria enganoso en `src/pages/admin/AdminLoginPage.tsx`.
 
 ## Mejoras recomendadas
 
@@ -52,7 +52,7 @@ Hallazgos criticos simples corregidos en esta rama:
   - lectura publica de `categories`, `products`, `product_images` y `store_settings`
   - creacion publica de pedidos solo via RPC `create_order_with_items`
   - modificacion de catalogo, pedidos y configuracion solo para admin autenticado
-- no encontre señales de pagos online ni textos como `compra aprobada` o `pago confirmado`
+- no encontre senales de pagos online ni textos como `compra aprobada` o `pago confirmado`
 
 ## Checklist manual de prueba
 
