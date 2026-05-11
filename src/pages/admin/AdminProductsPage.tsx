@@ -33,6 +33,7 @@ import {
   toNullableText,
 } from '@/lib/admin'
 import { formatAvailabilityLabel, formatCurrency } from '@/lib/formatters'
+import { getDiscountPercent } from '@/lib/pricing'
 import { isSupabaseConfigured, supabase } from '@/lib/supabase'
 import {
   adminProductSchema,
@@ -89,6 +90,7 @@ const defaultValues: AdminProductSchemaInput = {
   slug: '',
   description: '',
   price: 0,
+  compareAtPrice: '',
   availability: 'available',
   categoryId: '',
   featured: false,
@@ -134,6 +136,7 @@ export function AdminProductsPage() {
             slug: editingProduct.slug,
             description: editingProduct.description ?? '',
             price: editingProduct.price,
+            compareAtPrice: editingProduct.compare_at_price ?? '',
             availability: editingProduct.availability,
             categoryId: editingProduct.category_id ?? '',
             featured: editingProduct.featured,
@@ -261,6 +264,7 @@ export function AdminProductsPage() {
       slug: resolveSlug(values.name, values.slug),
       description: toNullableText(values.description ?? ''),
       price: values.price,
+      compare_at_price: values.compareAtPrice ?? null,
       availability: values.availability,
       category_id: values.categoryId || null,
       featured: values.featured,
@@ -534,6 +538,19 @@ export function AdminProductsPage() {
                 {...form.register('price', { valueAsNumber: true })}
               />
 
+              <Input
+                label="Precio anterior"
+                type="number"
+                min="0"
+                step="0.01"
+                placeholder="Ej: 120000"
+                hint="Opcional. Si es mayor al precio actual, se muestra como oferta."
+                error={form.formState.errors.compareAtPrice?.message}
+                {...form.register('compareAtPrice')}
+              />
+            </div>
+
+            <div className="grid gap-4 sm:grid-cols-2">
               <SelectField
                 label="Disponibilidad"
                 hint="Available e inquiry permiten pedido. Out of stock informa falta. Hidden lo retira de la tienda."
@@ -623,6 +640,10 @@ export function AdminProductsPage() {
               const visible = isProductVisible(product)
               const isBusy = busyProductId === product.id
               const visibility = productVisibilityMeta(product)
+              const discountPercent = getDiscountPercent(
+                product.price,
+                product.compare_at_price,
+              )
 
               return (
                 <div
@@ -662,9 +683,26 @@ export function AdminProductsPage() {
                           <p>
                             Categoria: {product.categoryName ?? 'Sin categoria'}
                           </p>
-                          <p>Precio: {formatCurrency(product.price)}</p>
+                          <p>Precio actual: {formatCurrency(product.price)}</p>
                           <p>
                             Estado publico: {product.is_active ? 'Activo' : 'Inactivo'}
+                          </p>
+                          {discountPercent ? (
+                            <>
+                              <p>
+                                Antes: {formatCurrency(product.compare_at_price ?? 0)}
+                              </p>
+                              <p className="font-medium text-emerald-700">
+                                {discountPercent}% OFF
+                              </p>
+                            </>
+                          ) : product.compare_at_price ? (
+                            <p>
+                              Precio anterior: {formatCurrency(product.compare_at_price)}
+                            </p>
+                          ) : null}
+                          <p>
+                            Oferta visible: {discountPercent ? 'Si' : 'No'}
                           </p>
                         </div>
 

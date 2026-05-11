@@ -8,6 +8,7 @@ UrbanCity es una tienda web simple para un comercio chico que vende por catalogo
 - Catalogo con categorias, buscador y detalle de producto.
 - Carrito persistente con Zustand y `localStorage`.
 - Checkout simple sin backend que genera un codigo local `PED-YYMMDD-XXXXXX`.
+- Los productos pueden tener `compare_at_price` opcional para mostrar ofertas visuales.
 - La UI usa mocks solo cuando `VITE_SUPABASE_URL` y `VITE_SUPABASE_ANON_KEY` no estan configuradas.
 - Si Supabase esta configurado, la UI lee `categories`, `products`, `product_images` y `store_settings` desde Supabase.
 - Si falta una fila valida en `store_settings`, la app muestra error y oculta las acciones de WhatsApp.
@@ -115,6 +116,7 @@ Hace esto:
 - arma un resumen
 - genera un mensaje de WhatsApp
 - abre `wa.me` con el mensaje precargado
+- usa siempre `price` como precio vigente del pedido, aunque exista `compare_at_price`
 
 Si Supabase esta configurado:
 

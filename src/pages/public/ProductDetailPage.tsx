@@ -10,6 +10,7 @@ import { SectionTitle } from '@/components/ui/SectionTitle'
 import { StatusBadge } from '@/components/ui/StatusBadge'
 import { useStorefrontData } from '@/hooks/useStorefrontData'
 import { formatAvailabilityLabel, formatCurrency } from '@/lib/formatters'
+import { getDiscountPercent } from '@/lib/pricing'
 import { useCartStore } from '@/store/cartStore'
 
 function availabilityTone(availability: string) {
@@ -58,6 +59,10 @@ export function ProductDetailPage() {
     .slice(0, 3)
 
   const isSoldOut = product.availability === 'out_of_stock'
+  const discountPercent = getDiscountPercent(
+    product.price,
+    product.compare_at_price,
+  )
 
   return (
     <div className="space-y-8">
@@ -94,10 +99,27 @@ export function ProductDetailPage() {
                 <StatusBadge tone={availabilityTone(product.availability)}>
                   {formatAvailabilityLabel(product.availability)}
                 </StatusBadge>
+                {discountPercent ? (
+                  <span className="inline-flex items-center rounded-full bg-brand-strong px-3 py-1 text-xs font-semibold uppercase tracking-[0.18em] text-black">
+                    {discountPercent}% OFF
+                  </span>
+                ) : null}
+              </div>
+              <div className="flex flex-wrap items-end gap-3">
+                {discountPercent ? (
+                  <span className="text-lg font-medium text-white/42 line-through">
+                    {formatCurrency(product.compare_at_price ?? 0)}
+                  </span>
+                ) : null}
                 <span className="text-3xl font-semibold tracking-[-0.04em] text-white">
                   {formatCurrency(product.price)}
                 </span>
               </div>
+              {discountPercent ? (
+                <p className="text-sm font-medium text-brand-strong">
+                  Oferta vigente sujeta a disponibilidad.
+                </p>
+              ) : null}
             </div>
 
             <div className="rounded-[24px] border border-white/12 bg-white/6 p-4 text-sm leading-6 text-white/78">

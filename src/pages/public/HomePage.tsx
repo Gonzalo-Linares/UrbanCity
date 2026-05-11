@@ -18,6 +18,7 @@ import { SectionTitle } from '@/components/ui/SectionTitle'
 import { buttonStyles } from '@/components/ui/buttonStyles'
 import { useStorefrontData } from '@/hooks/useStorefrontData'
 import { cn } from '@/lib/cn'
+import { isOnSale } from '@/lib/pricing'
 import { buildWhatsAppUrl } from '@/lib/whatsapp'
 
 const instagramTiles = [
@@ -35,10 +36,19 @@ export function HomePage() {
   const [activeSlide, setActiveSlide] = useState(0)
 
   const featuredProducts = products.filter((product) => product.featured)
+  const saleProducts = products.filter((product) =>
+    isOnSale(product.price, product.compare_at_price),
+  )
   const visibleProducts =
     featuredProducts.length > 0 ? featuredProducts.slice(0, 4) : products.slice(0, 4)
-  const heroProducts =
-    featuredProducts.length > 0 ? featuredProducts.slice(0, 3) : products.slice(0, 3)
+  const heroProducts = Array.from(
+    new Map(
+      [...featuredProducts, ...saleProducts, ...products].map((product) => [
+        product.id,
+        product,
+      ]),
+    ).values(),
+  ).slice(0, 3)
   const quickCategories = Array.from(
     new Map(
       products
