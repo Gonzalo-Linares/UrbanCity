@@ -2,7 +2,6 @@ import { Outlet } from 'react-router-dom'
 import whatsAppIcon from '@/assets/WhatsApp_icon.png'
 import { SiteFooter } from '@/components/layout/SiteFooter'
 import { SiteHeader } from '@/components/layout/SiteHeader'
-import { buttonStyles } from '@/components/ui/buttonStyles'
 import { useStorefrontData } from '@/hooks/useStorefrontData'
 import { buildWhatsAppUrl } from '@/lib/whatsapp'
 
@@ -31,17 +30,30 @@ export function PublicLayout() {
           )}
           target="_blank"
           rel="noreferrer"
-          className={buttonStyles({
-            variant: 'whatsapp',
-            className:
-              'fixed right-4 bottom-4 z-20 h-14 w-14 rounded-full border border-white/12 p-0 shadow-[0_20px_34px_rgba(22,130,93,0.3)] sm:right-6 sm:bottom-6',
-          })}
+          className="
+            fixed right-4 bottom-4 z-40
+            flex h-16 w-16 items-center justify-center
+            overflow-hidden rounded-full
+            bg-[#25D366]
+            shadow-[0_18px_40px_rgba(37,211,102,0.35)]
+            ring-1 ring-white/15
+            transition duration-200
+            hover:scale-105 hover:bg-[#1ebe5d]
+            focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#25D366] focus-visible:ring-offset-2 focus-visible:ring-offset-black
+            sm:right-6 sm:bottom-6
+          "
           aria-label="Abrir WhatsApp"
         >
           <img
             src={whatsAppIcon}
             alt=""
-            className="h-10 w-10 object-contain"
+            aria-hidden="true"
+            className="
+              h-full w-full
+              scale-[1.55]
+              object-contain
+              drop-shadow-[0_2px_4px_rgba(0,0,0,0.18)]
+            "
           />
         </a>
       ) : null}
