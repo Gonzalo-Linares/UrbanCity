@@ -6,7 +6,11 @@ export function getDiscountPercent(
     return null
   }
 
-  return Math.round(((compareAtPrice - price) / compareAtPrice) * 100)
+  const discountPercent = Math.round(
+    ((compareAtPrice - price) / compareAtPrice) * 100,
+  )
+
+  return discountPercent > 0 ? discountPercent : null
 }
 
 export function isOnSale(
