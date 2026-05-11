@@ -31,8 +31,8 @@ export function ProductFilters({
   onSortChange,
 }: ProductFiltersProps) {
   return (
-    <div className="space-y-5 rounded-[28px] border border-white/10 bg-[#151515] p-5 shadow-[0_24px_50px_rgba(0,0,0,0.26)] sm:p-6">
-      <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+    <div className="space-y-4 rounded-[28px] border border-white/10 bg-[#151515] p-4 shadow-[0_24px_50px_rgba(0,0,0,0.26)] sm:space-y-5 sm:p-6">
+      <div className="flex flex-col gap-3 sm:gap-4 lg:flex-row lg:items-end lg:justify-between">
         <label className="relative block w-full max-w-xl">
           <Search className="pointer-events-none absolute top-1/2 left-4 h-4 w-4 -translate-y-1/2 text-white/44" />
           <input
@@ -43,7 +43,7 @@ export function ProductFilters({
           />
         </label>
 
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-end">
+        <div className="flex flex-col gap-2.5 sm:flex-row sm:items-end sm:gap-3">
           <label className="block space-y-2">
             <span className="text-[0.68rem] font-semibold uppercase tracking-[0.2em] text-white/46">
               Ordenar por
@@ -74,7 +74,7 @@ export function ProductFilters({
         <button
           type="button"
           className={cn(
-            'rounded-full px-4 py-2 text-sm font-medium transition',
+            'rounded-full px-3.5 py-1.5 text-sm font-medium transition sm:px-4 sm:py-2',
             selectedCategory === 'all'
               ? 'bg-brand-strong text-black'
               : 'border border-white/12 bg-white/6 text-white/78 hover:bg-white/10 hover:text-white',
@@ -88,7 +88,7 @@ export function ProductFilters({
             key={category.id}
             type="button"
             className={cn(
-              'rounded-full px-4 py-2 text-sm font-medium transition',
+              'rounded-full px-3.5 py-1.5 text-sm font-medium transition sm:px-4 sm:py-2',
               selectedCategory === category.slug
                 ? 'bg-brand-strong text-black'
                 : 'border border-white/12 bg-white/6 text-white/78 hover:bg-white/10 hover:text-white',

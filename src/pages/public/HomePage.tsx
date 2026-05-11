@@ -357,7 +357,7 @@ export function HomePage() {
         />
 
         {visibleProducts.length > 0 ? (
-          <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-4">
+          <div className="grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-2 xl:grid-cols-4">
             {visibleProducts.map((product) => (
               <ProductCard key={product.id} product={product} />
             ))}
