@@ -2,13 +2,22 @@ import { Search } from 'lucide-react'
 import type { CategoryRow } from '@/types/database'
 import { cn } from '@/lib/cn'
 
+export type ProductSortOption =
+  | 'relevance'
+  | 'price-asc'
+  | 'price-desc'
+  | 'sale'
+  | 'newest'
+
 interface ProductFiltersProps {
   categories: CategoryRow[]
   searchValue: string
   selectedCategory: string
   resultCount: number
+  sortOption: ProductSortOption
   onSearchChange: (value: string) => void
   onCategoryChange: (value: string) => void
+  onSortChange: (value: ProductSortOption) => void
 }
 
 export function ProductFilters({
@@ -16,12 +25,14 @@ export function ProductFilters({
   searchValue,
   selectedCategory,
   resultCount,
+  sortOption,
   onSearchChange,
   onCategoryChange,
+  onSortChange,
 }: ProductFiltersProps) {
   return (
     <div className="space-y-5 rounded-[28px] border border-white/10 bg-[#151515] p-5 shadow-[0_24px_50px_rgba(0,0,0,0.26)] sm:p-6">
-      <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+      <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
         <label className="relative block w-full max-w-xl">
           <Search className="pointer-events-none absolute top-1/2 left-4 h-4 w-4 -translate-y-1/2 text-white/44" />
           <input
@@ -32,10 +43,31 @@ export function ProductFilters({
           />
         </label>
 
-        <p className="text-sm text-white/68">
-          {resultCount} producto{resultCount === 1 ? '' : 's'} visible
-          {resultCount === 1 ? '' : 's'}
-        </p>
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-end">
+          <label className="block space-y-2">
+            <span className="text-[0.68rem] font-semibold uppercase tracking-[0.2em] text-white/46">
+              Ordenar por
+            </span>
+            <select
+              value={sortOption}
+              onChange={(event) =>
+                onSortChange(event.target.value as ProductSortOption)
+              }
+              className="h-12 min-w-[210px] rounded-2xl border border-white/10 bg-[#101010] px-4 text-sm text-white focus:border-brand-strong/55 focus:ring-4 focus:ring-brand-strong/10"
+            >
+              <option value="relevance">Relevancia</option>
+              <option value="price-asc">Menor precio</option>
+              <option value="price-desc">Mayor precio</option>
+              <option value="sale">Ofertas primero</option>
+              <option value="newest">Nuevos primero</option>
+            </select>
+          </label>
+
+          <p className="pb-3 text-sm text-white/68">
+            {resultCount} producto{resultCount === 1 ? '' : 's'} visible
+            {resultCount === 1 ? '' : 's'}
+          </p>
+        </div>
       </div>
 
       <div className="flex flex-wrap gap-2">

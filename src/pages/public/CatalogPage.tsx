@@ -1,17 +1,22 @@
 import { useDeferredValue, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { ProductCard } from '@/components/product/ProductCard'
-import { ProductFilters } from '@/components/product/ProductFilters'
+import {
+  ProductFilters,
+  type ProductSortOption,
+} from '@/components/product/ProductFilters'
 import { Button } from '@/components/ui/Button'
 import { EmptyState } from '@/components/ui/EmptyState'
 import { LoadingState } from '@/components/ui/LoadingState'
 import { SectionTitle } from '@/components/ui/SectionTitle'
 import { useStorefrontData } from '@/hooks/useStorefrontData'
+import { getDiscountPercent } from '@/lib/pricing'
 
 export function CatalogPage() {
   const { categories, products, loading } = useStorefrontData()
   const [searchValue, setSearchValue] = useState('')
   const [selectedCategory, setSelectedCategory] = useState('all')
+  const [sortOption, setSortOption] = useState<ProductSortOption>('relevance')
   const deferredSearch = useDeferredValue(searchValue)
 
   if (loading) {
@@ -19,7 +24,7 @@ export function CatalogPage() {
   }
 
   const normalizedSearch = deferredSearch.trim().toLowerCase()
-  const visibleProducts = products.filter((product) => {
+  const filteredProducts = products.filter((product) => {
     const matchesCategory =
       selectedCategory === 'all' || product.category?.slug === selectedCategory
     const matchesSearch =
@@ -29,6 +34,56 @@ export function CatalogPage() {
 
     return matchesCategory && matchesSearch
   })
+
+  const visibleProducts =
+    sortOption === 'relevance'
+      ? filteredProducts
+      : [...filteredProducts].sort((left, right) => {
+          switch (sortOption) {
+            case 'price-asc':
+              return left.price - right.price
+            case 'price-desc':
+              return right.price - left.price
+            case 'sale': {
+              const leftDiscount = getDiscountPercent(
+                left.price,
+                left.compare_at_price,
+              )
+              const rightDiscount = getDiscountPercent(
+                right.price,
+                right.compare_at_price,
+              )
+
+              if (leftDiscount !== null && rightDiscount !== null) {
+                if (rightDiscount !== leftDiscount) {
+                  return rightDiscount - leftDiscount
+                }
+
+                return right.price - left.price
+              }
+
+              if (leftDiscount !== null) {
+                return -1
+              }
+
+              if (rightDiscount !== null) {
+                return 1
+              }
+
+              return (
+                new Date(right.created_at).getTime() -
+                new Date(left.created_at).getTime()
+              )
+            }
+            case 'newest':
+              return (
+                new Date(right.created_at).getTime() -
+                new Date(left.created_at).getTime()
+              )
+            default:
+              return 0
+          }
+        })
 
   return (
     <div className="space-y-8">
@@ -48,8 +103,10 @@ export function CatalogPage() {
         searchValue={searchValue}
         selectedCategory={selectedCategory}
         resultCount={visibleProducts.length}
+        sortOption={sortOption}
         onSearchChange={setSearchValue}
         onCategoryChange={setSelectedCategory}
+        onSortChange={setSortOption}
       />
 
       {visibleProducts.length === 0 ? (

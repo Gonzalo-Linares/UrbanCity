@@ -48,6 +48,7 @@ create table if not exists public.products (
   slug text not null unique,
   description text,
   price numeric(12,2) not null check (price >= 0),
+  compare_at_price numeric(12,2) check (compare_at_price is null or compare_at_price >= 0),
   availability text not null default 'available'
     check (availability in ('available', 'inquiry', 'out_of_stock', 'hidden')),
   is_active boolean not null default true,
@@ -55,6 +56,10 @@ create table if not exists public.products (
   created_at timestamptz not null default timezone('utc', now()),
   updated_at timestamptz not null default timezone('utc', now())
 );
+
+alter table public.products
+add column if not exists compare_at_price numeric(12,2)
+check (compare_at_price is null or compare_at_price >= 0);
 
 create table if not exists public.product_images (
   id uuid primary key default gen_random_uuid(),

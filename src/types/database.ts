@@ -65,6 +65,7 @@ export interface Database {
           slug: string
           description: string | null
           price: number
+          compare_at_price: number | null
           availability: Availability
           is_active: boolean
           featured: boolean
@@ -78,6 +79,7 @@ export interface Database {
           slug: string
           description?: string | null
           price: number
+          compare_at_price?: number | null
           availability?: Availability
           is_active?: boolean
           featured?: boolean
@@ -91,6 +93,7 @@ export interface Database {
           slug?: string
           description?: string | null
           price?: number
+          compare_at_price?: number | null
           availability?: Availability
           is_active?: boolean
           featured?: boolean

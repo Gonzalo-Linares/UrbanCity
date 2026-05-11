@@ -62,6 +62,7 @@ export const mockProducts: ProductRow[] = [
     description:
       'Base negra, suela alta y lectura limpia para uso diario. Un modelo comodo y facil de vender en mostrador o por WhatsApp.',
     price: 68900,
+    compare_at_price: null,
     availability: 'available',
     is_active: true,
     featured: true,
@@ -76,6 +77,7 @@ export const mockProducts: ProductRow[] = [
     description:
       'Perfil clasico, lectura deportiva y combinacion inmediata con jean, cargo o jogger.',
     price: 74200,
+    compare_at_price: 90000,
     availability: 'available',
     is_active: true,
     featured: true,
@@ -90,6 +92,7 @@ export const mockProducts: ProductRow[] = [
     description:
       'Mochila compacta para todos los dias, con interior simple y tono gris cemento que acompana la linea urbana.',
     price: 34900,
+    compare_at_price: null,
     availability: 'available',
     is_active: true,
     featured: false,
@@ -104,6 +107,7 @@ export const mockProducts: ProductRow[] = [
     description:
       'Cana media, bloque oscuro y terminacion resistente. Ideal para clientes que quieren presencia sin salir del uso diario.',
     price: 82900,
+    compare_at_price: null,
     availability: 'inquiry',
     is_active: true,
     featured: true,
@@ -118,6 +122,7 @@ export const mockProducts: ProductRow[] = [
     description:
       'Base gris cemento con detalle verde volt moderado. Una opcion comercial para sumar color sin romper la paleta.',
     price: 77900,
+    compare_at_price: 96000,
     availability: 'available',
     is_active: true,
     featured: true,
@@ -132,6 +137,7 @@ export const mockProducts: ProductRow[] = [
     description:
       'Accesorio de giro rapido para complementar pedido y reforzar la identidad street del local.',
     price: 21900,
+    compare_at_price: null,
     availability: 'out_of_stock',
     is_active: true,
     featured: false,
