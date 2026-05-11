@@ -1,5 +1,5 @@
-import { useDeferredValue, useState } from 'react'
-import { Link } from 'react-router-dom'
+import { useDeferredValue, useMemo, useState } from 'react'
+import { Link, useSearchParams } from 'react-router-dom'
 import { ProductCard } from '@/components/product/ProductCard'
 import {
   ProductFilters,
@@ -14,10 +14,21 @@ import { getDiscountPercent } from '@/lib/pricing'
 
 export function CatalogPage() {
   const { categories, products, loading } = useStorefrontData()
+  const [searchParams, setSearchParams] = useSearchParams()
   const [searchValue, setSearchValue] = useState('')
-  const [selectedCategory, setSelectedCategory] = useState('all')
   const [sortOption, setSortOption] = useState<ProductSortOption>('relevance')
   const deferredSearch = useDeferredValue(searchValue)
+  const selectedCategory = useMemo(() => {
+    const categoryParam = searchParams.get('categoria')?.trim()
+
+    if (!categoryParam) {
+      return 'all'
+    }
+
+    return categories.some((category) => category.slug === categoryParam)
+      ? categoryParam
+      : 'all'
+  }, [categories, searchParams])
 
   if (loading) {
     return <LoadingState label={'Cargando cat\u00e1logo...'} />
@@ -85,6 +96,18 @@ export function CatalogPage() {
           }
         })
 
+  function handleCategoryChange(value: string) {
+    const nextSearchParams = new URLSearchParams(searchParams)
+
+    if (value === 'all') {
+      nextSearchParams.delete('categoria')
+    } else {
+      nextSearchParams.set('categoria', value)
+    }
+
+    setSearchParams(nextSearchParams, { replace: true })
+  }
+
   return (
     <div className="space-y-8">
       <section className="surface-panel p-6 sm:p-8 lg:p-10">
@@ -105,7 +128,7 @@ export function CatalogPage() {
         resultCount={visibleProducts.length}
         sortOption={sortOption}
         onSearchChange={setSearchValue}
-        onCategoryChange={setSelectedCategory}
+        onCategoryChange={handleCategoryChange}
         onSortChange={setSortOption}
       />
 
@@ -121,7 +144,7 @@ export function CatalogPage() {
               variant="secondary"
               onClick={() => {
                 setSearchValue('')
-                setSelectedCategory('all')
+                handleCategoryChange('all')
               }}
             >
               Limpiar filtros

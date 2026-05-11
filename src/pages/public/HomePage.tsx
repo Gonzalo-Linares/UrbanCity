@@ -32,7 +32,7 @@ const instagramTiles = [
 ]
 
 export function HomePage() {
-  const { products, storeSettings, loading } = useStorefrontData()
+  const { products, categories, storeSettings, loading } = useStorefrontData()
   const hasWhatsApp = Boolean(storeSettings.whatsapp_phone)
   const [activeSlide, setActiveSlide] = useState(0)
   const [autoplayVersion, setAutoplayVersion] = useState(0)
@@ -52,19 +52,7 @@ export function HomePage() {
       ]),
     ).values(),
   ).slice(0, 3)
-  const quickCategories = Array.from(
-    new Map(
-      products
-        .filter((product) => product.category)
-        .map((product) => [
-          product.category?.id,
-          {
-            id: product.category?.id ?? product.id,
-            name: product.category?.name ?? 'Categor\u00eda',
-          },
-        ]),
-    ).values(),
-  ).slice(0, 6)
+  const quickCategories = categories.slice(0, 8)
   const instagramUrl =
     storeSettings.instagram_url ?? 'https://www.instagram.com/citycalzadourbano/'
 
@@ -72,9 +60,9 @@ export function HomePage() {
     {
       eyebrow: 'NUEVOS INGRESOS',
       title: 'ZAPATILLAS URBANAS',
-      subtitle: 'PARA TODOS LOS D\u00cdAS',
-      description: 'Eleg\u00ed tu modelo y coordin\u00e1 talles por WhatsApp.',
-      primaryLabel: 'Ver cat\u00e1logo',
+      subtitle: 'PARA TODOS LOS DÍAS',
+      description: 'Elegí tu modelo y coordiná talles por WhatsApp.',
+      primaryLabel: 'Ver catálogo',
       primaryTo: '/catalogo',
       secondaryLabel: 'Consultar talles',
       secondaryHref: hasWhatsApp
@@ -90,7 +78,7 @@ export function HomePage() {
     {
       eyebrow: 'MODELOS DESTACADOS',
       title: 'CITY DROP',
-      subtitle: 'ELEG\u00cd TU PR\u00d3XIMO PAR',
+      subtitle: 'ELEGÍ TU PRÓXIMO PAR',
       description: 'Sneakers y urbanas listas para combinar con tu estilo.',
       primaryLabel: 'Ver destacados',
       primaryTo: '/catalogo',
@@ -107,10 +95,10 @@ export function HomePage() {
     },
     {
       eyebrow: 'PEDIDOS POR WHATSAPP',
-      title: 'ARM\u00c1 TU PEDIDO',
-      subtitle: 'RETIR\u00c1 EN EL LOCAL',
+      title: 'ARMA TU PEDIDO',
+      subtitle: 'RETIRÁ EN EL LOCAL',
       description: 'Confirmamos disponibilidad, talle y retiro por WhatsApp.',
-      primaryLabel: 'Ir al cat\u00e1logo',
+      primaryLabel: 'Ir al catálogo',
       primaryTo: '/catalogo',
       secondaryLabel: 'Consultar disponibilidad',
       secondaryHref: hasWhatsApp
@@ -297,8 +285,8 @@ export function HomePage() {
         {[
           {
             icon: CreditCard,
-            title: '3 cuotas sin inter\u00e9s',
-            copy: 'Pag\u00e1 con tarjeta en 3 cuotas sin inter\u00e9s.',
+            title: '3 cuotas sin interés',
+            copy: 'Pagá con tarjeta en 3 cuotas sin interés.',
           },
           {
             icon: HandCoins,
@@ -350,41 +338,43 @@ export function HomePage() {
             description="En cuanto haya productos publicados, los vas a ver aquí primero."
             action={
               <Link to="/catalogo" className="text-sm font-medium text-brand-strong">
-                {'Ver catálogo'}
+                Ver catálogo
               </Link>
             }
           />
         )}
       </section>
 
-      <section className="space-y-5">
-        <SectionTitle
-          eyebrow="Categorías"
-          title="Compra por categoría"
-          description="Sneakers, urbanas y accesorios para encontrar rápido tu próximo par."
-          tone="light"
-        />
+      {quickCategories.length > 0 ? (
+        <section className="space-y-5">
+          <SectionTitle
+            eyebrow="Categorías"
+            title="Compra por categoría"
+            description="Explorá categorías reales de la tienda y entrá directo al catálogo filtrado."
+            tone="light"
+          />
 
-        <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-          {quickCategories.map((category) => (
-            <Link
-              key={category.id}
-              to="/catalogo"
-              className="rounded-[26px] border border-white/10 bg-[#151515] p-5 shadow-[0_20px_44px_rgba(0,0,0,0.22)] transition hover:border-brand-strong/30 hover:bg-[#1a1a1a]"
-            >
-              <p className="text-xs uppercase tracking-[0.24em] text-brand-strong/82">
-                {'Categoría'}
-              </p>
-              <h3 className="mt-3 text-2xl font-semibold tracking-[-0.04em] text-white">
-                {category.name}
-              </h3>
-              <p className="mt-2 text-sm leading-7 text-white/64">
-                Ver modelos y consultá disponibilidad.
-              </p>
-            </Link>
-          ))}
-        </div>
-      </section>
+          <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+            {quickCategories.map((category) => (
+              <Link
+                key={category.id}
+                to={`/catalogo?categoria=${category.slug}`}
+                className="rounded-[26px] border border-white/10 bg-[#151515] p-5 shadow-[0_20px_44px_rgba(0,0,0,0.22)] transition hover:border-brand-strong/30 hover:bg-[#1a1a1a]"
+              >
+                <p className="text-xs uppercase tracking-[0.24em] text-brand-strong/82">
+                  Categoría
+                </p>
+                <h3 className="mt-3 text-2xl font-semibold tracking-[-0.04em] text-white">
+                  {category.name}
+                </h3>
+                <p className="mt-2 text-sm leading-7 text-white/64">
+                  Ver modelos disponibles
+                </p>
+              </Link>
+            ))}
+          </div>
+        </section>
+      ) : null}
 
       <section className="grid gap-6 lg:grid-cols-[0.92fr_1.08fr]">
         <div className="rounded-[32px] border border-white/10 bg-[#151515] p-6 shadow-[0_28px_60px_rgba(0,0,0,0.24)] sm:p-8">
@@ -395,8 +385,7 @@ export function HomePage() {
             </h2>
             <p className="text-lg text-brand-strong">@citycalzadourbano</p>
             <p className="max-w-lg text-sm leading-7 text-white/68">
-              {'Mirá nuevos ingresos, combinaciones urbanas y modelos que van'}
-              {' '}
+              Mirá nuevos ingresos, combinaciones urbanas y modelos que van
               entrando al local.
             </p>
           </div>
@@ -456,7 +445,7 @@ export function HomePage() {
           <div className="space-y-4">
             <p className="eyebrow">WhatsApp</p>
             <h2 className="text-3xl font-semibold tracking-[-0.04em] text-white sm:text-4xl">
-              {'¿Querés consultar talles o disponibilidad?'}
+              ¿Querés consultar talles o disponibilidad?
             </h2>
             <p className="max-w-2xl text-sm leading-7 text-white/72 sm:text-base">
               Escribinos y coordinamos directo con el local.
