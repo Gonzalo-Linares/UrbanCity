@@ -223,7 +223,6 @@ export function AdminProductsPage() {
   const [submitError, setSubmitError] = useState<string | null>(null)
   const [submitSuccess, setSubmitSuccess] = useState<string | null>(null)
   const [editingProductId, setEditingProductId] = useState<string | null>(null)
-  const [recoveredDraftKey, setRecoveredDraftKey] = useState<string | null>(null)
   const [reloadKey, setReloadKey] = useState(0)
   const [busyProductId, setBusyProductId] = useState<string | null>(null)
   const imageManagerRef = useRef<HTMLDivElement | null>(null)
@@ -269,9 +268,6 @@ export function AdminProductsPage() {
       recoveredDraft ? { ...modeBaseValues, ...recoveredDraft } : modeBaseValues,
     )
     lastHydratedSignatureRef.current = hydrationSignature
-    window.setTimeout(() => {
-      setRecoveredDraftKey(recoveredDraft ? currentDraftKey : null)
-    }, 0)
   }, [currentDraftKey, editingProduct, editingProductId, form])
 
   useEffect(() => {
@@ -280,9 +276,6 @@ export function AdminProductsPage() {
 
       if (areProductDraftsEqual(currentValues, baseValuesRef.current)) {
         clearProductDraft(currentDraftKey)
-        setRecoveredDraftKey((current) =>
-          current === currentDraftKey ? null : current,
-        )
         return
       }
 
@@ -409,16 +402,6 @@ export function AdminProductsPage() {
 
   function discardDraftForCurrentMode() {
     clearProductDraft(currentDraftKey)
-    setRecoveredDraftKey((current) =>
-      current === currentDraftKey ? null : current,
-    )
-  }
-
-  function resetCurrentModeToBase() {
-    const nextBaseValues = buildProductFormValues(editingProduct)
-    baseValuesRef.current = nextBaseValues
-    form.reset(nextBaseValues)
-    setRecoveredDraftKey(null)
   }
 
   function confirmDiscardChanges() {
@@ -515,7 +498,6 @@ export function AdminProductsPage() {
     clearProductDraft(buildDraftKey(createdOrUpdatedProduct.id))
     baseValuesRef.current = nextFormValues
     form.reset(nextFormValues)
-    setRecoveredDraftKey(null)
     setEditingProductId(createdOrUpdatedProduct.id)
     await reloadPage()
   }
@@ -728,23 +710,6 @@ export function AdminProductsPage() {
               `Visible en tienda`, el producto queda inactivo sin borrarse.
             </p>
           </div>
-
-          {recoveredDraftKey === currentDraftKey ? (
-              <div className="flex flex-wrap items-center justify-between gap-3 rounded-[22px] border border-amber-500/20 bg-amber-500/10 px-4 py-3 text-sm text-amber-100">
-              <span>Recuperamos un borrador sin guardar.</span>
-              <Button
-                type="button"
-                variant="ghost"
-                className="text-amber-100 hover:bg-amber-500/12 hover:text-white"
-                onClick={() => {
-                  discardDraftForCurrentMode()
-                  resetCurrentModeToBase()
-                }}
-              >
-                Descartar borrador
-              </Button>
-            </div>
-          ) : null}
 
           <form
             className="space-y-4 [&_label>span]:text-white [&_label>p]:text-white/54 [&_input]:border-white/10 [&_input]:bg-[#0d0d0d] [&_input]:text-white [&_input]:placeholder:text-white/32 [&_select]:border-white/10 [&_select]:bg-[#0d0d0d] [&_select]:text-white [&_textarea]:border-white/10 [&_textarea]:bg-[#0d0d0d] [&_textarea]:text-white [&_textarea]:placeholder:text-white/32"
