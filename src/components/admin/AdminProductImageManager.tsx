@@ -1,11 +1,5 @@
 import { useRef, useState } from 'react'
-import {
-  ArrowDown,
-  ArrowUp,
-  ImagePlus,
-  Trash2,
-  Upload,
-} from 'lucide-react'
+import { ArrowDown, ArrowUp, ImagePlus, Trash2, Upload } from 'lucide-react'
 import { Button } from '@/components/ui/Button'
 import { Card } from '@/components/ui/Card'
 import {
@@ -236,9 +230,7 @@ export function AdminProductImageManager({
   return (
     <Card className="space-y-5 border border-white/10 bg-[#111111] text-white shadow-[0_24px_56px_rgba(0,0,0,0.22)]">
       <div className="space-y-2">
-        <p className="text-sm font-medium text-white">
-          Imágenes de {product.name}
-        </p>
+        <p className="text-sm font-medium text-white">Imágenes de {product.name}</p>
         <p className="text-sm leading-6 text-white/64">
           Podés seleccionar una o varias imágenes. Formatos permitidos:{' '}
           {productImageAllowedMimeTypes
@@ -267,9 +259,7 @@ export function AdminProductImageManager({
               <ImagePlus className="h-5 w-5" />
             </span>
             <div>
-              <p className="text-sm font-medium text-white">
-                Subir imágenes
-              </p>
+              <p className="text-sm font-medium text-white">Subir imágenes</p>
               <p className="text-sm text-white/64">
                 Producto seleccionado: {product.name}. Podés subir una o varias imágenes.
               </p>
@@ -321,9 +311,7 @@ export function AdminProductImageManager({
               </div>
 
               <div className="space-y-2">
-                <p className="text-sm font-medium text-white">
-                  Imagen {index + 1}
-                </p>
+                <p className="text-sm font-medium text-white">Imagen {index + 1}</p>
                 <p className="break-all text-sm text-white/56">{image.url}</p>
                 <p className="text-xs uppercase tracking-[0.22em] text-white/40">
                   Orden actual: {index + 1}
@@ -352,6 +340,7 @@ export function AdminProductImageManager({
                 <Button
                   type="button"
                   variant="ghost"
+                  className="text-white/72 hover:bg-white/8 hover:text-white"
                   disabled={isBusy}
                   onClick={() => void deleteImage(image)}
                 >

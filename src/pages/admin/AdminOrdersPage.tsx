@@ -332,30 +332,30 @@ export function AdminOrdersPage() {
       </div>
 
       {pageError ? (
-        <div className="rounded-[22px] border border-rose-500/15 bg-rose-500/8 px-4 py-3 text-sm text-rose-700">
+        <div className="rounded-[22px] border border-rose-500/18 bg-rose-500/10 px-4 py-3 text-sm text-rose-200">
           {pageError}
         </div>
       ) : null}
 
       {actionError ? (
-        <div className="rounded-[22px] border border-rose-500/15 bg-rose-500/8 px-4 py-3 text-sm text-rose-700">
+        <div className="rounded-[22px] border border-rose-500/18 bg-rose-500/10 px-4 py-3 text-sm text-rose-200">
           {actionError}
         </div>
       ) : null}
 
       {actionSuccess ? (
-        <div className="rounded-[22px] border border-emerald-500/15 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-800">
+        <div className="rounded-[22px] border border-emerald-500/18 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-200">
           {actionSuccess}
         </div>
       ) : null}
 
-      <Card className="space-y-5 border border-stone-900/8 bg-white/88">
+      <Card className="space-y-5 border border-white/10 bg-[#111111] text-white shadow-[0_24px_56px_rgba(0,0,0,0.22)] [&_label>span]:text-white [&_label>p]:text-white/54 [&_input]:border-white/10 [&_input]:bg-[#0d0d0d] [&_input]:text-white [&_input]:placeholder:text-white/32 [&_select]:border-white/10 [&_select]:bg-[#0d0d0d] [&_select]:text-white">
         <div className="grid gap-4 lg:grid-cols-[1fr_240px_auto]">
           <div className="relative">
-            <Search className="pointer-events-none absolute top-1/2 left-4 h-4 w-4 -translate-y-1/2 text-muted" />
+            <Search className="pointer-events-none absolute top-1/2 left-4 h-4 w-4 -translate-y-1/2 text-white/40" />
             <Input
               label="Buscar"
-              placeholder="Codigo, nombre o telefono"
+              placeholder="Código, nombre o teléfono"
               className="pl-10"
               value={searchValue}
               onChange={(event) => setSearchValue(event.target.value)}
@@ -423,11 +423,11 @@ export function AdminOrdersPage() {
         />
       ) : (
         <div className="grid gap-6 xl:grid-cols-[0.92fr_1.08fr]">
-          <Card className="space-y-4 border border-stone-900/8 bg-white/88">
+          <Card className="space-y-4 border border-white/10 bg-[#111111] text-white shadow-[0_24px_56px_rgba(0,0,0,0.22)]">
             <div className="flex items-center justify-between gap-3">
               <div>
-                <p className="text-sm font-medium text-stone-950">Listado</p>
-                <p className="text-sm text-muted">
+                <p className="text-sm font-medium text-white">Listado</p>
+                <p className="text-sm text-white/58">
                   {filteredOrders.length} pedido
                   {filteredOrders.length === 1 ? '' : 's'} visibles.
                 </p>
@@ -442,8 +442,8 @@ export function AdminOrdersPage() {
                   onClick={() => setSelectedOrderId(order.id)}
                   className={`w-full rounded-[24px] border p-4 text-left transition ${
                     selectedOrder?.id === order.id
-                      ? 'border-stone-950 bg-stone-950 text-white shadow-[0_22px_44px_rgba(23,16,12,0.18)]'
-                      : 'border-stone-900/8 bg-stone-50/85 text-stone-950 hover:border-stone-900/14'
+                      ? 'border-brand-strong/40 bg-[#161616] text-white shadow-[0_22px_44px_rgba(0,0,0,0.2)]'
+                      : 'border-white/10 bg-black/20 text-white hover:border-white/16'
                   }`}
                 >
                   <div className="flex flex-wrap items-center justify-between gap-3">
@@ -455,7 +455,7 @@ export function AdminOrdersPage() {
                         className={`text-sm ${
                           selectedOrder?.id === order.id
                             ? 'text-white/75'
-                            : 'text-muted'
+                            : 'text-white/56'
                         }`}
                       >
                         {order.customer_name} | {order.customer_phone}
@@ -478,7 +478,7 @@ export function AdminOrdersPage() {
                     className={`mt-4 grid gap-2 text-sm sm:grid-cols-3 ${
                       selectedOrder?.id === order.id
                         ? 'text-white/78'
-                        : 'text-muted'
+                        : 'text-white/54'
                     }`}
                   >
                     <span>{order.itemCount} item{order.itemCount === 1 ? '' : 's'}</span>
@@ -491,18 +491,18 @@ export function AdminOrdersPage() {
           </Card>
 
           {selectedOrder ? (
-            <Card className="space-y-6 border border-stone-900/8 bg-white/88">
+            <Card className="space-y-6 border border-white/10 bg-[#111111] text-white shadow-[0_24px_56px_rgba(0,0,0,0.22)]">
               <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
                 <div className="space-y-2">
                   <div className="flex flex-wrap items-center gap-2">
-                    <p className="text-2xl font-semibold tracking-[-0.04em] text-stone-950">
+                    <p className="text-2xl font-semibold tracking-[-0.04em] text-white">
                       {selectedOrder.order_code}
                     </p>
                     <StatusBadge tone={orderStatusTone(selectedOrder.status)}>
                       {formatOrderStatus(selectedOrder.status)}
                     </StatusBadge>
                   </div>
-                  <p className="text-sm text-muted">
+                  <p className="text-sm text-white/56">
                     Creado el {formatDateTime(selectedOrder.created_at)}
                   </p>
                 </div>
@@ -532,20 +532,20 @@ export function AdminOrdersPage() {
               </div>
 
               <div className="grid gap-4 lg:grid-cols-2">
-                <div className="rounded-[24px] border border-stone-900/8 bg-stone-50/80 p-4">
-                  <p className="text-xs uppercase tracking-[0.22em] text-muted">
+                <div className="rounded-[24px] border border-white/10 bg-black/20 p-4">
+                  <p className="text-xs uppercase tracking-[0.22em] text-white/40">
                     Cliente
                   </p>
-                  <div className="mt-3 space-y-1 text-sm text-stone-950">
+                  <div className="mt-3 space-y-1 text-sm text-white">
                     <p>{selectedOrder.customer_name}</p>
                     <p>{selectedOrder.customer_phone}</p>
-                    <p className="text-muted">
+                    <p className="text-white/56">
                       {selectedOrder.customer_message || 'Sin mensaje adicional.'}
                     </p>
                   </div>
                 </div>
 
-                <div className="rounded-[24px] border border-stone-900/8 bg-stone-50/80 p-4">
+                <div className="rounded-[24px] border border-white/10 bg-black/20 p-4 [&_label>span]:text-white [&_label>p]:text-white/54 [&_select]:border-white/10 [&_select]:bg-[#0d0d0d] [&_select]:text-white">
                   <SelectField
                     label="Cambiar estado"
                     value={selectedOrder.status}
@@ -565,17 +565,17 @@ export function AdminOrdersPage() {
                         </option>
                       ))}
                   </SelectField>
-                  <p className="mt-3 text-sm leading-6 text-muted">
+                  <p className="mt-3 text-sm leading-6 text-white/56">
                     Entregado / Pagado manualmente solo marca cierre operativo.
-                    No registra pagos online ni reemplaza la coordinacion por WhatsApp.
+                    No registra pagos online ni reemplaza la coordinación por WhatsApp.
                   </p>
                 </div>
               </div>
 
               <div className="space-y-3">
-                <p className="text-sm font-medium text-stone-950">Items del pedido</p>
+                <p className="text-sm font-medium text-white">Items del pedido</p>
                 {selectedOrder.items.length === 0 ? (
-                  <div className="rounded-[22px] border border-dashed border-stone-900/10 bg-stone-50/80 px-4 py-8 text-sm text-muted">
+                  <div className="rounded-[22px] border border-dashed border-white/12 bg-black/20 px-4 py-8 text-sm text-white/58">
                     Este pedido no tiene items asociados.
                   </div>
                 ) : (
@@ -583,17 +583,17 @@ export function AdminOrdersPage() {
                     {selectedOrder.items.map((item) => (
                       <div
                         key={item.id}
-                        className="flex flex-col gap-2 rounded-[22px] border border-stone-900/8 bg-stone-50/80 p-4 sm:flex-row sm:items-center sm:justify-between"
+                        className="flex flex-col gap-2 rounded-[22px] border border-white/10 bg-black/20 p-4 sm:flex-row sm:items-center sm:justify-between"
                       >
                         <div>
-                          <p className="text-sm font-medium text-stone-950">
+                          <p className="text-sm font-medium text-white">
                             {item.product_name}
                           </p>
-                          <p className="text-sm text-muted">
+                          <p className="text-sm text-white/56">
                             {item.quantity} x {formatCurrency(item.unit_price)}
                           </p>
                         </div>
-                        <p className="text-sm font-semibold text-stone-950">
+                        <p className="text-sm font-semibold text-white">
                           {formatCurrency(item.subtotal)}
                         </p>
                       </div>
@@ -603,17 +603,17 @@ export function AdminOrdersPage() {
               </div>
 
               <div className="grid gap-4 lg:grid-cols-[1fr_auto] lg:items-start">
-                <div className="rounded-[24px] border border-stone-900/8 bg-stone-50/80 p-4">
-                  <p className="text-sm font-medium text-stone-950">
+                <div className="rounded-[24px] border border-white/10 bg-black/20 p-4">
+                  <p className="text-sm font-medium text-white">
                     Resumen para copiar o enviar
                   </p>
-                  <pre className="mt-3 overflow-x-auto whitespace-pre-wrap text-sm leading-6 text-stone-700">
+                  <pre className="mt-3 overflow-x-auto whitespace-pre-wrap text-sm leading-6 text-white/74">
                     {selectedOrderMessage}
                   </pre>
                 </div>
 
-                <div className="rounded-[24px] border border-stone-900/8 bg-stone-950 px-5 py-4 text-white">
-                  <p className="text-xs uppercase tracking-[0.22em] text-white/55">
+                <div className="rounded-[24px] border border-white/10 bg-[#0d0d0d] px-5 py-4 text-white">
+                  <p className="text-xs uppercase tracking-[0.22em] text-white/40">
                     Total
                   </p>
                   <p className="mt-2 text-3xl font-semibold tracking-[-0.04em]">

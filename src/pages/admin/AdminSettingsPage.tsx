@@ -169,8 +169,8 @@ export function AdminSettingsPage() {
 
     setSubmitSuccess(
       currentSettingsId
-        ? 'Configuracion del comercio actualizada correctamente.'
-        : 'Configuracion del comercio creada correctamente.',
+        ? 'Configuración del comercio actualizada correctamente.'
+        : 'Configuración del comercio creada correctamente.',
     )
     form.reset({
       storeName: payload.store_name,
@@ -188,46 +188,46 @@ export function AdminSettingsPage() {
     <div className="space-y-8">
       <section className="surface-panel p-6 sm:p-8 lg:p-10">
         <SectionTitle
-          eyebrow="Configuracion"
+          eyebrow="Configuración"
           title="Edita la ficha comercial de la tienda"
-          description="Estos datos impactan en header, footer, contacto y checkout. La app espera una unica fila en store_settings y siempre usa la primera segun created_at ascendente."
+          description="Estos datos impactan en header, footer, contacto y checkout. La app espera una única fila en store_settings y siempre usa la primera según created_at ascendente."
           tone="light"
         />
       </section>
 
       {!storeSettings ? (
-        <div className="rounded-[22px] border border-amber-500/15 bg-amber-500/10 px-4 py-3 text-sm text-amber-900">
+        <div className="rounded-[22px] border border-amber-500/20 bg-amber-500/10 px-4 py-3 text-sm text-amber-100">
           Falta configurar los datos del comercio. Completa este formulario para
           crear la primera fila en `store_settings`.
         </div>
       ) : null}
 
       {submitError ? (
-        <div className="rounded-[22px] border border-rose-500/15 bg-rose-500/8 px-4 py-3 text-sm text-rose-700">
+        <div className="rounded-[22px] border border-rose-500/18 bg-rose-500/10 px-4 py-3 text-sm text-rose-200">
           {submitError}
         </div>
       ) : null}
 
       {submitSuccess ? (
-        <div className="rounded-[22px] border border-emerald-500/15 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-800">
+        <div className="rounded-[22px] border border-emerald-500/18 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-200">
           {submitSuccess}
         </div>
       ) : null}
 
       <div className="grid gap-6 xl:grid-cols-[1.08fr_0.92fr]">
-        <Card className="space-y-6 border border-stone-900/8 bg-white/88">
+        <Card className="space-y-6 border border-white/10 bg-[#111111] text-white shadow-[0_24px_56px_rgba(0,0,0,0.22)]">
           <div className="space-y-2">
-            <p className="text-sm font-medium text-stone-950">
-              {storeSettings ? 'Editar configuracion' : 'Crear configuracion inicial'}
+            <p className="text-sm font-medium text-white">
+              {storeSettings ? 'Editar configuración' : 'Crear configuración inicial'}
             </p>
-            <p className="text-sm leading-6 text-muted">
+            <p className="text-sm leading-6 text-white/60">
               Solo admin autenticado puede modificar esta ficha. No hace falta entrar
-              a Supabase manualmente para cambiar WhatsApp, Instagram, direccion,
+              a Supabase manualmente para cambiar WhatsApp, Instagram, dirección,
               horarios o el mensaje de checkout.
             </p>
           </div>
 
-          <form className="space-y-5" onSubmit={form.handleSubmit(handleSubmit)}>
+          <form className="space-y-5 [&_label>span]:text-white [&_label>p]:text-white/54 [&_input]:border-white/10 [&_input]:bg-[#0d0d0d] [&_input]:text-white [&_input]:placeholder:text-white/32 [&_textarea]:border-white/10 [&_textarea]:bg-[#0d0d0d] [&_textarea]:text-white [&_textarea]:placeholder:text-white/32" onSubmit={form.handleSubmit(handleSubmit)}>
             <div className="grid gap-5 sm:grid-cols-2">
               <Input
                 label="Nombre del comercio"
@@ -241,7 +241,7 @@ export function AdminSettingsPage() {
                 label="WhatsApp"
                 placeholder="5491122334455"
                 autoComplete="tel"
-                hint="Puedes escribirlo con espacios o simbolos. Se guarda normalizado a numeros."
+                hint="Podés escribirlo con espacios o símbolos. Se guarda normalizado a números."
                 error={form.formState.errors.whatsappPhone?.message}
                 {...form.register('whatsappPhone')}
               />
@@ -257,7 +257,7 @@ export function AdminSettingsPage() {
             />
 
             <Input
-              label="Direccion"
+              label="Dirección"
               placeholder="Av. Ejemplo 123, Palermo"
               error={form.formState.errors.address?.message}
               {...form.register('address')}
@@ -289,12 +289,13 @@ export function AdminSettingsPage() {
                   ? 'Guardando...'
                   : storeSettings
                     ? 'Guardar cambios'
-                    : 'Crear configuracion'}
+                    : 'Crear configuración'}
               </Button>
 
               <Button
                 type="button"
                 variant="ghost"
+                className="text-white/72 hover:bg-white/8 hover:text-white"
                 onClick={() => {
                   form.reset(toFormValues(storeSettings))
                   setSubmitError(null)
@@ -308,36 +309,36 @@ export function AdminSettingsPage() {
         </Card>
 
         <div className="space-y-6">
-          <Card className="space-y-5 border border-stone-900/8 bg-white/88">
+          <Card className="space-y-5 border border-white/10 bg-[#111111] text-white shadow-[0_24px_56px_rgba(0,0,0,0.22)]">
             <div className="space-y-2">
-              <p className="text-sm font-medium text-stone-950">Preview rapido</p>
-              <p className="text-sm leading-6 text-muted">
-                Sirve para validar como se veran los accesos comerciales antes de guardar.
+              <p className="text-sm font-medium text-white">Preview rápido</p>
+              <p className="text-sm leading-6 text-white/60">
+                Sirve para validar cómo se verán los accesos comerciales antes de guardar.
               </p>
             </div>
 
             <div className="grid gap-4 sm:grid-cols-2">
-              <div className="rounded-[24px] border border-stone-900/8 bg-stone-50/80 p-4">
-                <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-stone-950 text-white">
+              <div className="rounded-[24px] border border-white/10 bg-black/20 p-4">
+                <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-black/20 text-brand-strong">
                   <Store className="h-5 w-5" />
                 </div>
-                <p className="mt-4 text-xs uppercase tracking-[0.22em] text-muted">
+                <p className="mt-4 text-xs uppercase tracking-[0.22em] text-white/40">
                   Comercio
                 </p>
-                <p className="mt-2 text-lg font-semibold tracking-[-0.03em] text-stone-950">
+                <p className="mt-2 text-lg font-semibold tracking-[-0.03em] text-white">
                   {previewStoreName}
                 </p>
               </div>
 
-              <div className="rounded-[24px] border border-stone-900/8 bg-stone-50/80 p-4">
-                <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-stone-950 text-white">
+              <div className="rounded-[24px] border border-white/10 bg-black/20 p-4">
+                <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-black/20 text-brand-strong">
                   <MessageCircle className="h-5 w-5" />
                 </div>
-                <p className="mt-4 text-xs uppercase tracking-[0.22em] text-muted">
+                <p className="mt-4 text-xs uppercase tracking-[0.22em] text-white/40">
                   WhatsApp
                 </p>
-                <p className="mt-2 text-sm text-stone-950">
-                  {normalizedWhatsAppPhone || 'Sin numero valido todavia'}
+                <p className="mt-2 text-sm text-white">
+                  {normalizedWhatsAppPhone || 'Sin número válido todavía'}
                 </p>
                 {previewWhatsAppUrl ? (
                   <a
@@ -350,44 +351,44 @@ export function AdminSettingsPage() {
                     <ExternalLink className="h-4 w-4" />
                   </a>
                 ) : (
-                  <p className="mt-3 text-sm text-muted">
-                    Completa un telefono valido para habilitar el preview.
+                  <p className="mt-3 text-sm text-white/54">
+                    Completa un teléfono válido para habilitar el preview.
                   </p>
                 )}
               </div>
             </div>
 
-            <div className="space-y-3 rounded-[24px] border border-stone-900/8 bg-stone-50/80 p-4">
-              <p className="text-xs uppercase tracking-[0.22em] text-muted">
+            <div className="space-y-3 rounded-[24px] border border-white/10 bg-black/20 p-4">
+              <p className="text-xs uppercase tracking-[0.22em] text-white/40">
                 Impacto en la tienda
               </p>
               <div className="grid gap-3 sm:grid-cols-2">
-                <div className="flex items-start gap-3 text-sm text-stone-700">
-                  <AtSign className="mt-0.5 h-4 w-4 text-stone-950" />
+                <div className="flex items-start gap-3 text-sm text-white/64">
+                  <AtSign className="mt-0.5 h-4 w-4 text-brand-strong" />
                   <span>Instagram y WhatsApp visibles en header, footer y contacto.</span>
                 </div>
-                <div className="flex items-start gap-3 text-sm text-stone-700">
-                  <MapPin className="mt-0.5 h-4 w-4 text-stone-950" />
-                  <span>Direccion usada en la pagina de contacto.</span>
+                <div className="flex items-start gap-3 text-sm text-white/64">
+                  <MapPin className="mt-0.5 h-4 w-4 text-brand-strong" />
+                  <span>Dirección usada en la página de contacto.</span>
                 </div>
-                <div className="flex items-start gap-3 text-sm text-stone-700">
-                  <Timer className="mt-0.5 h-4 w-4 text-stone-950" />
-                  <span>Horarios visibles para coordinar retiro y atencion.</span>
+                <div className="flex items-start gap-3 text-sm text-white/64">
+                  <Timer className="mt-0.5 h-4 w-4 text-brand-strong" />
+                  <span>Horarios visibles para coordinar retiro y atención.</span>
                 </div>
-                <div className="flex items-start gap-3 text-sm text-stone-700">
-                  <TriangleAlert className="mt-0.5 h-4 w-4 text-stone-950" />
+                <div className="flex items-start gap-3 text-sm text-white/64">
+                  <TriangleAlert className="mt-0.5 h-4 w-4 text-brand-strong" />
                   <span>Mensaje de checkout agregado al pedido por WhatsApp.</span>
                 </div>
               </div>
             </div>
           </Card>
 
-          <Card className="space-y-4 border border-stone-900/8 bg-white/88">
-            <p className="text-sm font-medium text-stone-950">Links configurados</p>
+          <Card className="space-y-4 border border-white/10 bg-[#111111] text-white shadow-[0_24px_56px_rgba(0,0,0,0.22)]">
+            <p className="text-sm font-medium text-white">Links configurados</p>
 
             <div className="space-y-3 text-sm">
-              <div className="rounded-[22px] border border-stone-900/8 bg-stone-50/80 p-4">
-                <p className="text-xs uppercase tracking-[0.22em] text-muted">
+              <div className="rounded-[22px] border border-white/10 bg-black/20 p-4">
+                <p className="text-xs uppercase tracking-[0.22em] text-white/40">
                   Instagram
                 </p>
                 {previewInstagramUrl ? (
@@ -395,24 +396,24 @@ export function AdminSettingsPage() {
                     href={previewInstagramUrl}
                     target="_blank"
                     rel="noreferrer"
-                    className="mt-2 inline-flex items-center gap-2 font-medium text-stone-950 hover:text-brand-strong"
+                    className="mt-2 inline-flex items-center gap-2 font-medium text-white hover:text-brand-strong"
                   >
                     {previewInstagramUrl}
                     <ExternalLink className="h-4 w-4" />
                   </a>
                 ) : (
-                  <p className="mt-2 text-muted">Sin link configurado.</p>
+                  <p className="mt-2 text-white/54">Sin link configurado.</p>
                 )}
               </div>
 
-              <div className="rounded-[22px] border border-stone-900/8 bg-stone-50/80 p-4">
-                <p className="text-xs uppercase tracking-[0.22em] text-muted">
-                  Direccion y horarios
+              <div className="rounded-[22px] border border-white/10 bg-black/20 p-4">
+                <p className="text-xs uppercase tracking-[0.22em] text-white/40">
+                  Dirección y horarios
                 </p>
-                <p className="mt-2 text-stone-950">
-                  {(addressValue ?? '').trim() || 'Direccion sin configurar'}
+                <p className="mt-2 text-white">
+                  {(addressValue ?? '').trim() || 'Dirección sin configurar'}
                 </p>
-                <p className="mt-1 text-muted">
+                <p className="mt-1 text-white/54">
                   {(openingHoursValue ?? '').trim() || 'Horarios sin configurar'}
                 </p>
               </div>

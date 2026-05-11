@@ -11,9 +11,9 @@ import { useAdminShellData } from '@/hooks/useAdminShellData'
 const pageTitles: Record<string, string> = {
   '/admin': 'Resumen general',
   '/admin/productos': 'Productos',
-  '/admin/categorias': 'Categorias',
+  '/admin/categorias': 'Categorías',
   '/admin/pedidos': 'Pedidos',
-  '/admin/configuracion': 'Configuracion',
+  '/admin/configuracion': 'Configuración',
 }
 
 function AdminShell() {
@@ -24,7 +24,7 @@ function AdminShell() {
   const currentTitle = pageTitles[location.pathname] ?? 'Panel admin'
 
   return (
-    <div className="min-h-screen bg-[linear-gradient(180deg,#050505_0%,#0c0c0c_18%,#151515_100%)] lg:grid lg:grid-cols-[18rem_1fr]">
+    <div className="min-h-screen bg-[linear-gradient(180deg,#040404_0%,#090909_18%,#111111_100%)] lg:grid lg:grid-cols-[18rem_1fr]">
       <AdminSidebar
         counts={adminData.counts}
         storeName={adminData.storeName}
@@ -62,7 +62,7 @@ function AdminShell() {
             <div className="flex items-center gap-2 sm:gap-3">
               <div className="hidden items-center gap-3 rounded-full border border-white/10 bg-white/6 px-4 py-2 sm:flex">
                 <span className="inline-flex h-2.5 w-2.5 rounded-full bg-brand-strong" />
-                <span className="text-sm text-white/70">Sesion activa</span>
+                <span className="text-sm text-white/70">Sesión activa</span>
                 <span className="text-sm font-medium text-white">
                   {user?.email ?? 'admin'}
                 </span>
@@ -91,7 +91,7 @@ function AdminShell() {
                 onClick={() => void signOut()}
               >
                 <LogOut className="h-4 w-4" />
-                <span className="hidden sm:inline">Cerrar sesion</span>
+                <span className="hidden sm:inline">Cerrar sesión</span>
               </Button>
             </div>
           </div>
@@ -131,12 +131,12 @@ export function AdminLayout() {
         title="No autorizado"
         description={
           error ??
-          'Tu usuario esta autenticado, pero no tiene acceso habilitado al panel admin.'
+          'Tu usuario está autenticado, pero no tiene acceso habilitado al panel admin.'
         }
         action={
           <Button type="button" variant="secondary" onClick={() => void signOut()}>
             <LogOut className="h-4 w-4" />
-            Cerrar sesion
+            Cerrar sesión
           </Button>
         }
       />

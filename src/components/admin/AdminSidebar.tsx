@@ -34,7 +34,7 @@ const navItems = [
   },
   {
     to: '/admin/categorias',
-    label: 'Categorias',
+    label: 'Categorías',
     icon: Tags,
     badgeKey: 'categoriesTotal',
   },
@@ -46,7 +46,7 @@ const navItems = [
   },
   {
     to: '/admin/configuracion',
-    label: 'Configuracion',
+    label: 'Configuración',
     icon: Settings,
     badgeKey: null,
   },
@@ -74,7 +74,7 @@ export function AdminSidebar({
           <p className="text-lg font-semibold tracking-[-0.03em] text-white">
             {storeName}
           </p>
-          <p className="text-xs text-white/55">Catalogo, pedidos y operacion.</p>
+          <p className="text-xs text-white/55">Catálogo, pedidos y operación.</p>
           <p className="text-xs text-white/40">{sessionEmail}</p>
         </div>
 
@@ -82,7 +82,7 @@ export function AdminSidebar({
           type="button"
           className="inline-flex h-10 w-10 items-center justify-center rounded-full text-white/70 hover:bg-white/10 lg:hidden"
           onClick={onClose}
-          aria-label="Cerrar menu admin"
+          aria-label="Cerrar menú admin"
         >
           <X className="h-5 w-5" />
         </button>
@@ -124,7 +124,7 @@ export function AdminSidebar({
       </nav>
 
       <div className="border-t border-white/10 px-5 py-5 text-sm leading-6 text-white/62">
-        Los pedidos siguen siendo coordinados por WhatsApp. El panel solo ordena la operacion.
+        Los pedidos siguen siendo coordinados por WhatsApp. El panel solo ordena la operación.
       </div>
     </div>
   )
@@ -141,7 +141,7 @@ export function AdminSidebar({
             type="button"
             className="absolute inset-0 bg-stone-950/55 backdrop-blur-[2px]"
             onClick={onClose}
-            aria-label="Cerrar navegacion admin"
+            aria-label="Cerrar navegación admin"
           />
           <aside className="absolute inset-y-0 left-0 flex w-[86vw] max-w-sm flex-col bg-stone-950 shadow-[0_30px_80px_rgba(0,0,0,0.35)]">
             {sidebarContent}

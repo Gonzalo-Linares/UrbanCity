@@ -34,7 +34,7 @@ export function AdminCategoriesPage() {
   const [categories, setCategories] = useState<CategoryListItem[]>([])
   const [listLoading, setListLoading] = useState(isSupabaseConfigured)
   const [pageError, setPageError] = useState<string | null>(
-    isSupabaseConfigured ? null : 'Configura Supabase para administrar categorias.',
+    isSupabaseConfigured ? null : 'Configura Supabase para administrar categorías.',
   )
   const [submitError, setSubmitError] = useState<string | null>(null)
   const [submitSuccess, setSubmitSuccess] = useState<string | null>(null)
@@ -84,7 +84,7 @@ export function AdminCategoriesPage() {
       }
 
       if (categoriesResult.error || productsResult.error) {
-        setPageError('No se pudieron cargar las categorias desde Supabase.')
+        setPageError('No se pudieron cargar las categorías desde Supabase.')
         setListLoading(false)
         return
       }
@@ -119,7 +119,7 @@ export function AdminCategoriesPage() {
   }, [reloadKey])
 
   if (loading || listLoading) {
-    return <LoadingState label="Cargando categorias..." />
+    return <LoadingState label="Cargando categorías..." />
   }
 
   async function reloadPage() {
@@ -129,7 +129,7 @@ export function AdminCategoriesPage() {
 
   async function handleSubmit(values: AdminCategorySchema) {
     if (!supabase) {
-      setSubmitError('Configura Supabase para administrar categorias.')
+      setSubmitError('Configura Supabase para administrar categorías.')
       return
     }
 
@@ -200,9 +200,9 @@ export function AdminCategoriesPage() {
     <div className="space-y-8">
       <section className="surface-panel p-6 sm:p-8 lg:p-10">
         <SectionTitle
-          eyebrow="Categorias"
-          title="Administra la taxonomia del catalogo"
-          description="Alta, edicion y activacion de categorias con slugs consistentes para que la navegacion publica de la tienda se mantenga prolija."
+          eyebrow="Categorías"
+          title="Administra la taxonomía del catálogo"
+          description="Alta, edición y activación de categorías con slugs consistentes para que la navegación pública de la tienda se mantenga prolija."
           tone="light"
         />
       </section>
@@ -229,37 +229,40 @@ export function AdminCategoriesPage() {
       </div>
 
       {pageError ? (
-        <div className="rounded-[22px] border border-rose-500/15 bg-rose-500/8 px-4 py-3 text-sm text-rose-700">
+        <div className="rounded-[22px] border border-rose-500/18 bg-rose-500/10 px-4 py-3 text-sm text-rose-200">
           {pageError}
         </div>
       ) : null}
 
       {submitError ? (
-        <div className="rounded-[22px] border border-rose-500/15 bg-rose-500/8 px-4 py-3 text-sm text-rose-700">
+        <div className="rounded-[22px] border border-rose-500/18 bg-rose-500/10 px-4 py-3 text-sm text-rose-200">
           {submitError}
         </div>
       ) : null}
 
       {submitSuccess ? (
-        <div className="rounded-[22px] border border-emerald-500/15 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-800">
+        <div className="rounded-[22px] border border-emerald-500/18 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-200">
           {submitSuccess}
         </div>
       ) : null}
 
       <div className="grid gap-6 xl:grid-cols-[0.92fr_1.08fr]">
-        <Card className="space-y-5 border border-stone-900/8 bg-white/88">
+        <Card className="space-y-5 border border-white/10 bg-[#111111] text-white shadow-[0_24px_56px_rgba(0,0,0,0.22)]">
           <div className="space-y-2">
-            <p className="text-sm font-medium text-stone-950">
-              {editingCategory ? 'Editar categoria' : 'Nueva categoria'}
+            <p className="text-sm font-medium text-white">
+              {editingCategory ? 'Editar categoría' : 'Nueva categoría'}
             </p>
-            <p className="text-sm leading-6 text-muted">
-              Si dejas el slug vacio, se genera automaticamente desde el nombre.
-              Desactivar una categoria no elimina productos: solo deja de mostrarla
-              como categoria activa en la tienda.
+            <p className="text-sm leading-6 text-white/60">
+              Si dejas el slug vacío, se genera automáticamente desde el nombre.
+              Desactivar una categoría no elimina productos: solo deja de mostrarla
+              como categoría activa en la tienda.
             </p>
           </div>
 
-          <form className="space-y-4" onSubmit={form.handleSubmit(handleSubmit)}>
+          <form
+            className="space-y-4 [&_label>span]:text-white [&_label>p]:text-white/54 [&_input]:border-white/10 [&_input]:bg-[#0d0d0d] [&_input]:text-white [&_input]:placeholder:text-white/32 [&_textarea]:border-white/10 [&_textarea]:bg-[#0d0d0d] [&_textarea]:text-white [&_textarea]:placeholder:text-white/32"
+            onSubmit={form.handleSubmit(handleSubmit)}
+          >
             <Input
               label="Nombre"
               placeholder="Ej: Deco, Regalos, Oficina"
@@ -270,14 +273,14 @@ export function AdminCategoriesPage() {
             <Input
               label="Slug"
               placeholder="deco"
-              hint="Se usa en URLs. Si queda vacio, se autogenera."
+              hint="Se usa en URLs. Si queda vacío, se autogenera."
               error={form.formState.errors.slug?.message}
               {...form.register('slug')}
             />
 
             <Textarea
-              label="Descripcion"
-                placeholder="Breve contexto para el panel o para la tienda."
+              label="Descripción"
+              placeholder="Breve contexto para el panel o para la tienda."
               error={form.formState.errors.description?.message}
               {...form.register('description')}
             />
@@ -288,31 +291,32 @@ export function AdminCategoriesPage() {
                 variant="secondary"
                 disabled={form.formState.isSubmitting}
               >
-                {editingCategory ? 'Guardar cambios' : 'Crear categoria'}
+                {editingCategory ? 'Guardar cambios' : 'Crear categoría'}
               </Button>
 
               {editingCategory ? (
                 <Button
                   type="button"
                   variant="ghost"
+                  className="text-white/72 hover:bg-white/8 hover:text-white"
                   onClick={() => {
                     setEditingCategory(null)
                     form.reset(defaultValues)
                   }}
                 >
-                  Cancelar edicion
+                  Cancelar edición
                 </Button>
               ) : null}
             </div>
           </form>
         </Card>
 
-        <Card className="space-y-5 border border-stone-900/8 bg-white/88">
+        <Card className="space-y-5 border border-white/10 bg-[#111111] text-white shadow-[0_24px_56px_rgba(0,0,0,0.22)]">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div>
-              <p className="text-sm font-medium text-stone-950">Listado</p>
-              <p className="text-sm text-muted">
-                {categories.length} categoria{categories.length === 1 ? '' : 's'} cargadas.
+              <p className="text-sm font-medium text-white">Listado</p>
+              <p className="text-sm text-white/58">
+                {categories.length} categoría{categories.length === 1 ? '' : 's'} cargadas.
               </p>
             </div>
 
@@ -324,21 +328,21 @@ export function AdminCategoriesPage() {
 
           <div className="space-y-3">
             {categories.length === 0 ? (
-              <div className="rounded-[22px] border border-dashed border-stone-900/10 bg-stone-50/80 px-4 py-8 text-sm text-muted">
-                Todavia no hay categorias cargadas. Crea la primera para ordenar
-                el catalogo sin afectar productos existentes.
+              <div className="rounded-[22px] border border-dashed border-white/12 bg-black/20 px-4 py-8 text-sm text-white/58">
+                Todavía no hay categorías cargadas. Crea la primera para ordenar
+                el catálogo sin afectar productos existentes.
               </div>
             ) : null}
 
             {categories.map((category) => (
               <div
                 key={category.id}
-                className="rounded-[24px] border border-stone-900/8 bg-stone-50/85 p-4"
+                className="rounded-[24px] border border-white/10 bg-black/20 p-4"
               >
                 <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
                   <div className="space-y-3">
                     <div className="flex flex-wrap items-center gap-2">
-                      <p className="text-lg font-semibold tracking-[-0.03em] text-stone-950">
+                      <p className="text-lg font-semibold tracking-[-0.03em] text-white">
                         {category.name}
                       </p>
                       <StatusBadge tone={category.is_active ? 'success' : 'muted'}>
@@ -349,13 +353,13 @@ export function AdminCategoriesPage() {
                         {category.productCount === 1 ? '' : 's'}
                       </StatusBadge>
                     </div>
-                    <div className="space-y-1 text-sm text-muted">
+                    <div className="space-y-1 text-sm text-white/58">
                       <p>Slug: {category.slug}</p>
-                      <p>{category.description || 'Sin descripcion.'}</p>
+                      <p>{category.description || 'Sin descripción.'}</p>
                       {!category.is_active ? (
                         <p>
-                          La categoria esta inactiva. Los productos asociados siguen
-                          existiendo y pueden reasignarse o mostrarse en otras categorias.
+                          La categoría está inactiva. Los productos asociados siguen
+                          existiendo y pueden reasignarse o mostrarse en otras categorías.
                         </p>
                       ) : null}
                     </div>
@@ -377,6 +381,7 @@ export function AdminCategoriesPage() {
                     <Button
                       type="button"
                       variant="ghost"
+                      className="text-white/72 hover:bg-white/8 hover:text-white"
                       onClick={() => void toggleCategory(category)}
                       disabled={busyCategoryId === category.id}
                     >

@@ -26,7 +26,7 @@ export function AdminDashboardPage() {
         <SectionTitle
           eyebrow="Admin"
           title={`Resumen de ${storeName}`}
-          description="Vista operativa simple para saber si el catalogo, los pedidos y la configuracion base del comercio estan en orden."
+          description="Vista operativa simple para saber si el catálogo, los pedidos y la configuración base del comercio están en orden."
           tone="light"
         />
       </section>
@@ -59,14 +59,14 @@ export function AdminDashboardPage() {
       </div>
 
       <div className="grid gap-5 lg:grid-cols-[1.15fr_0.85fr]">
-        <Card className="border border-stone-900/8 bg-white/88">
+        <Card className="border border-white/10 bg-[#111111] text-white shadow-[0_24px_56px_rgba(0,0,0,0.22)]">
           <div className="space-y-4">
             <div>
-              <p className="text-sm font-medium text-stone-950">
-                Estado rapido de pedidos
+              <p className="text-sm font-medium text-white">
+                Estado rápido de pedidos
               </p>
-              <p className="mt-1 text-sm text-muted">
-                Conteos basicos para priorizar seguimiento comercial.
+              <p className="mt-1 text-sm text-white/60">
+                Conteos básicos para priorizar seguimiento comercial.
               </p>
             </div>
             <div className="grid gap-3 sm:grid-cols-2">
@@ -79,12 +79,12 @@ export function AdminDashboardPage() {
               ].map(([label, value]) => (
                 <div
                   key={label}
-                  className="rounded-[22px] border border-stone-900/8 bg-stone-50/80 p-4"
+                  className="rounded-[22px] border border-white/10 bg-black/20 p-4"
                 >
-                  <p className="text-xs uppercase tracking-[0.22em] text-muted">
+                  <p className="text-xs uppercase tracking-[0.22em] text-white/40">
                     {label}
                   </p>
-                  <p className="mt-2 text-2xl font-semibold tracking-[-0.03em] text-stone-950">
+                  <p className="mt-2 text-2xl font-semibold tracking-[-0.03em] text-white">
                     {value}
                   </p>
                 </div>
@@ -93,28 +93,28 @@ export function AdminDashboardPage() {
           </div>
         </Card>
 
-        <Card className="border border-stone-900/8 bg-white/88">
+        <Card className="border border-white/10 bg-[#111111] text-white shadow-[0_24px_56px_rgba(0,0,0,0.22)]">
           <div className="grid gap-4">
             <div>
-              <p className="text-sm font-medium text-stone-950">Sesion</p>
-              <p className="mt-1 text-sm text-muted">
+              <p className="text-sm font-medium text-white">Sesión</p>
+              <p className="mt-1 text-sm text-white/60">
                 El acceso sigue limitado a Supabase Auth + admin activo.
               </p>
             </div>
-            <div className="rounded-[22px] border border-stone-900/8 bg-stone-50/80 p-4">
-              <p className="text-xs uppercase tracking-[0.22em] text-muted">
+            <div className="rounded-[22px] border border-white/10 bg-black/20 p-4">
+              <p className="text-xs uppercase tracking-[0.22em] text-white/40">
                 Email autenticado
               </p>
-              <p className="mt-2 text-lg font-semibold text-stone-950">
+              <p className="mt-2 text-lg font-semibold text-white">
                 {user?.email ?? 'Sin email'}
               </p>
             </div>
-            <div className="rounded-[22px] border border-stone-900/8 bg-stone-50/80 p-4">
-              <p className="text-xs uppercase tracking-[0.22em] text-muted">
+            <div className="rounded-[22px] border border-white/10 bg-black/20 p-4">
+              <p className="text-xs uppercase tracking-[0.22em] text-white/40">
                 Estado admin
               </p>
-              <p className="mt-2 inline-flex items-center gap-2 text-lg font-semibold text-stone-950">
-                <Clock3 className="h-4 w-4 text-emerald-600" />
+              <p className="mt-2 inline-flex items-center gap-2 text-lg font-semibold text-white">
+                <Clock3 className="h-4 w-4 text-brand-strong" />
                 {adminUser?.is_active ? 'Activo' : 'Inactivo'}
               </p>
             </div>

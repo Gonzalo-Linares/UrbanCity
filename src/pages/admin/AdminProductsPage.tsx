@@ -641,16 +641,16 @@ export function AdminProductsPage() {
         />
       </div>
 
-      <Card className="space-y-5 border border-stone-900/8 bg-white/88">
+      <Card className="space-y-5 border border-white/10 bg-[#111111] text-white shadow-[0_24px_56px_rgba(0,0,0,0.22)]">
         <div className="flex items-start gap-3">
           <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-stone-950 text-white">
             <CircleHelp className="h-5 w-5" />
           </span>
           <div className="space-y-2">
-            <p className="text-sm font-medium text-stone-950">
+            <p className="text-sm font-medium text-white">
               Guía rápida de visibilidad y disponibilidad
             </p>
-            <p className="text-sm leading-6 text-muted">
+            <p className="text-sm leading-6 text-white/60">
               `Visible en tienda` controla si el producto puede mostrarse. La
               `Disponibilidad` define como se ofrece comercialmente. No son lo mismo.
             </p>
@@ -690,52 +690,52 @@ export function AdminProductsPage() {
           ].map((item) => (
             <div
               key={item.title}
-              className="rounded-[22px] border border-stone-900/8 bg-stone-50/80 p-4"
+              className="rounded-[22px] border border-white/10 bg-black/20 p-4"
             >
-              <p className="text-sm font-medium text-stone-950">{item.title}</p>
-              <p className="mt-2 text-sm leading-6 text-muted">{item.copy}</p>
+              <p className="text-sm font-medium text-white">{item.title}</p>
+              <p className="mt-2 text-sm leading-6 text-white/56">{item.copy}</p>
             </div>
           ))}
         </div>
       </Card>
 
       {pageError ? (
-        <div className="rounded-[22px] border border-rose-500/15 bg-rose-500/8 px-4 py-3 text-sm text-rose-700">
+        <div className="rounded-[22px] border border-rose-500/18 bg-rose-500/10 px-4 py-3 text-sm text-rose-200">
           {pageError}
         </div>
       ) : null}
 
       {submitError ? (
-        <div className="rounded-[22px] border border-rose-500/15 bg-rose-500/8 px-4 py-3 text-sm text-rose-700">
+        <div className="rounded-[22px] border border-rose-500/18 bg-rose-500/10 px-4 py-3 text-sm text-rose-200">
           {submitError}
         </div>
       ) : null}
 
       {submitSuccess ? (
-        <div className="rounded-[22px] border border-emerald-500/15 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-800">
+        <div className="rounded-[22px] border border-emerald-500/18 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-200">
           {submitSuccess}
         </div>
       ) : null}
 
       <div className="grid gap-6 xl:grid-cols-[0.92fr_1.08fr]">
-        <Card className="space-y-5 border border-stone-900/8 bg-white/88">
+        <Card className="space-y-5 border border-white/10 bg-[#111111] text-white shadow-[0_24px_56px_rgba(0,0,0,0.22)]">
           <div className="space-y-2">
-            <p className="text-sm font-medium text-stone-950">
+              <p className="text-sm font-medium text-white">
               {editingProduct ? 'Editar producto' : 'Nuevo producto'}
             </p>
-            <p className="text-sm leading-6 text-muted">
+            <p className="text-sm leading-6 text-white/60">
               El slug se genera automáticamente si lo dejas vacío. Si quitas
               `Visible en tienda`, el producto queda inactivo sin borrarse.
             </p>
           </div>
 
           {recoveredDraftKey === currentDraftKey ? (
-            <div className="flex flex-wrap items-center justify-between gap-3 rounded-[22px] border border-amber-500/20 bg-amber-500/10 px-4 py-3 text-sm text-amber-900">
+              <div className="flex flex-wrap items-center justify-between gap-3 rounded-[22px] border border-amber-500/20 bg-amber-500/10 px-4 py-3 text-sm text-amber-100">
               <span>Recuperamos un borrador sin guardar.</span>
               <Button
                 type="button"
                 variant="ghost"
-                className="text-amber-950 hover:bg-amber-500/12"
+                className="text-amber-100 hover:bg-amber-500/12 hover:text-white"
                 onClick={() => {
                   discardDraftForCurrentMode()
                   resetCurrentModeToBase()
@@ -747,7 +747,7 @@ export function AdminProductsPage() {
           ) : null}
 
           <form
-            className="space-y-4"
+            className="space-y-4 [&_label>span]:text-white [&_label>p]:text-white/54 [&_input]:border-white/10 [&_input]:bg-[#0d0d0d] [&_input]:text-white [&_input]:placeholder:text-white/32 [&_select]:border-white/10 [&_select]:bg-[#0d0d0d] [&_select]:text-white [&_textarea]:border-white/10 [&_textarea]:bg-[#0d0d0d] [&_textarea]:text-white [&_textarea]:placeholder:text-white/32"
             onSubmit={(event) => {
               void form.handleSubmit(handleSubmit)(event)
             }}
@@ -826,11 +826,11 @@ export function AdminProductsPage() {
             </SelectField>
 
             <div className="grid gap-3 sm:grid-cols-2">
-              <label className="flex items-center gap-3 rounded-[20px] border border-stone-900/8 bg-stone-50/80 px-4 py-3 text-sm text-stone-900">
+              <label className="flex items-center gap-3 rounded-[20px] border border-white/10 bg-black/20 px-4 py-3 text-sm text-white">
                 <input type="checkbox" {...form.register('featured')} />
                 Marcar como destacado
               </label>
-              <label className="flex items-center gap-3 rounded-[20px] border border-stone-900/8 bg-stone-50/80 px-4 py-3 text-sm text-stone-900">
+              <label className="flex items-center gap-3 rounded-[20px] border border-white/10 bg-black/20 px-4 py-3 text-sm text-white">
                 <input type="checkbox" {...form.register('isActive')} />
                 Visible en tienda
               </label>
@@ -849,6 +849,7 @@ export function AdminProductsPage() {
                 <Button
                   type="button"
                   variant="ghost"
+                  className="text-white/72 hover:bg-white/8 hover:text-white"
                   onClick={() => {
                     if (!confirmDiscardChanges()) {
                       return
@@ -868,7 +869,7 @@ export function AdminProductsPage() {
               ) : null}
             </div>
 
-            <p className="text-sm text-muted">
+            <p className="text-sm text-white/54">
               {editingProduct
                 ? 'Producto seleccionado. Podés guardar cambios y gestionar imágenes abajo.'
                 : 'Primero guardá el producto. Después vas a poder subir imágenes.'}
@@ -876,11 +877,11 @@ export function AdminProductsPage() {
           </form>
         </Card>
 
-        <Card className="space-y-5 border border-stone-900/8 bg-white/88">
+        <Card className="space-y-5 border border-white/10 bg-[#111111] text-white shadow-[0_24px_56px_rgba(0,0,0,0.22)]">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div>
-              <p className="text-sm font-medium text-stone-950">Listado</p>
-              <p className="text-sm text-muted">
+              <p className="text-sm font-medium text-white">Listado</p>
+              <p className="text-sm text-white/58">
                 {products.length} producto{products.length === 1 ? '' : 's'} en la base.
               </p>
             </div>
@@ -893,7 +894,7 @@ export function AdminProductsPage() {
 
           <div className="space-y-3">
             {products.length === 0 ? (
-              <div className="rounded-[22px] border border-dashed border-stone-900/10 bg-stone-50/80 px-4 py-8 text-sm text-muted">
+              <div className="rounded-[22px] border border-dashed border-white/12 bg-black/20 px-4 py-8 text-sm text-white/58">
                 No hay productos cargados todavía.
               </div>
             ) : null}
@@ -910,13 +911,13 @@ export function AdminProductsPage() {
               return (
                 <div
                   key={product.id}
-                  className="rounded-[24px] border border-stone-900/8 bg-stone-50/85 p-4"
+                  className="rounded-[24px] border border-white/10 bg-black/20 p-4"
                 >
                   <div className="flex flex-col gap-4">
                     <div className="flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between">
                       <div className="space-y-3">
                         <div className="flex flex-wrap items-center gap-2">
-                          <p className="text-lg font-semibold tracking-[-0.03em] text-stone-950">
+                          <p className="text-lg font-semibold tracking-[-0.03em] text-white">
                             {product.name}
                           </p>
                           <StatusBadge tone={visibility.tone}>
@@ -940,7 +941,7 @@ export function AdminProductsPage() {
                           ) : null}
                         </div>
 
-                        <div className="grid gap-1 text-sm text-muted sm:grid-cols-2">
+                        <div className="grid gap-1 text-sm text-white/56 sm:grid-cols-2">
                           <p>Slug: {product.slug}</p>
                           <p>
                             Categoría: {product.categoryName ?? 'Sin categoría'}
@@ -954,7 +955,7 @@ export function AdminProductsPage() {
                               <p>
                                 Antes: {formatCurrency(product.compare_at_price ?? 0)}
                               </p>
-                              <p className="font-medium text-emerald-700">
+                              <p className="font-medium text-brand-strong">
                                 {discountPercent}% OFF
                               </p>
                             </>
@@ -968,10 +969,10 @@ export function AdminProductsPage() {
                           </p>
                         </div>
 
-                        <p className="text-sm leading-7 text-muted">
+                        <p className="text-sm leading-7 text-white/58">
                           {product.description || 'Sin descripción.'}
                         </p>
-                        <p className="text-sm leading-6 text-muted">
+                        <p className="text-sm leading-6 text-white/54">
                           {visibility.description}
                         </p>
                       </div>
@@ -1005,6 +1006,7 @@ export function AdminProductsPage() {
                         <Button
                           type="button"
                           variant="ghost"
+                          className="text-white/72 hover:bg-white/8 hover:text-white"
                           disabled={isBusy}
                           onClick={() =>
                             void updateProduct(
@@ -1023,6 +1025,7 @@ export function AdminProductsPage() {
                         <Button
                           type="button"
                           variant="ghost"
+                          className="text-white/72 hover:bg-white/8 hover:text-white"
                           disabled={isBusy}
                           onClick={() =>
                             void updateProduct(
@@ -1052,6 +1055,7 @@ export function AdminProductsPage() {
                         <Button
                           type="button"
                           variant="ghost"
+                          className="text-white/72 hover:bg-white/8 hover:text-white"
                           disabled={isBusy}
                           onClick={() => void handleDelete(product)}
                         >
@@ -1062,30 +1066,32 @@ export function AdminProductsPage() {
                     </div>
 
                     <div className="grid gap-4 md:grid-cols-[220px_1fr] md:items-center">
-                      <SelectField
-                        label="Disponibilidad"
-                        value={product.availability}
-                        disabled={isBusy}
-                        onChange={(event) =>
-                          void updateProduct(
-                            product.id,
-                            {
-                              availability: event.target.value as Availability,
-                            },
-                            `Disponibilidad actualizada a ${formatAvailabilityLabel(
-                              event.target.value as Availability,
-                            )}.`,
-                          )
-                        }
-                      >
-                        {availabilityOptions.map((availability) => (
-                          <option key={availability} value={availability}>
-                            {formatAvailabilityLabel(availability)}
-                          </option>
-                        ))}
-                      </SelectField>
+                      <div className="[&_label>span]:text-white [&_label>p]:text-white/54 [&_select]:border-white/10 [&_select]:bg-[#0d0d0d] [&_select]:text-white">
+                        <SelectField
+                          label="Disponibilidad"
+                          value={product.availability}
+                          disabled={isBusy}
+                          onChange={(event) =>
+                            void updateProduct(
+                              product.id,
+                              {
+                                availability: event.target.value as Availability,
+                              },
+                              `Disponibilidad actualizada a ${formatAvailabilityLabel(
+                                event.target.value as Availability,
+                              )}.`,
+                            )
+                          }
+                        >
+                          {availabilityOptions.map((availability) => (
+                            <option key={availability} value={availability}>
+                              {formatAvailabilityLabel(availability)}
+                            </option>
+                          ))}
+                        </SelectField>
+                      </div>
 
-                      <div className="rounded-[20px] border border-stone-900/8 bg-white/82 px-4 py-3 text-sm text-muted">
+                      <div className="rounded-[20px] border border-white/10 bg-[#0d0d0d] px-4 py-3 text-sm text-white/54">
                         {product.hasOrders
                           ? 'Este producto ya forma parte de pedidos guardados. No se borra físicamente: retíralo de la tienda o cambia su disponibilidad.'
                           : 'Sin pedidos asociados. Podés eliminarlo físicamente si ya no se necesita.'}
@@ -1107,10 +1113,10 @@ export function AdminProductsPage() {
             onRefresh={reloadPage}
           />
         ) : (
-          <Card className="border border-stone-900/8 bg-white/88">
+          <Card className="border border-white/10 bg-[#111111] text-white shadow-[0_24px_56px_rgba(0,0,0,0.22)]">
             <div className="space-y-3">
-              <p className="text-sm font-medium text-stone-950">Imágenes del producto</p>
-              <p className="text-sm leading-7 text-muted">
+              <p className="text-sm font-medium text-white">Imágenes del producto</p>
+              <p className="text-sm leading-7 text-white/60">
                 Primero guardá el producto. Después vas a poder subir imágenes al bucket{' '}
                 <code>product-images</code>, ordenar la galería y eliminar archivos.
               </p>

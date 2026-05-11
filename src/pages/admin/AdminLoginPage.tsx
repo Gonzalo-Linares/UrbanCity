@@ -26,7 +26,7 @@ export function AdminLoginPage() {
   })
 
   if (loading) {
-    return <LoadingState label="Verificando sesion admin..." />
+    return <LoadingState label="Verificando sesión admin..." />
   }
 
   if (isAuthenticated && isAdmin) {
@@ -44,7 +44,7 @@ export function AdminLoginPage() {
         action={
           <Button type="button" variant="secondary" onClick={() => void signOut()}>
             <LogOut className="h-4 w-4" />
-            Cerrar sesion
+            Cerrar sesión
           </Button>
         }
       />
@@ -57,7 +57,7 @@ export function AdminLoginPage() {
     const nextError = await signIn(values.email, values.password)
 
     if (nextError) {
-      setSubmitError('Email o password invalidos.')
+      setSubmitError('Email o password inválidos.')
     }
   }
 
@@ -94,17 +94,17 @@ export function AdminLoginPage() {
           </div>
         </section>
 
-        <Card className="border border-stone-900/8 bg-white/92 p-6 sm:p-8">
-          <form className="space-y-5" onSubmit={form.handleSubmit(handleSubmit)}>
+        <Card className="border border-white/10 bg-[#111111] p-6 text-white shadow-[0_28px_64px_rgba(0,0,0,0.24)] sm:p-8">
+          <form className="space-y-5 [&_label>span]:text-white [&_label>p]:text-white/54 [&_input]:border-white/10 [&_input]:bg-[#0d0d0d] [&_input]:text-white [&_input]:placeholder:text-white/32" onSubmit={form.handleSubmit(handleSubmit)}>
             <div className="space-y-2">
-              <p className="text-sm font-medium text-stone-950">Iniciar sesion</p>
-              <p className="text-sm leading-6 text-muted">
+              <p className="text-sm font-medium text-white">Iniciar sesión</p>
+              <p className="text-sm leading-6 text-white/60">
                 Usa el email y password del usuario admin creado en Supabase Auth.
               </p>
             </div>
 
             {!isSupabaseConfigured ? (
-              <div className="rounded-[22px] border border-rose-500/15 bg-rose-500/8 px-4 py-3 text-sm text-rose-700">
+              <div className="rounded-[22px] border border-rose-500/18 bg-rose-500/10 px-4 py-3 text-sm text-rose-200">
                 Configura <code>VITE_SUPABASE_URL</code> y{' '}
                 <code>VITE_SUPABASE_ANON_KEY</code> para habilitar el login
                 admin.
@@ -112,7 +112,7 @@ export function AdminLoginPage() {
             ) : null}
 
             {submitError ? (
-              <div className="rounded-[22px] border border-rose-500/15 bg-rose-500/8 px-4 py-3 text-sm text-rose-700">
+              <div className="rounded-[22px] border border-rose-500/18 bg-rose-500/10 px-4 py-3 text-sm text-rose-200">
                 {submitError}
               </div>
             ) : null}
