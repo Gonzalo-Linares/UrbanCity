@@ -1,8 +1,10 @@
 import { Link } from 'react-router-dom'
 import { CartLineItem } from '@/components/cart/CartLineItem'
 import { CartSummary } from '@/components/cart/CartSummary'
+import { buttonStyles } from '@/components/ui/buttonStyles'
 import { EmptyState } from '@/components/ui/EmptyState'
 import { SectionTitle } from '@/components/ui/SectionTitle'
+import { cn } from '@/lib/cn'
 import { useCartStore } from '@/store/cartStore'
 
 export function CartPage() {
@@ -17,11 +19,14 @@ export function CartPage() {
   if (items.length === 0) {
     return (
       <EmptyState
-        title="Tu carrito esta vacio"
-        description="Suma productos desde el catalogo para generar un pedido por WhatsApp."
+        title="Tu carrito está vacío"
+        description="Sumá productos desde el catálogo y coordiná tu pedido por WhatsApp."
         action={
-          <Link to="/catalogo" className="text-sm font-medium text-brand-strong">
-            Ir al catalogo
+          <Link
+            to="/catalogo"
+            className={cn(buttonStyles({ variant: 'secondary' }), 'min-w-[180px]')}
+          >
+            Ir al catálogo
           </Link>
         }
       />
@@ -33,8 +38,8 @@ export function CartPage() {
       <section className="surface-panel p-6 sm:p-8 lg:p-10">
         <SectionTitle
           eyebrow="Carrito"
-          title="Revisa cantidades y total estimado antes del checkout."
-          description="Nada se cobra online en esta etapa. El pedido queda pendiente de confirmacion hasta que el comercio responda por WhatsApp."
+          title="Tu carrito"
+          description="Revisá tus productos antes de coordinar el pedido por WhatsApp."
           tone="light"
         />
       </section>

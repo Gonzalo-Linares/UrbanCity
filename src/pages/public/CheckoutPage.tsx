@@ -154,10 +154,10 @@ export function CheckoutPage() {
     return (
       <EmptyState
         title="No hay productos para enviar"
-        description="Agrega al menos un producto al carrito antes de pasar al checkout."
+        description="Agregá al menos un producto al carrito antes de pasar al checkout."
         action={
           <Link to="/catalogo" className="text-sm font-medium text-brand-strong">
-            Ver catalogo
+            Ver catálogo
           </Link>
         }
       />
@@ -264,41 +264,41 @@ export function CheckoutPage() {
       <section className="surface-panel p-6 sm:p-8 lg:p-10">
         <SectionTitle
           eyebrow="Checkout"
-          title="Deja tus datos y genera el pedido para WhatsApp."
-          description="La orden queda pendiente de confirmacion. El comercio valida disponibilidad, retiro y pago manualmente."
+          title="Completá tus datos y generá el pedido"
+          description="Tu pedido queda pendiente de confirmación. Coordinás disponibilidad, retiro y pago por WhatsApp."
           tone="light"
         />
       </section>
 
       <div className="grid gap-6 lg:grid-cols-[1fr_360px] lg:items-start">
-        <Card className="space-y-6">
+        <Card className="space-y-6 border border-white/10 bg-[#111111] shadow-[0_24px_56px_rgba(0,0,0,0.22)]">
           {!hasWhatsApp ? (
-            <div className="rounded-[22px] border border-rose-500/15 bg-rose-500/8 px-4 py-3 text-sm text-rose-700">
-              El canal de WhatsApp del comercio no esta disponible en este momento.
+            <div className="rounded-[22px] border border-rose-500/18 bg-rose-500/10 px-4 py-3 text-sm text-rose-200">
+              El canal de WhatsApp del local no está disponible en este momento.
             </div>
           ) : null}
 
           <div className="grid gap-4 sm:grid-cols-2">
-            <div className="rounded-[24px] border border-stone-900/8 bg-white p-4">
-              <p className="text-xs uppercase tracking-[0.22em] text-muted">
-                Confirmacion
+            <div className="rounded-[24px] border border-white/10 bg-black/20 p-4">
+              <p className="text-xs uppercase tracking-[0.22em] text-white/42">
+                Confirmación
               </p>
-              <p className="mt-2 text-sm leading-6 text-stone-700">
-                Pedido pendiente de confirmacion.
+              <p className="mt-2 text-sm leading-6 text-white/74">
+                Pedido pendiente de confirmación.
               </p>
             </div>
-            <div className="rounded-[24px] border border-stone-900/8 bg-white p-4">
-              <p className="text-xs uppercase tracking-[0.22em] text-muted">
+            <div className="rounded-[24px] border border-white/10 bg-black/20 p-4">
+              <p className="text-xs uppercase tracking-[0.22em] text-white/42">
                 Pago
               </p>
-              <p className="mt-2 text-sm leading-6 text-stone-700">
+              <p className="mt-2 text-sm leading-6 text-white/74">
                 El pago se coordina con el comercio.
               </p>
             </div>
           </div>
 
           <form
-            className="space-y-5"
+            className="space-y-5 [&_label>span]:text-white [&_label>p]:text-white/58 [&_input]:border-white/10 [&_input]:bg-[#0d0d0d] [&_input]:text-white [&_input]:placeholder:text-white/34 [&_textarea]:border-white/10 [&_textarea]:bg-[#0d0d0d] [&_textarea]:text-white [&_textarea]:placeholder:text-white/34"
             onSubmit={form.handleSubmit(handleSubmit)}
           >
             <div className="grid gap-5 sm:grid-cols-2">
@@ -310,7 +310,7 @@ export function CheckoutPage() {
                 {...form.register('customerName')}
               />
               <Input
-                label="Telefono"
+                label="Teléfono"
                 placeholder="Tu WhatsApp"
                 autoComplete="tel"
                 error={form.formState.errors.customerPhone?.message}
@@ -320,7 +320,7 @@ export function CheckoutPage() {
 
             <Textarea
               label="Mensaje opcional"
-              placeholder="Ej: necesito retiro hoy, quiero dos unidades para regalo."
+              placeholder="Ej: necesito retirar hoy o quiero dos unidades para regalo."
               hint="Se adjunta al resumen del pedido."
               error={form.formState.errors.customerMessage?.message}
               {...form.register('customerMessage')}
@@ -348,34 +348,34 @@ export function CheckoutPage() {
           </form>
 
           {submitError ? (
-            <div className="rounded-[22px] border border-rose-500/15 bg-rose-500/8 px-4 py-3 text-sm text-rose-700">
+            <div className="rounded-[22px] border border-rose-500/18 bg-rose-500/10 px-4 py-3 text-sm text-rose-200">
               {submitError}
             </div>
           ) : null}
 
           {!submitError && checkoutBlockingMessage ? (
-            <div className="rounded-[22px] border border-amber-500/15 bg-amber-500/10 px-4 py-3 text-sm text-amber-900">
+            <div className="rounded-[22px] border border-amber-500/18 bg-amber-500/10 px-4 py-3 text-sm text-amber-100">
               {checkoutBlockingMessage}
             </div>
           ) : null}
 
           {draft ? (
-            <div className="space-y-4 rounded-[28px] border border-success/15 bg-success/8 p-5">
+            <div className="space-y-4 rounded-[28px] border border-success/18 bg-[#101c16] p-5">
               <div className="flex items-start gap-3">
                 <ShieldCheck className="mt-0.5 h-5 w-5 text-success" />
                 <div className="space-y-1">
-                  <p className="text-sm font-semibold text-stone-950">
+                  <p className="text-sm font-semibold text-white">
                     Pedido generado
                   </p>
-                  <p className="text-sm leading-6 text-stone-700">
-                    Codigo {draft.orderCode}. La disponibilidad sera confirmada
+                  <p className="text-sm leading-6 text-white/74">
+                    Código {draft.orderCode}. La disponibilidad será confirmada
                     por WhatsApp.
                   </p>
                 </div>
               </div>
 
-              <div className="rounded-[22px] border border-stone-900/8 bg-white p-4">
-                <pre className="overflow-x-auto whitespace-pre-wrap text-sm leading-6 text-stone-700">
+              <div className="rounded-[22px] border border-white/10 bg-black/20 p-4">
+                <pre className="overflow-x-auto whitespace-pre-wrap text-sm leading-6 text-white/76">
                   {draft.whatsappMessage}
                 </pre>
               </div>
@@ -413,41 +413,41 @@ export function CheckoutPage() {
         </Card>
 
         <div className="space-y-4 lg:sticky lg:top-28">
-          <Card className="space-y-5">
+          <Card className="space-y-5 border border-white/10 bg-[#111111] shadow-[0_24px_56px_rgba(0,0,0,0.22)]">
             <div className="flex items-center gap-3">
-              <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-stone-950 text-white">
+              <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-black/30 text-white">
                 <ShoppingBag className="h-5 w-5" />
               </div>
               <div>
-                <p className="text-sm font-medium text-stone-950">Resumen</p>
-                <p className="text-sm text-muted">
+                <p className="text-sm font-medium text-white">Resumen</p>
+                <p className="text-sm text-white/58">
                   {items.length} producto{items.length === 1 ? '' : 's'}
                 </p>
               </div>
             </div>
 
-            <div className="space-y-3">
+            <div className="space-y-3 rounded-[24px] border border-white/10 bg-black/20 p-4">
               {items.map((item) => (
                 <div
                   key={item.productId}
                   className="flex items-start justify-between gap-3 text-sm"
                 >
                   <div>
-                    <p className="font-medium text-stone-900">{item.name}</p>
-                    <p className="text-muted">x{item.quantity}</p>
+                    <p className="font-medium text-white">{item.name}</p>
+                    <p className="text-white/50">x{item.quantity}</p>
                   </div>
-                  <span className="font-medium text-stone-950">
+                  <span className="font-medium text-white">
                     {formatCurrency(item.price * item.quantity)}
                   </span>
                 </div>
               ))}
             </div>
 
-            <div className="glass-divider" />
+            <div className="glass-divider bg-gradient-to-r from-transparent via-white/18 to-transparent" />
 
             <div className="flex items-center justify-between">
-              <span className="text-sm text-muted">Total estimado</span>
-              <span className="text-2xl font-semibold tracking-[-0.03em] text-stone-950">
+              <span className="text-sm text-white/58">Total estimado</span>
+              <span className="text-2xl font-semibold tracking-[-0.03em] text-white">
                 {formatCurrency(total)}
               </span>
             </div>
