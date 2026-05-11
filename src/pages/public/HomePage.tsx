@@ -1,11 +1,11 @@
 import { useEffect, useState } from 'react'
 import cityLogo from '@/assets/city-logo.jpg'
-import cuotasSinInteresImage from '@/assets/CuotasSinInteres.jpg'
-import estanteriaImage from '@/assets/Estanteria.jpg'
-import localExteriorImage from '@/assets/LocalExterior1.jpg'
-import promoContadoImage from '@/assets/PromoContado.jpg'
-import zapatillas1Image from '@/assets/Zapatillas1.jpg'
-import zapatillas2Image from '@/assets/Zapatillas2.jpg'
+import cuotasSinInteresImage from '@/assets/CuotasSinInteres.webp'
+import estanteriaImage from '@/assets/Estanteria.webp'
+import localExteriorImage from '@/assets/LocalExterior1.webp'
+import promoContadoImage from '@/assets/PromoContado.webp'
+import zapatillas1Image from '@/assets/Zapatillas1.webp'
+import zapatillas2Image from '@/assets/Zapatillas2.webp'
 import {
   ArrowRight,
   AtSign,
