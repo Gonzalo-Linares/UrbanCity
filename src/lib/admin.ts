@@ -26,7 +26,7 @@ export function formatCrudError(message: string, code?: string) {
   }
 
   if (message.toLowerCase().includes('violates foreign key constraint')) {
-    return 'No se puede eliminar este registro porque ya tiene pedidos asociados. Retiralo de la tienda o dejalo inactivo en lugar de borrarlo.'
+    return 'No se puede eliminar este registro porque ya tiene pedidos asociados. Retíralo de la tienda o déjalo inactivo en lugar de borrarlo.'
   }
 
   if (message.toLowerCase().includes('duplicate key')) {
@@ -67,7 +67,7 @@ export function validateProductImageFile(file: File) {
   }
 
   if (file.size > productImageMaxSizeBytes) {
-    return `La imagen supera el maximo de ${formatBytesAsMb(
+    return `La imagen supera el máximo de ${formatBytesAsMb(
       productImageMaxSizeBytes,
     )}.`
   }

@@ -116,7 +116,7 @@ export function AdminProductImageManager({
     setSuccess(
       files.length === 1
         ? 'Imagen cargada correctamente.'
-        : `${files.length} imagenes cargadas correctamente.`,
+        : `${files.length} imágenes cargadas correctamente.`,
     )
     if (inputRef.current) {
       inputRef.current.value = ''
@@ -191,7 +191,7 @@ export function AdminProductImageManager({
 
     if (
       typeof window !== 'undefined' &&
-      !window.confirm('Eliminar esta imagen del producto?')
+      !window.confirm('¿Eliminar esta imagen del producto?')
     ) {
       return
     }
@@ -234,42 +234,44 @@ export function AdminProductImageManager({
   }
 
   return (
-    <Card className="space-y-5 border border-stone-900/8 bg-white/88">
+    <Card className="space-y-5 border border-white/10 bg-[#111111] text-white shadow-[0_24px_56px_rgba(0,0,0,0.22)]">
       <div className="space-y-2">
-        <p className="text-sm font-medium text-stone-950">Imagenes del producto</p>
-        <p className="text-sm leading-6 text-muted">
-          Bucket: <code>{productImagesBucket}</code>. Tipos permitidos:{' '}
+        <p className="text-sm font-medium text-white">
+          Imágenes de {product.name}
+        </p>
+        <p className="text-sm leading-6 text-white/64">
+          Podés seleccionar una o varias imágenes. Formatos permitidos:{' '}
           {productImageAllowedMimeTypes
             .map((type) => type.replace('image/', '').toUpperCase())
             .join(', ')}
-          . Maximo por archivo: {formatBytesAsMb(productImageMaxSizeBytes)}.
+          . Máximo por archivo: {formatBytesAsMb(productImageMaxSizeBytes)}.
         </p>
       </div>
 
       {error ? (
-        <div className="rounded-[22px] border border-rose-500/15 bg-rose-500/8 px-4 py-3 text-sm text-rose-700">
+        <div className="rounded-[22px] border border-rose-500/18 bg-rose-500/10 px-4 py-3 text-sm text-rose-200">
           {error}
         </div>
       ) : null}
 
       {success ? (
-        <div className="rounded-[22px] border border-emerald-500/15 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-800">
+        <div className="rounded-[22px] border border-emerald-500/18 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-200">
           {success}
         </div>
       ) : null}
 
-      <div className="rounded-[24px] border border-dashed border-stone-900/12 bg-stone-50/80 p-4">
+      <div className="rounded-[24px] border border-dashed border-white/12 bg-black/20 p-4">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex items-center gap-3">
-            <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-stone-950 text-white">
+            <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-black/30 text-brand-strong">
               <ImagePlus className="h-5 w-5" />
             </span>
             <div>
-              <p className="text-sm font-medium text-stone-950">
-                Subir imagenes a {product.name}
+              <p className="text-sm font-medium text-white">
+                Subir imágenes
               </p>
-              <p className="text-sm text-muted">
-                Puedes seleccionar una o varias imagenes en el mismo paso.
+              <p className="text-sm text-white/64">
+                Producto seleccionado: {product.name}. Podés subir una o varias imágenes.
               </p>
             </div>
           </div>
@@ -281,7 +283,7 @@ export function AdminProductImageManager({
             onClick={() => inputRef.current?.click()}
           >
             <Upload className="h-4 w-4" />
-            {uploading ? 'Subiendo...' : 'Elegir archivos'}
+            {uploading ? 'Subiendo...' : 'Subir imágenes'}
           </Button>
         </div>
 
@@ -297,8 +299,8 @@ export function AdminProductImageManager({
 
       <div className="space-y-3">
         {orderedImages.length === 0 ? (
-          <div className="rounded-[22px] border border-dashed border-stone-900/10 bg-stone-50/80 px-4 py-8 text-sm text-muted">
-            Este producto todavia no tiene imagenes.
+          <div className="rounded-[22px] border border-dashed border-white/12 bg-black/20 px-4 py-8 text-sm text-white/58">
+            Este producto todavía no tiene imágenes.
           </div>
         ) : null}
 
@@ -308,9 +310,9 @@ export function AdminProductImageManager({
           return (
             <div
               key={image.id}
-              className="grid gap-4 rounded-[24px] border border-stone-900/8 bg-stone-50/85 p-4 lg:grid-cols-[110px_1fr_auto]"
+              className="grid gap-4 rounded-[24px] border border-white/10 bg-black/20 p-4 lg:grid-cols-[110px_1fr_auto]"
             >
-              <div className="overflow-hidden rounded-[20px] border border-stone-900/8 bg-white">
+              <div className="overflow-hidden rounded-[20px] border border-white/10 bg-[#0d0d0d]">
                 <img
                   src={image.url}
                   alt={image.alt ?? product.name}
@@ -319,11 +321,11 @@ export function AdminProductImageManager({
               </div>
 
               <div className="space-y-2">
-                <p className="text-sm font-medium text-stone-950">
+                <p className="text-sm font-medium text-white">
                   Imagen {index + 1}
                 </p>
-                <p className="break-all text-sm text-muted">{image.url}</p>
-                <p className="text-xs uppercase tracking-[0.22em] text-muted">
+                <p className="break-all text-sm text-white/56">{image.url}</p>
+                <p className="text-xs uppercase tracking-[0.22em] text-white/40">
                   Orden actual: {index + 1}
                 </p>
               </div>

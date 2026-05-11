@@ -1,9 +1,10 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { zodResolver } from '@hookform/resolvers/zod'
 import {
   CircleHelp,
   Eye,
   EyeOff,
+  ImagePlus,
   Package,
   Pencil,
   RefreshCw,
@@ -11,7 +12,7 @@ import {
   Store,
   Trash2,
 } from 'lucide-react'
-import { useForm } from 'react-hook-form'
+import { useForm, useWatch } from 'react-hook-form'
 import { AdminProductImageManager } from '@/components/admin/AdminProductImageManager'
 import { AdminMetricCard } from '@/components/admin/AdminMetricCard'
 import { Button } from '@/components/ui/Button'
@@ -60,6 +61,9 @@ const availabilityOptions: Availability[] = [
   'hidden',
 ]
 
+const newProductDraftKey = 'urbancity-admin-product-new-draft'
+const editingProductDraftKeyPrefix = 'urbancity-admin-product-edit-draft:'
+
 function productVisibilityMeta(product: Pick<ProductRow, 'is_active' | 'availability'>) {
   if (!product.is_active) {
     return {
@@ -81,8 +85,116 @@ function productVisibilityMeta(product: Pick<ProductRow, 'is_active' | 'availabi
   return {
     label: 'Visible',
     tone: 'success' as const,
-    description: 'El producto aparece en la tienda segun su disponibilidad.',
+    description: 'El producto aparece en la tienda según su disponibilidad.',
   }
+}
+
+function buildDraftKey(productId: string | null) {
+  return productId
+    ? `${editingProductDraftKeyPrefix}${productId}`
+    : newProductDraftKey
+}
+
+function buildProductFormValues(product?: ProductRow | null): AdminProductSchemaInput {
+  if (!product) {
+    return { ...defaultValues }
+  }
+
+  return {
+    name: product.name,
+    slug: product.slug,
+    description: product.description ?? '',
+    price: product.price,
+    compareAtPrice: product.compare_at_price ?? '',
+    availability: product.availability,
+    categoryId: product.category_id ?? '',
+    featured: product.featured,
+    isActive: product.is_active,
+  }
+}
+
+function normalizeCompareAtPrice(value: unknown) {
+  if (typeof value === 'number') {
+    return Number.isNaN(value) ? '' : value
+  }
+
+  if (typeof value === 'string') {
+    return value
+  }
+
+  return ''
+}
+
+function normalizeProductDraftValues(
+  values: AdminProductSchemaInput,
+) {
+  return {
+    name: values.name ?? '',
+    slug: values.slug ?? '',
+    description: values.description ?? '',
+    price:
+      typeof values.price === 'number' && Number.isFinite(values.price)
+        ? values.price
+        : 0,
+    compareAtPrice: normalizeCompareAtPrice(values.compareAtPrice),
+    availability: values.availability ?? 'available',
+    categoryId: values.categoryId ?? '',
+    featured: Boolean(values.featured),
+    isActive: Boolean(values.isActive),
+  }
+}
+
+function readProductDraft(key: string) {
+  if (typeof window === 'undefined') {
+    return null
+  }
+
+  const draft = window.localStorage.getItem(key)
+
+  if (!draft) {
+    return null
+  }
+
+  try {
+    const parsed = JSON.parse(draft) as Partial<AdminProductSchemaInput>
+
+    return normalizeProductDraftValues({
+      ...defaultValues,
+      ...parsed,
+    })
+  } catch {
+    window.localStorage.removeItem(key)
+    return null
+  }
+}
+
+function writeProductDraft(key: string, values: AdminProductSchemaInput) {
+  if (typeof window === 'undefined') {
+    return
+  }
+
+  window.localStorage.setItem(
+    key,
+    JSON.stringify(normalizeProductDraftValues(values)),
+  )
+}
+
+function clearProductDraft(key: string) {
+  if (typeof window === 'undefined') {
+    return
+  }
+
+  window.localStorage.removeItem(key)
+}
+
+function areProductDraftsEqual(
+  left: AdminProductSchemaInput,
+  right: AdminProductSchemaInput,
+) {
+  return (
+    JSON.stringify(normalizeProductDraftValues(left)) ===
+    JSON.stringify(normalizeProductDraftValues(right))
+  )
 }
 
 const defaultValues: AdminProductSchemaInput = {
@@ -111,13 +223,20 @@ export function AdminProductsPage() {
   const [submitError, setSubmitError] = useState<string | null>(null)
   const [submitSuccess, setSubmitSuccess] = useState<string | null>(null)
   const [editingProductId, setEditingProductId] = useState<string | null>(null)
+  const [recoveredDraftKey, setRecoveredDraftKey] = useState<string | null>(null)
   const [reloadKey, setReloadKey] = useState(0)
   const [busyProductId, setBusyProductId] = useState<string | null>(null)
+  const imageManagerRef = useRef<HTMLDivElement | null>(null)
+  const baseValuesRef = useRef<AdminProductSchemaInput>(defaultValues)
+  const lastHydratedSignatureRef = useRef<string | null>(null)
+  const pendingImageScrollRef = useRef(false)
   const editingProduct =
     products.find((product) => product.id === editingProductId) ?? null
   const editingProductImages = editingProduct
     ? productImagesMap[editingProduct.id] ?? []
     : []
+  const isEditingProductReady = Boolean(editingProduct)
+  const currentDraftKey = buildDraftKey(editingProductId)
 
   const form = useForm<
     AdminProductSchemaInput,
@@ -127,24 +246,63 @@ export function AdminProductsPage() {
     resolver: zodResolver(adminProductSchema),
     defaultValues,
   })
+  const watchedDraftValues = useWatch({ control: form.control })
 
   useEffect(() => {
+    if (editingProductId && !editingProduct) {
+      return
+    }
+
+    const modeBaseValues = buildProductFormValues(editingProduct)
+    const hydrationSignature = `${currentDraftKey}:${JSON.stringify(
+      normalizeProductDraftValues(modeBaseValues),
+    )}`
+
+    if (lastHydratedSignatureRef.current === hydrationSignature) {
+      return
+    }
+
+    const recoveredDraft = readProductDraft(currentDraftKey)
+
+    baseValuesRef.current = modeBaseValues
     form.reset(
-      editingProduct
-        ? {
-            name: editingProduct.name,
-            slug: editingProduct.slug,
-            description: editingProduct.description ?? '',
-            price: editingProduct.price,
-            compareAtPrice: editingProduct.compare_at_price ?? '',
-            availability: editingProduct.availability,
-            categoryId: editingProduct.category_id ?? '',
-            featured: editingProduct.featured,
-            isActive: editingProduct.is_active,
-          }
-        : defaultValues,
+      recoveredDraft ? { ...modeBaseValues, ...recoveredDraft } : modeBaseValues,
     )
-  }, [editingProduct, form])
+    lastHydratedSignatureRef.current = hydrationSignature
+    window.setTimeout(() => {
+      setRecoveredDraftKey(recoveredDraft ? currentDraftKey : null)
+    }, 0)
+  }, [currentDraftKey, editingProduct, editingProductId, form])
+
+  useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      const currentValues = form.getValues()
+
+      if (areProductDraftsEqual(currentValues, baseValuesRef.current)) {
+        clearProductDraft(currentDraftKey)
+        setRecoveredDraftKey((current) =>
+          current === currentDraftKey ? null : current,
+        )
+        return
+      }
+
+      writeProductDraft(currentDraftKey, currentValues)
+    }, 250)
+
+    return () => clearTimeout(timeoutId)
+  }, [currentDraftKey, form, watchedDraftValues])
+
+  useEffect(() => {
+    if (!pendingImageScrollRef.current || !imageManagerRef.current) {
+      return
+    }
+
+    pendingImageScrollRef.current = false
+    imageManagerRef.current.scrollIntoView({
+      behavior: 'smooth',
+      block: 'start',
+    })
+  }, [editingProductId, isEditingProductReady])
 
   useEffect(() => {
     if (!supabase) {
@@ -245,6 +403,66 @@ export function AdminProductsPage() {
     return <LoadingState label="Cargando productos..." />
   }
 
+  function hasUnsavedChanges() {
+    return !areProductDraftsEqual(form.getValues(), baseValuesRef.current)
+  }
+
+  function discardDraftForCurrentMode() {
+    clearProductDraft(currentDraftKey)
+    setRecoveredDraftKey((current) =>
+      current === currentDraftKey ? null : current,
+    )
+  }
+
+  function resetCurrentModeToBase() {
+    const nextBaseValues = buildProductFormValues(editingProduct)
+    baseValuesRef.current = nextBaseValues
+    form.reset(nextBaseValues)
+    setRecoveredDraftKey(null)
+  }
+
+  function confirmDiscardChanges() {
+    if (!hasUnsavedChanges() || typeof window === 'undefined') {
+      return true
+    }
+
+    return window.confirm('Tenés cambios sin guardar. ¿Querés descartarlos?')
+  }
+
+  function beginEditingProduct(
+    productId: string,
+    options?: { scrollToImages?: boolean },
+  ) {
+    const nextProductId = productId
+
+    if (nextProductId !== editingProductId && !confirmDiscardChanges()) {
+      return
+    }
+
+    if (nextProductId !== editingProductId && hasUnsavedChanges()) {
+      discardDraftForCurrentMode()
+    }
+
+    setSubmitError(null)
+    setSubmitSuccess(null)
+
+    if (options?.scrollToImages) {
+      pendingImageScrollRef.current = true
+    }
+
+    if (nextProductId === editingProductId) {
+      if (options?.scrollToImages && imageManagerRef.current) {
+        imageManagerRef.current.scrollIntoView({
+          behavior: 'smooth',
+          block: 'start',
+        })
+      }
+      return
+    }
+
+    setEditingProductId(nextProductId)
+  }
+
   async function reloadPage() {
     setReloadKey((current) => current + 1)
     refresh()
@@ -286,12 +504,18 @@ export function AdminProductsPage() {
     }
 
     const createdOrUpdatedProduct = result.data
+    const nextFormValues = buildProductFormValues(createdOrUpdatedProduct)
 
     setSubmitSuccess(
       editingProduct
         ? 'Producto actualizado correctamente.'
-        : 'Producto creado correctamente. Ya puedes cargar imagenes.',
+        : 'Producto creado correctamente. Ya podés cargar imágenes.',
     )
+    discardDraftForCurrentMode()
+    clearProductDraft(buildDraftKey(createdOrUpdatedProduct.id))
+    baseValuesRef.current = nextFormValues
+    form.reset(nextFormValues)
+    setRecoveredDraftKey(null)
     setEditingProductId(createdOrUpdatedProduct.id)
     await reloadPage()
   }
@@ -332,7 +556,7 @@ export function AdminProductsPage() {
 
     if (product.hasOrders) {
       setSubmitError(
-        `"${product.name}" no se puede eliminar porque ya aparece en ${product.orderCount} pedido${product.orderCount === 1 ? '' : 's'}. Si necesitas retirarlo de la tienda, dejalo inactivo o usa la disponibilidad hidden.`,
+        `"${product.name}" no se puede eliminar porque ya aparece en ${product.orderCount} pedido${product.orderCount === 1 ? '' : 's'}. Si necesitás retirarlo de la tienda, déjalo inactivo o usa la disponibilidad hidden.`,
       )
       return
     }
@@ -376,6 +600,7 @@ export function AdminProductsPage() {
     }
 
     if (editingProductId === product.id) {
+      clearProductDraft(buildDraftKey(product.id))
       setEditingProductId(null)
       form.reset(defaultValues)
     }
@@ -389,8 +614,8 @@ export function AdminProductsPage() {
       <section className="surface-panel p-6 sm:p-8 lg:p-10">
         <SectionTitle
           eyebrow="Productos"
-          title="CRUD del catalogo comercial"
-          description="Alta, edicion y ajustes operativos de precio, disponibilidad, destacado, visibilidad y categoria sin tocar pagos ni stock transaccional."
+          title="CRUD del catálogo comercial"
+          description="Alta, edición y ajustes operativos de precio, disponibilidad, destacado, visibilidad y categoría sin tocar pagos ni stock transaccional."
           tone="light"
         />
       </section>
@@ -405,7 +630,7 @@ export function AdminProductsPage() {
         <AdminMetricCard
           title="Activos"
           value={counts.productsActive}
-          description="Productos visibles para operacion comercial."
+          description="Productos visibles para operación comercial."
           icon={Eye}
         />
         <AdminMetricCard
@@ -423,7 +648,7 @@ export function AdminProductsPage() {
           </span>
           <div className="space-y-2">
             <p className="text-sm font-medium text-stone-950">
-              Guia rapida de visibilidad y disponibilidad
+              Guía rápida de visibilidad y disponibilidad
             </p>
             <p className="text-sm leading-6 text-muted">
               `Visible en tienda` controla si el producto puede mostrarse. La
@@ -437,12 +662,12 @@ export function AdminProductsPage() {
             {
               title: 'Visible en tienda',
               copy:
-                'Si esta activo y no esta hidden, el producto aparece en la tienda.',
+                'Si está activo y no está hidden, el producto aparece en la tienda.',
             },
             {
               title: 'Inactivo',
               copy:
-                'Retira el producto de la tienda sin borrar datos, imagenes ni pedidos asociados.',
+                'Retira el producto de la tienda sin borrar datos, imágenes ni pedidos asociados.',
             },
             {
               title: 'Disponible',
@@ -455,7 +680,7 @@ export function AdminProductsPage() {
             },
             {
               title: 'Sin stock',
-              copy: 'Sigue visible, pero deja claro que hoy no esta disponible.',
+              copy: 'Sigue visible, pero deja claro que hoy no está disponible.',
             },
             {
               title: 'Oculto',
@@ -499,15 +724,37 @@ export function AdminProductsPage() {
               {editingProduct ? 'Editar producto' : 'Nuevo producto'}
             </p>
             <p className="text-sm leading-6 text-muted">
-              El slug se genera automaticamente si lo dejas vacio. Si quitas
+              El slug se genera automáticamente si lo dejas vacío. Si quitas
               `Visible en tienda`, el producto queda inactivo sin borrarse.
             </p>
           </div>
 
-          <form className="space-y-4" onSubmit={form.handleSubmit(handleSubmit)}>
+          {recoveredDraftKey === currentDraftKey ? (
+            <div className="flex flex-wrap items-center justify-between gap-3 rounded-[22px] border border-amber-500/20 bg-amber-500/10 px-4 py-3 text-sm text-amber-900">
+              <span>Recuperamos un borrador sin guardar.</span>
+              <Button
+                type="button"
+                variant="ghost"
+                className="text-amber-950 hover:bg-amber-500/12"
+                onClick={() => {
+                  discardDraftForCurrentMode()
+                  resetCurrentModeToBase()
+                }}
+              >
+                Descartar borrador
+              </Button>
+            </div>
+          ) : null}
+
+          <form
+            className="space-y-4"
+            onSubmit={(event) => {
+              void form.handleSubmit(handleSubmit)(event)
+            }}
+          >
             <Input
               label="Nombre"
-              placeholder="Ej: Box ritual ambar"
+              placeholder="Ej: Box ritual ámbar"
               error={form.formState.errors.name?.message}
               {...form.register('name')}
             />
@@ -515,13 +762,13 @@ export function AdminProductsPage() {
             <Input
               label="Slug"
               placeholder="box-ritual-ambar"
-              hint="Si queda vacio, se autogenera desde el nombre."
+              hint="Si queda vacío, se autogenera desde el nombre."
               error={form.formState.errors.slug?.message}
               {...form.register('slug')}
             />
 
             <Textarea
-              label="Descripcion"
+              label="Descripción"
               placeholder="Describe materiales, uso o contexto del producto."
               error={form.formState.errors.description?.message}
               {...form.register('description')}
@@ -566,11 +813,11 @@ export function AdminProductsPage() {
             </div>
 
             <SelectField
-              label="Categoria"
+              label="Categoría"
               error={form.formState.errors.categoryId?.message}
               {...form.register('categoryId')}
             >
-              <option value="">Sin categoria</option>
+              <option value="">Sin categoría</option>
               {categories.map((category) => (
                 <option key={category.id} value={category.id}>
                   {category.name} {category.is_active ? '' : '(inactiva)'}
@@ -603,14 +850,29 @@ export function AdminProductsPage() {
                   type="button"
                   variant="ghost"
                   onClick={() => {
+                    if (!confirmDiscardChanges()) {
+                      return
+                    }
+
+                    if (hasUnsavedChanges()) {
+                      discardDraftForCurrentMode()
+                    }
+
                     setEditingProductId(null)
-                    form.reset(defaultValues)
+                    setSubmitError(null)
+                    setSubmitSuccess(null)
                   }}
                 >
-                  Cancelar edicion
+                  Cancelar edición
                 </Button>
               ) : null}
             </div>
+
+            <p className="text-sm text-muted">
+              {editingProduct
+                ? 'Producto seleccionado. Podés guardar cambios y gestionar imágenes abajo.'
+                : 'Primero guardá el producto. Después vas a poder subir imágenes.'}
+            </p>
           </form>
         </Card>
 
@@ -632,7 +894,7 @@ export function AdminProductsPage() {
           <div className="space-y-3">
             {products.length === 0 ? (
               <div className="rounded-[22px] border border-dashed border-stone-900/10 bg-stone-50/80 px-4 py-8 text-sm text-muted">
-                No hay productos cargados todavia.
+                No hay productos cargados todavía.
               </div>
             ) : null}
 
@@ -681,11 +943,11 @@ export function AdminProductsPage() {
                         <div className="grid gap-1 text-sm text-muted sm:grid-cols-2">
                           <p>Slug: {product.slug}</p>
                           <p>
-                            Categoria: {product.categoryName ?? 'Sin categoria'}
+                            Categoría: {product.categoryName ?? 'Sin categoría'}
                           </p>
                           <p>Precio actual: {formatCurrency(product.price)}</p>
                           <p>
-                            Estado publico: {product.is_active ? 'Activo' : 'Inactivo'}
+                            Estado público: {product.is_active ? 'Activo' : 'Inactivo'}
                           </p>
                           {discountPercent ? (
                             <>
@@ -702,12 +964,12 @@ export function AdminProductsPage() {
                             </p>
                           ) : null}
                           <p>
-                            Oferta visible: {discountPercent ? 'Si' : 'No'}
+                            Oferta visible: {discountPercent ? 'Sí' : 'No'}
                           </p>
                         </div>
 
                         <p className="text-sm leading-7 text-muted">
-                          {product.description || 'Sin descripcion.'}
+                          {product.description || 'Sin descripción.'}
                         </p>
                         <p className="text-sm leading-6 text-muted">
                           {visibility.description}
@@ -717,15 +979,27 @@ export function AdminProductsPage() {
                       <div className="flex flex-wrap gap-2">
                         <Button
                           type="button"
-                          variant="outline"
+                          variant="secondary"
+                          className="shadow-none"
                           onClick={() => {
-                            setEditingProductId(product.id)
-                            setSubmitError(null)
-                            setSubmitSuccess(null)
+                            beginEditingProduct(product.id)
                           }}
                         >
                           <Pencil className="h-4 w-4" />
                           Editar
+                        </Button>
+
+                        <Button
+                          type="button"
+                          variant="outline"
+                          onClick={() =>
+                            beginEditingProduct(product.id, {
+                              scrollToImages: true,
+                            })
+                          }
+                        >
+                          <ImagePlus className="h-4 w-4" />
+                          Gestionar imágenes
                         </Button>
 
                         <Button
@@ -813,8 +1087,8 @@ export function AdminProductsPage() {
 
                       <div className="rounded-[20px] border border-stone-900/8 bg-white/82 px-4 py-3 text-sm text-muted">
                         {product.hasOrders
-                          ? 'Este producto ya forma parte de pedidos guardados. No se borra fisicamente: retiralo de la tienda o cambia su disponibilidad.'
-                          : 'Sin pedidos asociados. Puedes eliminarlo fisicamente si ya no se necesita.'}
+                          ? 'Este producto ya forma parte de pedidos guardados. No se borra físicamente: retíralo de la tienda o cambia su disponibilidad.'
+                          : 'Sin pedidos asociados. Podés eliminarlo físicamente si ya no se necesita.'}
                       </div>
                     </div>
                   </div>
@@ -825,24 +1099,25 @@ export function AdminProductsPage() {
         </Card>
       </div>
 
-      {editingProduct ? (
-        <AdminProductImageManager
-          product={editingProduct}
-          images={editingProductImages}
-          onRefresh={reloadPage}
-        />
-      ) : (
-        <Card className="border border-stone-900/8 bg-white/88">
-          <div className="space-y-3">
-            <p className="text-sm font-medium text-stone-950">Imagenes del producto</p>
-            <p className="text-sm leading-7 text-muted">
-              Guarda o selecciona un producto existente para subir imagenes al
-              bucket <code>product-images</code>, ordenar su galeria y eliminar
-              archivos.
-            </p>
-          </div>
-        </Card>
-      )}
+      <div ref={imageManagerRef}>
+        {editingProduct ? (
+          <AdminProductImageManager
+            product={editingProduct}
+            images={editingProductImages}
+            onRefresh={reloadPage}
+          />
+        ) : (
+          <Card className="border border-stone-900/8 bg-white/88">
+            <div className="space-y-3">
+              <p className="text-sm font-medium text-stone-950">Imágenes del producto</p>
+              <p className="text-sm leading-7 text-muted">
+                Primero guardá el producto. Después vas a poder subir imágenes al bucket{' '}
+                <code>product-images</code>, ordenar la galería y eliminar archivos.
+              </p>
+            </div>
+          </Card>
+        )}
+      </div>
     </div>
   )
 }
