@@ -546,12 +546,7 @@ export function AdminProductsPage() {
                 placeholder="Ej: 120000"
                 hint="Opcional. Si es mayor al precio actual, se muestra como oferta."
                 error={form.formState.errors.compareAtPrice?.message}
-                {...form.register('compareAtPrice', {
-                  setValueAs: (value) =>
-                    value === '' || value === null || value === undefined
-                      ? null
-                      : Number(value),
-                })}
+                {...form.register('compareAtPrice')}
               />
             </div>
 
@@ -641,7 +636,7 @@ export function AdminProductsPage() {
               </div>
             ) : null}
 
-                {products.map((product) => {
+            {products.map((product) => {
               const visible = isProductVisible(product)
               const isBusy = busyProductId === product.id
               const visibility = productVisibilityMeta(product)
