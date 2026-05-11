@@ -20,8 +20,8 @@ export function ContactPage() {
   const openMapUrl = fallbackPlaceUrl
 
   return (
-    <div className="space-y-8">
-      <section className="surface-panel p-6 sm:p-8 lg:p-10">
+    <div className="space-y-8 pb-20 sm:pb-0">
+      <section className="surface-panel p-5 sm:p-8 lg:p-10">
         <SectionTitle
           eyebrow="Contacto"
           title={'Coordin\u00e1 tu pedido por WhatsApp'}
@@ -32,53 +32,53 @@ export function ContactPage() {
         />
       </section>
 
-      <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-4">
-        <Card className="space-y-3 border border-white/10 bg-[#151515]">
-          <MapPin className="h-5 w-5 text-brand-strong" />
-          <h2 className="text-xl font-semibold tracking-[-0.03em] text-white">
+      <div className="grid grid-cols-2 gap-3 md:grid-cols-2 xl:grid-cols-4">
+        <Card className="space-y-2.5 border border-white/10 bg-[#151515] p-4 sm:space-y-3 sm:p-6">
+          <MapPin className="h-4 w-4 text-brand-strong sm:h-5 sm:w-5" />
+          <h2 className="text-base font-semibold tracking-[-0.03em] text-white sm:text-xl">
             {'Direcci\u00f3n'}
           </h2>
-          <p className="text-sm leading-7 text-white/68">{address}</p>
+          <p className="text-xs leading-6 text-white/68 sm:text-sm sm:leading-7">{address}</p>
         </Card>
-        <Card className="space-y-3 border border-white/10 bg-[#151515]">
-          <Timer className="h-5 w-5 text-brand-strong" />
-          <h2 className="text-xl font-semibold tracking-[-0.03em] text-white">
+        <Card className="space-y-2.5 border border-white/10 bg-[#151515] p-4 sm:space-y-3 sm:p-6">
+          <Timer className="h-4 w-4 text-brand-strong sm:h-5 sm:w-5" />
+          <h2 className="text-base font-semibold tracking-[-0.03em] text-white sm:text-xl">
             Horarios
           </h2>
-          <p className="text-sm leading-7 text-white/68">
+          <p className="text-xs leading-6 text-white/68 sm:text-sm sm:leading-7">
             {storeSettings.opening_hours ?? 'Horarios a completar.'}
           </p>
         </Card>
-        <Card className="space-y-3 border border-white/10 bg-[#151515]">
-          <MessageCircle className="h-5 w-5 text-brand-strong" />
-          <h2 className="text-xl font-semibold tracking-[-0.03em] text-white">
+        <Card className="space-y-2.5 border border-white/10 bg-[#151515] p-4 sm:space-y-3 sm:p-6">
+          <MessageCircle className="h-4 w-4 text-brand-strong sm:h-5 sm:w-5" />
+          <h2 className="text-base font-semibold tracking-[-0.03em] text-white sm:text-xl">
             WhatsApp
           </h2>
-          <p className="text-sm leading-7 text-white/68">
+          <p className="text-xs leading-6 text-white/68 sm:text-sm sm:leading-7">
             {'Consult\u00e1 talles, disponibilidad y retiro directo con el local.'}
           </p>
         </Card>
-        <Card className="space-y-3 border border-white/10 bg-[#151515]">
-          <AtSign className="h-5 w-5 text-brand-strong" />
-          <h2 className="text-xl font-semibold tracking-[-0.03em] text-white">
+        <Card className="space-y-2.5 border border-white/10 bg-[#151515] p-4 sm:space-y-3 sm:p-6">
+          <AtSign className="h-4 w-4 text-brand-strong sm:h-5 sm:w-5" />
+          <h2 className="text-base font-semibold tracking-[-0.03em] text-white sm:text-xl">
             Instagram
           </h2>
-          <p className="text-sm leading-7 text-white/68">
+          <p className="text-xs leading-6 text-white/68 sm:text-sm sm:leading-7">
             {'Mir\u00e1 nuevos ingresos y novedades de City Calzado Urbano.'}
           </p>
         </Card>
       </div>
 
       <section className="overflow-hidden rounded-[28px] border border-white/10 bg-[#111111]">
-        <div className="grid gap-6 p-6 lg:grid-cols-[0.9fr_1.1fr] lg:items-center lg:p-8">
+        <div className="grid gap-5 p-5 lg:grid-cols-[0.9fr_1.1fr] lg:items-center lg:p-8">
           <div className="space-y-4">
             <p className="text-xs font-semibold uppercase tracking-[0.24em] text-brand-strong/76">
               {'D\u00f3nde encontrarnos'}
             </p>
-            <h2 className="text-3xl font-semibold tracking-[-0.04em] text-white">
+            <h2 className="text-2xl font-semibold tracking-[-0.04em] text-white sm:text-3xl">
               {'Consult\u00e1 direcci\u00f3n y retiro antes de acercarte.'}
             </h2>
-            <p className="text-sm leading-7 text-white/68">
+            <p className="text-sm leading-6 text-white/68 sm:leading-7">
               Escribinos por WhatsApp para confirmar disponibilidad y coordinar
               el retiro en el local.
             </p>
@@ -96,31 +96,31 @@ export function ContactPage() {
             </div>
           </div>
 
-          <div className="min-h-[320px] overflow-hidden rounded-[28px] border border-white/10">
+          <div className="min-h-[220px] overflow-hidden rounded-[24px] border border-white/10 sm:min-h-[320px] sm:rounded-[28px]">
             <iframe
               title="Ubicaci\u00f3n de City Calzado Urbano"
               src={embeddedMapUrl}
               loading="lazy"
               referrerPolicy="no-referrer-when-downgrade"
-              className="h-full min-h-[320px] w-full bg-[#0c0c0c]"
+              className="h-full min-h-[220px] w-full bg-[#0c0c0c] sm:min-h-[320px]"
             />
           </div>
         </div>
       </section>
 
-      <Card className="grid gap-6 border border-white/10 bg-[#151515] lg:grid-cols-[1fr_auto] lg:items-center">
+      <Card className="grid gap-5 border border-white/10 bg-[#151515] p-5 lg:grid-cols-[1fr_auto] lg:items-center sm:p-6">
         <div className="space-y-3">
-          <h2 className="text-3xl font-semibold tracking-[-0.04em] text-white">
+          <h2 className="text-2xl font-semibold tracking-[-0.04em] text-white sm:text-3xl">
             Hablemos por WhatsApp para confirmar tu pedido.
           </h2>
-          <p className="max-w-2xl text-sm leading-7 text-white/68">
+          <p className="max-w-2xl text-sm leading-6 text-white/68 sm:leading-7">
             {'Consult\u00e1 disponibilidad, talle y retiro. El pago se coordina por'}
             {' '}
             WhatsApp directamente con el local.
           </p>
         </div>
 
-        <div className="flex flex-wrap gap-3">
+        <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap">
           {hasWhatsApp ? (
             <a
               href={buildWhatsAppUrl(
@@ -129,7 +129,7 @@ export function ContactPage() {
               )}
               target="_blank"
               rel="noreferrer"
-              className={buttonStyles({ variant: 'whatsapp' })}
+              className={`${buttonStyles({ variant: 'whatsapp' })} w-full justify-center sm:w-auto`}
             >
               <MessageCircle className="h-4 w-4" />
               Abrir WhatsApp
@@ -140,7 +140,7 @@ export function ContactPage() {
               href={storeSettings.instagram_url}
               target="_blank"
               rel="noreferrer"
-              className={buttonStyles({ variant: 'outline' })}
+              className={`${buttonStyles({ variant: 'outline' })} w-full justify-center sm:w-auto`}
             >
               <AtSign className="h-4 w-4" />
               Ir a Instagram

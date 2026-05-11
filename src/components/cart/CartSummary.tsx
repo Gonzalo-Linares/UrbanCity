@@ -17,15 +17,15 @@ export function CartSummary({
   onClearCart,
 }: CartSummaryProps) {
   return (
-    <div className="space-y-5 rounded-[28px] border border-white/10 bg-[#111111] p-5 shadow-[0_24px_56px_rgba(0,0,0,0.22)] sm:p-6">
+    <div className="space-y-4 rounded-[24px] border border-white/10 bg-[#111111] p-4 shadow-[0_24px_56px_rgba(0,0,0,0.22)] sm:space-y-5 sm:rounded-[28px] sm:p-6">
       <div className="space-y-1">
         <p className="eyebrow">Resumen</p>
-        <h2 className="text-2xl font-semibold tracking-[-0.03em] text-white">
+        <h2 className="text-xl font-semibold tracking-[-0.03em] text-white sm:text-2xl">
           Tu pedido
         </h2>
       </div>
 
-      <div className="grid gap-3 rounded-[24px] border border-white/10 bg-black/20 p-5 text-white">
+      <div className="grid gap-3 rounded-[20px] border border-white/10 bg-black/20 p-4 text-white sm:rounded-[24px] sm:p-5">
         <div className="flex items-center justify-between text-sm text-white/70">
           <span>Productos</span>
           <span>{itemCount}</span>
@@ -37,7 +37,7 @@ export function CartSummary({
         <div className="glass-divider bg-gradient-to-r from-transparent via-white/18 to-transparent" />
         <div className="flex items-end justify-between gap-4">
           <span className="text-sm text-white/70">Total contado estimado</span>
-          <span className="text-3xl font-semibold tracking-[-0.04em]">
+          <span className="text-2xl font-semibold tracking-[-0.04em] sm:text-3xl">
             {formatCurrency(total)}
           </span>
         </div>

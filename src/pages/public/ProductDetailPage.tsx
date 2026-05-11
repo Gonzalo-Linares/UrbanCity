@@ -65,7 +65,7 @@ export function ProductDetailPage() {
   )
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-8 pb-20 sm:pb-0">
       <Link
         to="/catalogo"
         className="inline-flex items-center gap-2 text-sm font-medium text-white/72 hover:text-white"
@@ -75,23 +75,23 @@ export function ProductDetailPage() {
       </Link>
 
       <section className="surface-panel overflow-hidden">
-        <div className="grid gap-6 p-5 sm:p-8 lg:grid-cols-[1fr_0.95fr] lg:p-10">
+        <div className="grid gap-5 p-4 sm:p-8 lg:grid-cols-[1fr_0.95fr] lg:p-10">
           <ProductVisual
             seed={product.slug}
             name={product.name}
             categoryName={product.category?.name}
             imageUrl={product.primaryImage?.url}
-            className="aspect-[1/1.05] min-h-[320px]"
+            className="h-[260px] sm:h-auto sm:aspect-[1/1.05] sm:min-h-[320px]"
           />
 
           <div className="space-y-6">
             <div className="space-y-4">
               <p className="eyebrow">{product.category?.name ?? 'Catálogo'}</p>
               <div className="space-y-3">
-                <h1 className="text-4xl font-semibold tracking-[-0.04em] text-white sm:text-5xl">
+                <h1 className="text-3xl font-semibold tracking-[-0.04em] text-white sm:text-5xl">
                   {product.name}
                 </h1>
-                <p className="text-base leading-8 text-white/72">
+                <p className="line-clamp-3 text-sm leading-7 text-white/72 sm:line-clamp-none sm:text-base sm:leading-8">
                   {product.description}
                 </p>
               </div>
@@ -123,21 +123,21 @@ export function ProductDetailPage() {
                   Oferta vigente sujeta a disponibilidad.
                 </p>
               ) : null}
-              <div className="space-y-2 rounded-[24px] border border-white/12 bg-white/6 p-4 text-sm leading-6 text-white/78">
+              <div className="space-y-2 rounded-[24px] border border-white/12 bg-white/6 p-3.5 text-sm leading-6 text-white/78 sm:p-4">
                 <p>💳 3 cuotas sin interés disponibles</p>
                 <p>💰 20% OFF pago contado</p>
                 <p>📲 Billeteras virtuales incluidas como pago contado</p>
               </div>
             </div>
 
-            <div className="rounded-[24px] border border-white/12 bg-white/6 p-4 text-sm leading-6 text-white/78">
+            <div className="rounded-[24px] border border-white/12 bg-white/6 p-3.5 text-sm leading-6 text-white/78 sm:p-4">
               Pedido pendiente de confirmación. El total publicado corresponde a
               precio contado estimado. Confirmamos disponibilidad, talle, forma de
               pago y precio final por WhatsApp.
             </div>
 
-            <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
-              <div className="inline-flex items-center gap-2 rounded-full border border-white/12 bg-white/6 px-2 py-2">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+              <div className="inline-flex w-full items-center justify-center gap-2 rounded-full border border-white/12 bg-white/6 px-2 py-2 sm:w-auto">
                 <button
                   type="button"
                   className="flex h-10 w-10 items-center justify-center rounded-full text-white/76 hover:bg-white/10"
@@ -163,6 +163,7 @@ export function ProductDetailPage() {
                 type="button"
                 size="lg"
                 variant={isSoldOut ? 'outline' : 'secondary'}
+                className="w-full sm:w-auto"
                 disabled={isSoldOut}
                 onClick={() => addItem(product, quantity)}
               >
@@ -182,7 +183,7 @@ export function ProductDetailPage() {
             description="Productos de la misma categoría para completar el pedido sin salir del flujo."
             tone="light"
           />
-          <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
+          <div className="grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-2 xl:grid-cols-3">
             {relatedProducts.map((item) => (
               <ProductCard key={item.id} product={item} />
             ))}

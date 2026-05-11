@@ -180,10 +180,10 @@ export function HomePage() {
   }
 
   return (
-    <div className="space-y-10 sm:space-y-14">
+    <div className="space-y-10 pb-20 sm:space-y-14 sm:pb-0">
       <section className="relative left-1/2 w-screen -translate-x-1/2 overflow-hidden border-b border-white/10 bg-[#050505]">
         <div
-          className="relative min-h-[520px] lg:min-h-[620px]"
+          className="relative min-h-[440px] lg:min-h-[620px]"
           onMouseEnter={() => setIsHeroPaused(true)}
           onMouseLeave={() => setIsHeroPaused(false)}
           onFocusCapture={() => setIsHeroPaused(true)}
@@ -195,19 +195,19 @@ export function HomePage() {
           >
             {heroSlides.map((slide) => (
               <div key={slide.eyebrow} className="hero-slide">
-                <div className="shell-container grid min-h-[520px] items-center gap-8 py-10 sm:py-12 lg:min-h-[620px] lg:grid-cols-[0.92fr_1.08fr] lg:gap-10 lg:py-16">
-                  <div className="relative z-10 max-w-xl space-y-6">
+                <div className="shell-container grid min-h-[440px] items-center gap-6 py-8 sm:py-12 lg:min-h-[620px] lg:grid-cols-[0.92fr_1.08fr] lg:gap-10 lg:py-16">
+                  <div className="relative z-10 max-w-xl space-y-5">
                     <div className="space-y-4">
                       <p className="eyebrow">{slide.eyebrow}</p>
                       <div className="space-y-1">
-                        <h1 className="font-[var(--font-display)] text-5xl leading-[0.94] font-bold uppercase tracking-[-0.05em] text-white sm:text-6xl lg:text-7xl">
+                        <h1 className="font-[var(--font-display)] text-4xl leading-[0.94] font-bold uppercase tracking-[-0.05em] text-white sm:text-6xl lg:text-7xl">
                           {slide.title}
                         </h1>
-                        <p className="font-[var(--font-display)] text-4xl leading-[0.94] font-bold uppercase tracking-[-0.04em] text-brand-strong sm:text-5xl lg:text-6xl">
+                        <p className="font-[var(--font-display)] text-3xl leading-[0.94] font-bold uppercase tracking-[-0.04em] text-brand-strong sm:text-5xl lg:text-6xl">
                           {slide.subtitle}
                         </p>
                       </div>
-                      <p className="max-w-lg text-sm leading-7 text-white/72 sm:text-base">
+                      <p className="max-w-lg text-sm leading-6 text-white/72 sm:text-base sm:leading-7">
                         {slide.description}
                       </p>
                     </div>
@@ -215,10 +215,13 @@ export function HomePage() {
                     <div className="flex flex-wrap gap-3">
                       <Link
                         to={slide.primaryTo}
-                        className={buttonStyles({
-                          variant: 'secondary',
-                          size: 'lg',
-                        })}
+                        className={cn(
+                          buttonStyles({
+                            variant: 'secondary',
+                            size: 'lg',
+                          }),
+                          'min-h-[44px] px-4 py-3 text-sm sm:px-6 sm:py-4 sm:text-base',
+                        )}
                       >
                         {slide.primaryLabel}
                         <ArrowRight className="h-4 w-4" />
@@ -228,10 +231,13 @@ export function HomePage() {
                           href={slide.secondaryHref}
                           target="_blank"
                           rel="noreferrer"
-                          className={buttonStyles({
-                            variant: 'outline',
-                            size: 'lg',
-                          })}
+                          className={cn(
+                            buttonStyles({
+                              variant: 'outline',
+                              size: 'lg',
+                            }),
+                            'min-h-[44px] px-4 py-3 text-sm sm:px-6 sm:py-4 sm:text-base',
+                          )}
                         >
                           <MessageCircle className="h-4 w-4" />
                           {slide.secondaryLabel}
@@ -256,7 +262,7 @@ export function HomePage() {
                           name={slide.product.name}
                           categoryName={slide.product.category?.name}
                           imageUrl={slide.product.primaryImage?.url}
-                          className="h-[300px] sm:h-[380px] lg:h-[500px]"
+                          className="h-[230px] sm:h-[360px] lg:h-[500px]"
                         />
                       </div>
                     ) : (
@@ -311,7 +317,7 @@ export function HomePage() {
         </div>
       </section>
 
-      <section className="grid gap-4 md:grid-cols-3">
+      <section className="grid gap-3 sm:gap-4 md:grid-cols-3">
         {[
           {
             icon: CreditCard,
@@ -334,15 +340,17 @@ export function HomePage() {
           return (
             <div
               key={item.title}
-              className="rounded-[28px] border border-white/10 bg-[#151515] p-5 shadow-[0_22px_48px_rgba(0,0,0,0.22)]"
+              className="rounded-[24px] border border-white/10 bg-[#151515] p-4 shadow-[0_22px_48px_rgba(0,0,0,0.22)] sm:rounded-[28px] sm:p-5"
             >
-              <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-brand-soft text-brand-strong">
-                <Icon className="h-5 w-5" />
+              <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-brand-soft text-brand-strong sm:h-11 sm:w-11">
+                <Icon className="h-4 w-4 sm:h-5 sm:w-5" />
               </div>
-              <h3 className="mt-4 text-lg font-semibold tracking-[-0.03em] text-white">
+              <h3 className="mt-3 text-base font-semibold tracking-[-0.03em] text-white sm:mt-4 sm:text-lg">
                 {item.title}
               </h3>
-              <p className="mt-2 text-sm leading-7 text-white/68">{item.copy}</p>
+              <p className="mt-2 text-sm leading-6 text-white/68 sm:leading-7">
+                {item.copy}
+              </p>
             </div>
           )
         })}
@@ -384,21 +392,21 @@ export function HomePage() {
             tone="light"
           />
 
-          <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-2 sm:gap-4 xl:grid-cols-4">
             {quickCategories.map((category) => (
               <Link
                 key={category.id}
                 to={`/catalogo?categoria=${category.slug}`}
-                className="rounded-[26px] border border-white/10 bg-[#151515] p-5 shadow-[0_20px_44px_rgba(0,0,0,0.22)] transition hover:border-brand-strong/30 hover:bg-[#1a1a1a]"
+                className="rounded-[22px] border border-white/10 bg-[#151515] p-4 shadow-[0_20px_44px_rgba(0,0,0,0.22)] transition hover:border-brand-strong/30 hover:bg-[#1a1a1a] sm:rounded-[26px] sm:p-5"
               >
                 <p className="text-xs uppercase tracking-[0.24em] text-brand-strong/82">
                   Categoría
                 </p>
-                <h3 className="mt-3 text-2xl font-semibold tracking-[-0.04em] text-white">
+                <h3 className="mt-2 text-lg font-semibold tracking-[-0.04em] text-white sm:mt-3 sm:text-2xl">
                   {category.name}
                 </h3>
-                <p className="mt-2 text-sm leading-7 text-white/64">
-                  Ver modelos disponibles
+                <p className="mt-1.5 text-sm leading-6 text-white/64 sm:mt-2 sm:leading-7">
+                  Ver modelos
                 </p>
               </Link>
             ))}
@@ -406,20 +414,20 @@ export function HomePage() {
         </section>
       ) : null}
 
-      <section className="grid gap-6 lg:grid-cols-[0.86fr_1.14fr]">
-        <div className="rounded-[32px] border border-white/10 bg-[#151515] p-6 shadow-[0_28px_60px_rgba(0,0,0,0.24)] sm:p-8">
+        <section className="grid gap-5 lg:grid-cols-[0.86fr_1.14fr] lg:gap-6">
+          <div className="rounded-[28px] border border-white/10 bg-[#151515] p-5 shadow-[0_28px_60px_rgba(0,0,0,0.24)] sm:rounded-[32px] sm:p-8">
           <p className="eyebrow">Instagram</p>
-          <div className="mt-5 space-y-4">
-            <h2 className="text-3xl font-semibold tracking-[-0.04em] text-white sm:text-4xl">
+            <div className="mt-4 space-y-3 sm:mt-5 sm:space-y-4">
+              <h2 className="text-2xl font-semibold tracking-[-0.04em] text-white sm:text-4xl">
               Seguinos en Instagram
             </h2>
-            <p className="max-w-lg text-sm leading-7 text-white/68">
+              <p className="max-w-lg text-sm leading-6 text-white/68 sm:leading-7">
               Mirá nuevos ingresos, promos, talles disponibles y modelos que van
               entrando al local.
             </p>
           </div>
 
-          <div className="mt-6">
+            <div className="mt-5 sm:mt-6">
             <a
               href={instagramUrl}
               target="_blank"
@@ -432,14 +440,14 @@ export function HomePage() {
           </div>
         </div>
 
-        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-2 lg:grid-cols-3">
           {instagramShowcaseItems.map((item) => (
             <a
               key={item.label}
               href={instagramUrl}
               target="_blank"
               rel="noreferrer"
-              className="group relative min-h-[220px] overflow-hidden rounded-[28px] border border-white/10 bg-[#111111] shadow-[0_22px_50px_rgba(0,0,0,0.2)]"
+                className="group relative min-h-[150px] overflow-hidden rounded-[22px] border border-white/10 bg-[#111111] shadow-[0_22px_50px_rgba(0,0,0,0.2)] sm:min-h-[220px] sm:rounded-[28px]"
             >
               <img
                 src={item.image}
@@ -447,13 +455,13 @@ export function HomePage() {
                 className="h-full w-full object-cover transition duration-300 group-hover:scale-[1.03]"
               />
               <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(5,5,5,0.12),rgba(5,5,5,0.72))]" />
-              <div className="absolute inset-x-0 top-0 flex justify-start p-4">
-                <span className="rounded-full border border-white/12 bg-black/45 px-3 py-1 text-[0.68rem] font-semibold uppercase tracking-[0.2em] text-white">
+                <div className="absolute inset-x-0 top-0 flex justify-start p-3 sm:p-4">
+                  <span className="rounded-full border border-white/12 bg-black/45 px-2.5 py-1 text-[0.58rem] font-semibold uppercase tracking-[0.18em] text-white sm:px-3 sm:text-[0.68rem]">
                   {item.label}
                 </span>
               </div>
-              <div className="absolute inset-x-0 bottom-0 p-4">
-                <p className="text-sm font-medium text-white/90">
+                <div className="absolute inset-x-0 bottom-0 p-3 sm:p-4">
+                  <p className="text-xs font-medium text-white/90 sm:text-sm">
                   @citycalzadourbano
                 </p>
               </div>
