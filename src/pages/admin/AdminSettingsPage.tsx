@@ -1,11 +1,18 @@
 import { useEffect, useMemo, useState } from 'react'
-import { zodResolver } from '@hookform/resolvers/zod'
 import {
+  ChevronDown,
+  ChevronUp,
   ExternalLink,
+  Eye,
+  EyeOff,
+  ImagePlus,
   MessageCircle,
+  Plus,
   Save,
   Store,
+  Upload,
 } from 'lucide-react'
+import { zodResolver } from '@hookform/resolvers/zod'
 import { useForm, useWatch } from 'react-hook-form'
 import { AdminPageHeader } from '@/components/admin/AdminPageHeader'
 import { Button } from '@/components/ui/Button'
@@ -13,16 +20,27 @@ import { Card } from '@/components/ui/Card'
 import { Input } from '@/components/ui/Input'
 import { LoadingState } from '@/components/ui/LoadingState'
 import { Textarea } from '@/components/ui/Textarea'
+import { buttonStyles } from '@/components/ui/buttonStyles'
 import { useAdminOutletData } from '@/hooks/useAdminShellData'
 import { useStorefrontData } from '@/hooks/useStorefrontData'
-import { formatCrudError, toNullableText } from '@/lib/admin'
+import {
+  adminImageAllowedMimeTypes,
+  adminImageBucket,
+  adminImageMaxSizeBytes,
+  buildHeroSlideImageObjectPath,
+  formatBytesAsMb,
+  formatCrudError,
+  toNullableText,
+  validateAdminImageFile,
+} from '@/lib/admin'
+import { cn } from '@/lib/cn'
 import { isSupabaseConfigured, supabase } from '@/lib/supabase'
 import { buildWhatsAppUrl, normalizeWhatsAppPhone } from '@/lib/whatsapp'
 import {
   adminStoreSettingsSchema,
   type AdminStoreSettingsSchema,
 } from '@/schemas/adminStoreSettings'
-import type { StoreSettingsRow } from '@/types/database'
+import type { HomeHeroSlideRow, StoreSettingsRow } from '@/types/database'
 
 const defaultValues: AdminStoreSettingsSchema = {
   storeName: '',
@@ -31,6 +49,18 @@ const defaultValues: AdminStoreSettingsSchema = {
   address: '',
   openingHours: '',
   checkoutMessage: '',
+}
+
+const maxHeroSlides = 3
+
+interface HeroSlideDraft {
+  eyebrow: string
+  title: string
+  subtitle: string
+  description: string
+  imageAlt: string
+  sortOrder: string
+  isActive: boolean
 }
 
 function toFormValues(storeSettings: StoreSettingsRow | null): AdminStoreSettingsSchema {
@@ -48,20 +78,104 @@ function toFormValues(storeSettings: StoreSettingsRow | null): AdminStoreSetting
   }
 }
 
+function sortHeroSlides(slides: HomeHeroSlideRow[]) {
+  return [...slides].sort((left, right) => {
+    if (left.sort_order !== right.sort_order) {
+      return left.sort_order - right.sort_order
+    }
+
+    return left.created_at.localeCompare(right.created_at)
+  })
+}
+
+function toHeroSlideDraft(slide: HomeHeroSlideRow): HeroSlideDraft {
+  return {
+    eyebrow: slide.eyebrow,
+    title: slide.title,
+    subtitle: slide.subtitle ?? '',
+    description: slide.description ?? '',
+    imageAlt: slide.image_alt ?? '',
+    sortOrder: String(slide.sort_order),
+    isActive: slide.is_active,
+  }
+}
+
+function buildHeroSlidePlaceholderUrl(title: string) {
+  const svg = `
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 720">
+      <rect width="1200" height="720" fill="#101010" />
+      <rect x="32" y="32" width="1136" height="656" rx="36" fill="#171717" stroke="#2a2a2a" />
+      <text x="600" y="322" fill="#f4f4f5" font-size="64" font-family="Arial, sans-serif" text-anchor="middle">${title}</text>
+      <text x="600" y="400" fill="#b6ff00" font-size="28" font-family="Arial, sans-serif" text-anchor="middle">Reemplazá esta imagen desde el panel</text>
+    </svg>
+  `
+
+  return `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(svg)}`
+}
+
 export function AdminSettingsPage() {
   const { loading, refresh, storeSettings } = useAdminOutletData()
   const { refresh: refreshStorefront } = useStorefrontData()
   const [submitError, setSubmitError] = useState<string | null>(null)
   const [submitSuccess, setSubmitSuccess] = useState<string | null>(null)
+  const [heroSlides, setHeroSlides] = useState<HomeHeroSlideRow[]>([])
+  const [heroSlidesLoading, setHeroSlidesLoading] = useState(isSupabaseConfigured)
+  const [heroSlidesError, setHeroSlidesError] = useState<string | null>(null)
+  const [heroSlidesSuccess, setHeroSlidesSuccess] = useState<string | null>(null)
+  const [expandedSlideId, setExpandedSlideId] = useState<string | null>(null)
+  const [heroSlideDrafts, setHeroSlideDrafts] = useState<Record<string, HeroSlideDraft>>({})
+  const [heroSlideBusyId, setHeroSlideBusyId] = useState<string | null>(null)
+  const [heroSlideUploadId, setHeroSlideUploadId] = useState<string | null>(null)
 
   const form = useForm<AdminStoreSettingsSchema>({
     resolver: zodResolver(adminStoreSettingsSchema),
     defaultValues,
   })
 
+  async function loadHeroSlides() {
+    if (!supabase || !isSupabaseConfigured) {
+      return
+    }
+
+    setHeroSlidesLoading(true)
+    setHeroSlidesError(null)
+
+    const result = await supabase
+      .from('home_hero_slides')
+      .select('*')
+      .order('sort_order', { ascending: true })
+      .order('created_at', { ascending: true })
+
+    if (result.error) {
+      setHeroSlides([])
+      setHeroSlidesLoading(false)
+      setHeroSlidesError(formatCrudError(result.error.message, result.error.code))
+      return
+    }
+
+    const nextSlides = sortHeroSlides(result.data ?? [])
+    setHeroSlides(nextSlides)
+    setHeroSlideDrafts(
+      Object.fromEntries(nextSlides.map((slide) => [slide.id, toHeroSlideDraft(slide)])),
+    )
+    setHeroSlidesLoading(false)
+  }
+
   useEffect(() => {
     form.reset(toFormValues(storeSettings))
   }, [form, storeSettings])
+
+  useEffect(() => {
+    if (!isSupabaseConfigured || !supabase) {
+      return
+    }
+
+    const timeoutId = window.setTimeout(() => {
+      void loadHeroSlides()
+    }, 0)
+
+    return () => window.clearTimeout(timeoutId)
+  }, [])
 
   const storeNameValue = useWatch({
     control: form.control,
@@ -111,8 +225,42 @@ export function AdminSettingsPage() {
     ? null
     : (instagramUrlValue ?? '').trim() || null
 
-  if (loading) {
-    return <LoadingState label="Cargando configuración de la tienda..." />
+  const canCreateHeroSlide = heroSlides.length < maxHeroSlides
+
+  function replaceHeroSlide(savedSlide: HomeHeroSlideRow) {
+    setHeroSlides((current) => {
+      const nextSlides = current.some((slide) => slide.id === savedSlide.id)
+        ? current.map((slide) => (slide.id === savedSlide.id ? savedSlide : slide))
+        : [...current, savedSlide]
+
+      return sortHeroSlides(nextSlides)
+    })
+
+    setHeroSlideDrafts((current) => ({
+      ...current,
+      [savedSlide.id]: toHeroSlideDraft(savedSlide),
+    }))
+  }
+
+  function updateHeroSlideDraft(
+    slideId: string,
+    patch: Partial<HeroSlideDraft>,
+  ) {
+    setHeroSlideDrafts((current) => ({
+      ...current,
+      [slideId]: {
+        ...(current[slideId] ?? {
+          eyebrow: '',
+          title: '',
+          subtitle: '',
+          description: '',
+          imageAlt: '',
+          sortOrder: '0',
+          isActive: false,
+        }),
+        ...patch,
+      },
+    }))
   }
 
   async function handleSubmit(values: AdminStoreSettingsSchema) {
@@ -175,6 +323,209 @@ export function AdminSettingsPage() {
     })
     refresh()
     refreshStorefront()
+  }
+
+  async function handleCreateHeroSlide() {
+    if (!supabase || !isSupabaseConfigured) {
+      setHeroSlidesError('Configura Supabase para editar el hero de inicio.')
+      return
+    }
+
+    if (!canCreateHeroSlide) {
+      setHeroSlidesError('Recomendado: máximo 3 slides.')
+      return
+    }
+
+    setHeroSlideBusyId('new')
+    setHeroSlidesError(null)
+    setHeroSlidesSuccess(null)
+
+    const nextSortOrder = heroSlides.reduce(
+      (currentMax, slide) => Math.max(currentMax, slide.sort_order),
+      -1,
+    ) + 1
+    const payload = {
+      eyebrow: '',
+      title: `Slide ${heroSlides.length + 1}`,
+      subtitle: null,
+      description: null,
+      image_url: buildHeroSlidePlaceholderUrl(`Slide ${heroSlides.length + 1}`),
+      image_alt: null,
+      sort_order: nextSortOrder,
+      is_active: false,
+    }
+
+    const result = await supabase
+      .from('home_hero_slides')
+      .insert(payload)
+      .select('*')
+      .single()
+
+    setHeroSlideBusyId(null)
+
+    if (result.error || !result.data) {
+      setHeroSlidesError(formatCrudError(result.error?.message ?? 'No se pudo crear el slide.'))
+      return
+    }
+
+    replaceHeroSlide(result.data)
+    setExpandedSlideId(result.data.id)
+    setHeroSlidesSuccess('Slide creado. Ahora podés completar el contenido.')
+  }
+
+  async function handleSaveHeroSlide(slideId: string) {
+    if (!supabase || !isSupabaseConfigured) {
+      setHeroSlidesError('Configura Supabase para editar el hero de inicio.')
+      return
+    }
+
+    const draft = heroSlideDrafts[slideId]
+
+    if (!draft) {
+      return
+    }
+
+    if (!draft.title.trim()) {
+      setHeroSlidesError('El slide necesita un título.')
+      return
+    }
+
+    setHeroSlideBusyId(slideId)
+    setHeroSlidesError(null)
+    setHeroSlidesSuccess(null)
+
+    const sortOrder = Number.isFinite(Number(draft.sortOrder))
+      ? Math.max(0, Math.trunc(Number(draft.sortOrder)))
+      : 0
+
+    const payload = {
+      eyebrow: draft.eyebrow.trim(),
+      title: draft.title.trim(),
+      subtitle: toNullableText(draft.subtitle),
+      description: toNullableText(draft.description),
+      image_alt: toNullableText(draft.imageAlt),
+      sort_order: sortOrder,
+      is_active: draft.isActive,
+    }
+
+    const result = await supabase
+      .from('home_hero_slides')
+      .update(payload)
+      .eq('id', slideId)
+      .select('*')
+      .single()
+
+    setHeroSlideBusyId(null)
+
+    if (result.error || !result.data) {
+      setHeroSlidesError(formatCrudError(result.error?.message ?? 'No se pudo guardar el slide.'))
+      return
+    }
+
+    replaceHeroSlide(result.data)
+    setHeroSlidesSuccess('Slide actualizado correctamente.')
+    refreshStorefront()
+  }
+
+  async function handleToggleHeroSlide(slide: HomeHeroSlideRow) {
+    if (!supabase || !isSupabaseConfigured) {
+      setHeroSlidesError('Configura Supabase para editar el hero de inicio.')
+      return
+    }
+
+    const nextIsActive = !slide.is_active
+    const activeSlidesWithoutCurrent = heroSlides.filter(
+      (current) => current.is_active && current.id !== slide.id,
+    ).length
+
+    if (nextIsActive && activeSlidesWithoutCurrent >= maxHeroSlides) {
+      setHeroSlidesError('Recomendado: máximo 3 slides visibles.')
+      return
+    }
+
+    setHeroSlideBusyId(slide.id)
+    setHeroSlidesError(null)
+    setHeroSlidesSuccess(null)
+
+    const result = await supabase
+      .from('home_hero_slides')
+      .update({ is_active: nextIsActive })
+      .eq('id', slide.id)
+      .select('*')
+      .single()
+
+    setHeroSlideBusyId(null)
+
+    if (result.error || !result.data) {
+      setHeroSlidesError(
+        formatCrudError(result.error?.message ?? 'No se pudo cambiar la visibilidad del slide.'),
+      )
+      return
+    }
+
+    replaceHeroSlide(result.data)
+    setHeroSlidesSuccess(nextIsActive ? 'Slide visible en la Home.' : 'Slide oculto en la Home.')
+    refreshStorefront()
+  }
+
+  async function handleUploadHeroSlideImage(
+    slide: HomeHeroSlideRow,
+    file: File | null,
+  ) {
+    if (!supabase || !isSupabaseConfigured || !file) {
+      return
+    }
+
+    const validationError = validateAdminImageFile(file)
+
+    if (validationError) {
+      setHeroSlidesError(validationError)
+      return
+    }
+
+    setHeroSlideUploadId(slide.id)
+    setHeroSlidesError(null)
+    setHeroSlidesSuccess(null)
+
+    const objectPath = buildHeroSlideImageObjectPath(slide.id, file.name)
+    const uploadResult = await supabase.storage.from(adminImageBucket).upload(objectPath, file, {
+      cacheControl: '3600',
+      upsert: false,
+    })
+
+    if (uploadResult.error) {
+      setHeroSlideUploadId(null)
+      setHeroSlidesError(formatCrudError(uploadResult.error.message, uploadResult.error.name))
+      return
+    }
+
+    const { data: publicUrlData } = supabase.storage
+      .from(adminImageBucket)
+      .getPublicUrl(objectPath)
+
+    const updateResult = await supabase
+      .from('home_hero_slides')
+      .update({ image_url: publicUrlData.publicUrl })
+      .eq('id', slide.id)
+      .select('*')
+      .single()
+
+    setHeroSlideUploadId(null)
+
+    if (updateResult.error || !updateResult.data) {
+      setHeroSlidesError(
+        formatCrudError(updateResult.error?.message ?? 'No se pudo guardar la imagen del slide.'),
+      )
+      return
+    }
+
+    replaceHeroSlide(updateResult.data)
+    setHeroSlidesSuccess('Imagen principal actualizada correctamente.')
+    refreshStorefront()
+  }
+
+  if (loading) {
+    return <LoadingState label="Cargando configuración de la tienda..." />
   }
 
   return (
@@ -333,7 +684,7 @@ export function AdminSettingsPage() {
                     href={previewWhatsAppUrl}
                     target="_blank"
                     rel="noreferrer"
-                    className="mt-3 inline-flex items-center gap-2 text-sm font-medium text-success hover:text-emerald-700"
+                    className="mt-3 inline-flex items-center gap-2 text-sm font-medium text-success hover:text-emerald-300"
                   >
                     Abrir preview
                     <ExternalLink className="h-4 w-4" />
@@ -397,6 +748,272 @@ export function AdminSettingsPage() {
           </Card>
         </div>
       </div>
+
+      <Card className="space-y-4 border border-white/10 bg-[#111111] p-3.5 text-white shadow-none sm:p-6 sm:shadow-[0_24px_56px_rgba(0,0,0,0.22)]">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+          <div className="space-y-1.5">
+            <p className="text-sm font-medium text-white">Hero de inicio</p>
+            <p className="text-sm leading-6 text-white/60">
+              Cambiá las imágenes y textos principales de la Home.
+            </p>
+          </div>
+
+          {canCreateHeroSlide ? (
+            <Button
+              type="button"
+              variant="secondary"
+              disabled={heroSlideBusyId === 'new'}
+              onClick={() => void handleCreateHeroSlide()}
+            >
+              <Plus className="h-4 w-4" />
+              {heroSlideBusyId === 'new' ? 'Creando...' : 'Nuevo slide'}
+            </Button>
+          ) : (
+            <p className="text-xs text-white/50">Recomendado: máximo 3 slides.</p>
+          )}
+        </div>
+
+        {heroSlidesError ? (
+          <div className="rounded-[18px] border border-rose-500/18 bg-rose-500/10 px-4 py-3 text-sm text-rose-200">
+            {heroSlidesError}
+          </div>
+        ) : null}
+
+        {heroSlidesSuccess ? (
+          <div className="rounded-[18px] border border-emerald-500/18 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-200">
+            {heroSlidesSuccess}
+          </div>
+        ) : null}
+
+        <div className="rounded-[18px] border border-white/10 bg-black/15 px-3 py-2 text-xs text-white/54">
+          Formatos permitidos: {adminImageAllowedMimeTypes
+            .map((type) => type.replace('image/', '').toUpperCase())
+            .join(', ')}
+          . Máximo por archivo: {formatBytesAsMb(adminImageMaxSizeBytes)}.
+        </div>
+
+        {heroSlidesLoading ? (
+          <div className="rounded-[18px] border border-white/10 bg-black/15 px-4 py-6 text-center text-sm text-white/60">
+            Cargando hero de inicio...
+          </div>
+        ) : heroSlides.length === 0 ? (
+          <div className="rounded-[18px] border border-dashed border-white/12 bg-black/15 px-4 py-6 text-center text-sm text-white/60">
+            Todavía no cargaste slides para la Home. Mientras tanto, la tienda usa el hero de respaldo.
+          </div>
+        ) : (
+          <div className="space-y-3">
+            {heroSlides.map((slide, index) => {
+              const draft = heroSlideDrafts[slide.id] ?? toHeroSlideDraft(slide)
+              const isExpanded = expandedSlideId === slide.id
+              const isBusy = heroSlideBusyId === slide.id
+              const isUploading = heroSlideUploadId === slide.id
+
+              return (
+                <Card
+                  key={slide.id}
+                  className="space-y-4 border border-white/10 bg-[#0f0f0f] p-3.5 text-white shadow-none sm:p-5"
+                >
+                  <div className="flex items-start gap-3">
+                    <div className="h-20 w-20 shrink-0 overflow-hidden rounded-[18px] border border-white/10 bg-[#181818]">
+                      <img
+                        src={slide.image_url}
+                        alt={slide.image_alt ?? slide.title}
+                        className="h-full w-full object-cover"
+                      />
+                    </div>
+
+                    <div className="min-w-0 flex-1 space-y-2">
+                      <div className="flex flex-wrap items-center gap-2">
+                        <p className="text-sm font-semibold tracking-[-0.03em] text-white sm:text-base">
+                          Slide {index + 1}
+                        </p>
+                        <span
+                          className={cn(
+                            'inline-flex items-center rounded-full border px-2.5 py-1 text-[0.65rem] uppercase tracking-[0.18em]',
+                            slide.is_active
+                              ? 'border-emerald-400/20 bg-emerald-500/12 text-emerald-200'
+                              : 'border-white/10 bg-white/6 text-white/55',
+                          )}
+                        >
+                          {slide.is_active ? 'Visible en Home' : 'Oculto'}
+                        </span>
+                      </div>
+
+                      <div className="space-y-1">
+                        <p className="line-clamp-1 text-base font-medium text-white">
+                          {slide.title}
+                        </p>
+                        <p className="line-clamp-1 text-sm text-white/60">
+                          {slide.subtitle ?? 'Sin subtítulo'}
+                        </p>
+                      </div>
+
+                      <div className="flex flex-wrap gap-2 text-xs text-white/45">
+                        <span>Orden {slide.sort_order}</span>
+                        <span>·</span>
+                        <span>{slide.image_url.startsWith('data:') ? 'Imagen pendiente' : 'Imagen cargada'}</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="grid gap-2 sm:flex sm:flex-wrap">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      className="w-full sm:w-auto"
+                      disabled={isBusy}
+                      onClick={() =>
+                        setExpandedSlideId((current) =>
+                          current === slide.id ? null : slide.id,
+                        )
+                      }
+                    >
+                      {isExpanded ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+                      {isExpanded ? 'Ocultar' : 'Editar'}
+                    </Button>
+
+                    <label
+                      className={cn(
+                        buttonStyles({ variant: 'outline' }),
+                        'w-full cursor-pointer sm:w-auto',
+                        isUploading ? 'pointer-events-none opacity-70' : '',
+                      )}
+                    >
+                      {isUploading ? (
+                        <Upload className="h-4 w-4" />
+                      ) : (
+                        <ImagePlus className="h-4 w-4" />
+                      )}
+                      {isUploading ? 'Subiendo...' : 'Cambiar imagen'}
+                      <input
+                        type="file"
+                        accept={adminImageAllowedMimeTypes.join(',')}
+                        className="sr-only"
+                        disabled={isUploading}
+                        onChange={(event) => {
+                          const nextFile = event.target.files?.[0] ?? null
+                          void handleUploadHeroSlideImage(slide, nextFile)
+                          event.currentTarget.value = ''
+                        }}
+                      />
+                    </label>
+
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      className="w-full text-white/72 hover:bg-white/8 hover:text-white sm:w-auto"
+                      disabled={isBusy}
+                      onClick={() => void handleToggleHeroSlide(slide)}
+                    >
+                      {slide.is_active ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                      {slide.is_active ? 'Ocultar' : 'Mostrar'}
+                    </Button>
+                  </div>
+
+                  {isExpanded ? (
+                    <div className="space-y-4 border-t border-white/10 pt-4 [&_label]:min-w-0 [&_label>span]:text-white [&_label>p]:text-white/54 [&_input]:min-w-0 [&_input]:border-white/10 [&_input]:bg-[#0d0d0d] [&_input]:text-white [&_input]:placeholder:text-white/32 [&_textarea]:border-white/10 [&_textarea]:bg-[#0d0d0d] [&_textarea]:text-white [&_textarea]:placeholder:text-white/32">
+                      <div className="grid gap-4 sm:grid-cols-2">
+                        <Input
+                          label="Etiqueta superior"
+                          placeholder="NUEVOS INGRESOS"
+                          value={draft.eyebrow}
+                          onChange={(event) =>
+                            updateHeroSlideDraft(slide.id, { eyebrow: event.target.value })
+                          }
+                        />
+
+                        <Input
+                          label="Orden"
+                          type="number"
+                          min={0}
+                          value={draft.sortOrder}
+                          onChange={(event) =>
+                            updateHeroSlideDraft(slide.id, { sortOrder: event.target.value })
+                          }
+                        />
+                      </div>
+
+                      <Input
+                        label="Título"
+                        placeholder="CITY DROP"
+                        value={draft.title}
+                        onChange={(event) =>
+                          updateHeroSlideDraft(slide.id, { title: event.target.value })
+                        }
+                      />
+
+                      <Input
+                        label="Subtítulo"
+                        placeholder="TU PRÓXIMO PAR"
+                        value={draft.subtitle}
+                        onChange={(event) =>
+                          updateHeroSlideDraft(slide.id, { subtitle: event.target.value })
+                        }
+                      />
+
+                      <Textarea
+                        label="Texto corto"
+                        placeholder="Modelos urbanos seleccionados por el local."
+                        value={draft.description}
+                        onChange={(event) =>
+                          updateHeroSlideDraft(slide.id, { description: event.target.value })
+                        }
+                      />
+
+                      <Input
+                        label="Descripción de la imagen"
+                        placeholder="Slide principal con modelos nuevos"
+                        value={draft.imageAlt}
+                        onChange={(event) =>
+                          updateHeroSlideDraft(slide.id, { imageAlt: event.target.value })
+                        }
+                      />
+
+                      <label className="flex items-center gap-3 rounded-[18px] border border-white/10 bg-black/15 px-4 py-3 text-sm text-white">
+                        <input
+                          type="checkbox"
+                          className="h-4 w-4 rounded border-white/18 bg-[#0d0d0d] text-brand-strong focus:ring-brand-strong"
+                          checked={draft.isActive}
+                          onChange={(event) =>
+                            updateHeroSlideDraft(slide.id, { isActive: event.target.checked })
+                          }
+                        />
+                        Mostrar en la Home
+                      </label>
+
+                      <div className="flex flex-wrap gap-2.5">
+                        <Button
+                          type="button"
+                          variant="secondary"
+                          disabled={isBusy}
+                          onClick={() => void handleSaveHeroSlide(slide.id)}
+                        >
+                          <Save className="h-4 w-4" />
+                          {isBusy ? 'Guardando...' : 'Guardar cambios'}
+                        </Button>
+
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          className="text-white/72 hover:bg-white/8 hover:text-white"
+                          onClick={() =>
+                            setHeroSlideDrafts((current) => ({
+                              ...current,
+                              [slide.id]: toHeroSlideDraft(slide),
+                            }))
+                          }
+                        >
+                          Restablecer
+                        </Button>
+                      </div>
+                    </div>
+                  ) : null}
+                </Card>
+              )
+            })}
+          </div>
+        )}
+      </Card>
     </div>
   )
 }

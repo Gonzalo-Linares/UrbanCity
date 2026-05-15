@@ -9,6 +9,9 @@ export const productImageAllowedMimeTypes = [
   'image/webp',
   'image/avif',
 ]
+export const adminImageBucket = productImagesBucket
+export const adminImageMaxSizeBytes = productImageMaxSizeBytes
+export const adminImageAllowedMimeTypes = productImageAllowedMimeTypes
 
 export function toNullableText(value: string) {
   const normalized = value.trim()
@@ -75,6 +78,8 @@ export function validateProductImageFile(file: File) {
   return null
 }
 
+export const validateAdminImageFile = validateProductImageFile
+
 export function buildProductImageObjectPath(
   productId: string,
   originalFileName: string,
@@ -86,6 +91,19 @@ export function buildProductImageObjectPath(
   const suffix = globalThis.crypto.randomUUID().slice(0, 8)
 
   return `${productId}/${safeBaseName}-${Date.now()}-${suffix}.${extension}`
+}
+
+export function buildHeroSlideImageObjectPath(
+  slideId: string,
+  originalFileName: string,
+) {
+  const dotIndex = originalFileName.lastIndexOf('.')
+  const baseName = dotIndex >= 0 ? originalFileName.slice(0, dotIndex) : originalFileName
+  const extension = dotIndex >= 0 ? originalFileName.slice(dotIndex + 1).toLowerCase() : 'bin'
+  const safeBaseName = slugify(baseName) || 'hero-slide'
+  const suffix = globalThis.crypto.randomUUID().slice(0, 8)
+
+  return `hero-slides/${slideId}/${safeBaseName}-${Date.now()}-${suffix}.${extension}`
 }
 
 export function extractStorageObjectPathFromPublicUrl(

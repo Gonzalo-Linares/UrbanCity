@@ -237,6 +237,48 @@ export interface Database {
         }
         Relationships: []
       }
+      home_hero_slides: {
+        Row: {
+          id: string
+          eyebrow: string
+          title: string
+          subtitle: string | null
+          description: string | null
+          image_url: string
+          image_alt: string | null
+          sort_order: number
+          is_active: boolean
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          eyebrow?: string
+          title: string
+          subtitle?: string | null
+          description?: string | null
+          image_url: string
+          image_alt?: string | null
+          sort_order?: number
+          is_active?: boolean
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          eyebrow?: string
+          title?: string
+          subtitle?: string | null
+          description?: string | null
+          image_url?: string
+          image_alt?: string | null
+          sort_order?: number
+          is_active?: boolean
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: Record<string, never>
     Functions: {
@@ -275,3 +317,4 @@ export type ProductImageRow = Database['public']['Tables']['product_images']['Ro
 export type OrderRow = Database['public']['Tables']['orders']['Row']
 export type OrderItemRow = Database['public']['Tables']['order_items']['Row']
 export type StoreSettingsRow = Database['public']['Tables']['store_settings']['Row']
+export type HomeHeroSlideRow = Database['public']['Tables']['home_hero_slides']['Row']

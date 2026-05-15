@@ -14,6 +14,7 @@ import {
 import { isSupabaseConfigured, supabase } from '@/lib/supabase'
 import type {
   CategoryRow,
+  HomeHeroSlideRow,
   ProductImageRow,
   ProductRow,
   StoreSettingsRow,
@@ -22,6 +23,7 @@ import type { StorefrontProduct } from '@/types/store'
 
 interface StorefrontContextValue {
   categories: CategoryRow[]
+  homeHeroSlides: HomeHeroSlideRow[]
   products: StorefrontProduct[]
   storeSettings: StoreSettingsRow
   source: 'mock' | 'supabase'
@@ -66,6 +68,7 @@ export function StorefrontDataProvider({ children }: PropsWithChildren) {
   const [reloadKey, setReloadKey] = useState(0)
   const [value, setValue] = useState<Omit<StorefrontContextValue, 'refresh'>>({
     categories: isSupabaseConfigured ? [] : mockCategories,
+    homeHeroSlides: [],
     products: isSupabaseConfigured
       ? []
       : hydrateProducts(mockProducts, mockCategories, mockProductImages),
@@ -83,6 +86,7 @@ export function StorefrontDataProvider({ children }: PropsWithChildren) {
         if (!ignore) {
           setValue({
             categories: mockCategories,
+            homeHeroSlides: [],
             products: hydrateProducts(
               mockProducts,
               mockCategories,
@@ -98,7 +102,13 @@ export function StorefrontDataProvider({ children }: PropsWithChildren) {
         return
       }
 
-      const [categoriesResult, productsResult, imagesResult, settingsResult] =
+      const [
+        categoriesResult,
+        productsResult,
+        imagesResult,
+        settingsResult,
+        heroSlidesResult,
+      ] =
         await Promise.all([
           supabase
             .from('categories')
@@ -122,6 +132,11 @@ export function StorefrontDataProvider({ children }: PropsWithChildren) {
             .order('created_at', { ascending: true })
             .limit(1)
             .maybeSingle(),
+          supabase
+            .from('home_hero_slides')
+            .select('*')
+            .eq('is_active', true)
+            .order('sort_order', { ascending: true }),
         ])
 
       if (ignore) {
@@ -130,10 +145,12 @@ export function StorefrontDataProvider({ children }: PropsWithChildren) {
 
       const loadError =
         categoriesResult.error ?? productsResult.error ?? imagesResult.error
+      const heroSlides = heroSlidesResult.error ? [] : heroSlidesResult.data ?? []
 
       if (loadError) {
         setValue({
           categories: [],
+          homeHeroSlides: heroSlides,
           products: [],
           storeSettings: emptyStoreSettings,
           source: 'supabase',
@@ -151,6 +168,7 @@ export function StorefrontDataProvider({ children }: PropsWithChildren) {
       if (settingsResult.error || !settingsResult.data) {
         setValue({
           categories,
+          homeHeroSlides: heroSlides,
           products: hydratedProducts,
           storeSettings: emptyStoreSettings,
           source: 'supabase',
@@ -162,6 +180,7 @@ export function StorefrontDataProvider({ children }: PropsWithChildren) {
 
       setValue({
         categories,
+        homeHeroSlides: heroSlides,
         products: hydratedProducts,
         storeSettings: settingsResult.data,
         source: 'supabase',
