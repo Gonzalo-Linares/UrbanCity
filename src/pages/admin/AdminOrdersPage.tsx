@@ -1,30 +1,26 @@
 import { useDeferredValue, useEffect, useMemo, useState } from 'react'
 import {
   CheckCheck,
+  ChevronDown,
+  ChevronUp,
   Clock3,
   Copy,
   MessageCircle,
-  RefreshCw,
   Search,
   ShoppingBag,
   XCircle,
 } from 'lucide-react'
 import { AdminMetricCard } from '@/components/admin/AdminMetricCard'
+import { AdminPageHeader } from '@/components/admin/AdminPageHeader'
 import { Button } from '@/components/ui/Button'
 import { Card } from '@/components/ui/Card'
 import { EmptyState } from '@/components/ui/EmptyState'
-import { Input } from '@/components/ui/Input'
 import { LoadingState } from '@/components/ui/LoadingState'
-import { SectionTitle } from '@/components/ui/SectionTitle'
 import { SelectField } from '@/components/ui/SelectField'
 import { StatusBadge } from '@/components/ui/StatusBadge'
 import { useAdminOutletData } from '@/hooks/useAdminShellData'
 import { formatCrudError } from '@/lib/admin'
-import {
-  formatCurrency,
-  formatDateTime,
-  formatOrderStatus,
-} from '@/lib/formatters'
+import { formatCurrency, formatDateTime, formatOrderStatus } from '@/lib/formatters'
 import { isSupabaseConfigured, supabase } from '@/lib/supabase'
 import { buildWhatsAppUrl } from '@/lib/whatsapp'
 import type { OrderItemRow, OrderRow, OrderStatus } from '@/types/database'
@@ -52,12 +48,20 @@ function orderStatusTone(status: OrderStatus) {
     case 'ready_for_pickup':
       return 'success'
     case 'completed':
-      return 'muted'
+      return 'success'
     case 'cancelled':
       return 'danger'
     default:
       return 'muted'
   }
+}
+
+function orderStatusCompactLabel(status: OrderStatus) {
+  if (status === 'completed') {
+    return 'Entregado'
+  }
+
+  return formatOrderStatus(status)
 }
 
 function buildCustomerFollowUpMessage(
@@ -85,11 +89,11 @@ function buildCustomerFollowUpMessage(
   }
 
   if (order.status === 'confirmed') {
-    lines.push('Tu pedido ya fue confirmado. Te avisamos cuando este listo.')
+    lines.push('Tu pedido ya fue confirmado. Te avisamos cuando esté listo.')
   }
 
   if (order.status === 'ready_for_pickup') {
-    lines.push('Tu pedido esta listo para retirar. Coordinamos retiro y pago por WhatsApp.')
+    lines.push('Tu pedido está listo para retirar. Coordinamos retiro y pago por WhatsApp.')
   }
 
   if (order.status === 'completed') {
@@ -97,7 +101,7 @@ function buildCustomerFollowUpMessage(
   }
 
   if (order.status === 'cancelled') {
-    lines.push('Tu pedido fue cancelado. Si quieres, podemos ayudarte a armar uno nuevo.')
+    lines.push('Tu pedido fue cancelado. Si querés, podemos ayudarte a armar uno nuevo.')
   }
 
   return lines.join('\n')
@@ -114,7 +118,7 @@ export function AdminOrdersPage() {
   const [actionSuccess, setActionSuccess] = useState<string | null>(null)
   const [statusFilter, setStatusFilter] = useState<'all' | OrderStatus>('all')
   const [searchValue, setSearchValue] = useState('')
-  const [selectedOrderId, setSelectedOrderId] = useState<string | null>(null)
+  const [expandedOrderId, setExpandedOrderId] = useState<string | null>(null)
   const [reloadKey, setReloadKey] = useState(0)
   const [busyOrderId, setBusyOrderId] = useState<string | null>(null)
   const deferredSearch = useDeferredValue(searchValue)
@@ -132,14 +136,8 @@ export function AdminOrdersPage() {
       setPageError(null)
 
       const [ordersResult, itemsResult] = await Promise.all([
-        client
-          .from('orders')
-          .select('*')
-          .order('created_at', { ascending: false }),
-        client
-          .from('order_items')
-          .select('*')
-          .order('created_at', { ascending: true }),
+        client.from('orders').select('*').order('created_at', { ascending: false }),
+        client.from('order_items').select('*').order('created_at', { ascending: true }),
       ])
 
       if (ignore) {
@@ -171,13 +169,9 @@ export function AdminOrdersPage() {
       })
 
       setOrders(nextOrders)
-      setSelectedOrderId((current) => {
-        if (current && nextOrders.some((order) => order.id === current)) {
-          return current
-        }
-
-        return nextOrders[0]?.id ?? null
-      })
+      setExpandedOrderId((current) =>
+        current && nextOrders.some((order) => order.id === current) ? current : null,
+      )
       setPageLoading(false)
     }
 
@@ -192,8 +186,7 @@ export function AdminOrdersPage() {
     const normalizedSearch = deferredSearch.trim().toLowerCase()
 
     return orders.filter((order) => {
-      const matchesStatus =
-        statusFilter === 'all' || order.status === statusFilter
+      const matchesStatus = statusFilter === 'all' || order.status === statusFilter
       const matchesSearch =
         normalizedSearch.length === 0 ||
         order.order_code.toLowerCase().includes(normalizedSearch) ||
@@ -204,13 +197,8 @@ export function AdminOrdersPage() {
     })
   }, [deferredSearch, orders, statusFilter])
 
-  const selectedOrder =
-    filteredOrders.find((order) => order.id === selectedOrderId) ??
-    filteredOrders[0] ??
-    null
-
   if (loading || pageLoading) {
-    return <LoadingState label="Cargando panel de pedidos..." />
+    return <LoadingState label="Cargando pedidos..." />
   }
 
   async function reloadPage() {
@@ -219,20 +207,14 @@ export function AdminOrdersPage() {
   }
 
   async function updateOrderStatus(order: OrderListItem, status: OrderStatus) {
-    if (!supabase) {
-      return
-    }
-
-    if (status === order.status) {
+    if (!supabase || status === order.status) {
       return
     }
 
     if (
       typeof window !== 'undefined' &&
       status === 'cancelled' &&
-      !window.confirm(
-        `Cancelar el pedido ${order.order_code}? Esta accion corta el circuito comercial actual.`,
-      )
+      !window.confirm(`Cancelar el pedido ${order.order_code}?`)
     ) {
       return
     }
@@ -240,9 +222,7 @@ export function AdminOrdersPage() {
     if (
       typeof window !== 'undefined' &&
       status === 'completed' &&
-      !window.confirm(
-        `Marcar ${order.order_code} como entregado/pagado manualmente? Esto no registra ningun pago online.`,
-      )
+      !window.confirm(`Marcar ${order.order_code} como entregado?`)
     ) {
       return
     }
@@ -251,10 +231,7 @@ export function AdminOrdersPage() {
     setActionError(null)
     setActionSuccess(null)
 
-    const { error } = await supabase
-      .from('orders')
-      .update({ status })
-      .eq('id', order.id)
+    const { error } = await supabase.from('orders').update({ status }).eq('id', order.id)
 
     setBusyOrderId(null)
 
@@ -268,9 +245,7 @@ export function AdminOrdersPage() {
       return
     }
 
-    setActionSuccess(
-      `Pedido ${order.order_code} actualizado a ${formatOrderStatus(status)}. El pago sigue coordinado por WhatsApp.`,
-    )
+    setActionSuccess(`Pedido ${order.order_code} actualizado a ${formatOrderStatus(status)}.`)
     await reloadPage()
   }
 
@@ -288,86 +263,66 @@ export function AdminOrdersPage() {
     }
   }
 
-  const selectedOrderMessage = selectedOrder
-    ? selectedOrder.whatsapp_message?.trim() ||
-      buildCustomerFollowUpMessage(selectedOrder, storeName, selectedOrder.items)
-    : ''
-
   return (
-    <div className="space-y-8">
-      <section className="surface-panel p-6 sm:p-8 lg:p-10">
-        <SectionTitle
-          eyebrow="Pedidos"
-          title="Seguimiento operativo de pedidos"
-          description="Listado, filtros, detalle, contacto por WhatsApp y cambios de estado sin mezclar el flujo con pagos online."
-          tone="light"
-        />
-      </section>
+    <div className="space-y-5 sm:space-y-8">
+      <AdminPageHeader
+        eyebrow="Pedidos"
+        title="Gestioná tus ventas"
+        description="Revisá pedidos y actualizá estados."
+        hideDescriptionOnMobile
+        variant="compact"
+      />
 
-      <div className="grid gap-5 xl:grid-cols-4 md:grid-cols-2">
+      <div className="grid grid-cols-2 gap-2.5 sm:gap-4 xl:grid-cols-4">
+        <AdminMetricCard title="Total" value={counts.ordersTotal} description="Recibidos" icon={ShoppingBag} />
+        <AdminMetricCard title="Pendientes" value={counts.ordersPending} description="A confirmar" icon={Clock3} />
         <AdminMetricCard
-          title="Total"
-          value={counts.ordersTotal}
-          description="Pedidos guardados en Supabase."
-          icon={ShoppingBag}
-        />
-        <AdminMetricCard
-          title="Pendientes"
-          value={counts.ordersPending}
-          description="Requieren confirmacion inicial por WhatsApp."
-          icon={Clock3}
-        />
-        <AdminMetricCard
-          title="Confirmados + listos"
+          title="En curso"
           value={counts.ordersConfirmed + counts.ordersReady}
-          description="Pedidos que ya avanzaron en el circuito comercial."
+          description="Confirmados"
           icon={CheckCheck}
         />
-        <AdminMetricCard
-          title="Cancelados"
-          value={counts.ordersCancelled}
-          description="Pedidos cerrados sin entrega."
-          icon={XCircle}
-        />
+        <AdminMetricCard title="Cancelados" value={counts.ordersCancelled} description="Sin entrega" icon={XCircle} />
       </div>
 
       {pageError ? (
-        <div className="rounded-[22px] border border-rose-500/18 bg-rose-500/10 px-4 py-3 text-sm text-rose-200">
+        <div className="rounded-[18px] border border-rose-500/18 bg-rose-500/10 px-4 py-3 text-sm text-rose-200">
           {pageError}
         </div>
       ) : null}
 
       {actionError ? (
-        <div className="rounded-[22px] border border-rose-500/18 bg-rose-500/10 px-4 py-3 text-sm text-rose-200">
+        <div className="rounded-[18px] border border-rose-500/18 bg-rose-500/10 px-4 py-3 text-sm text-rose-200">
           {actionError}
         </div>
       ) : null}
 
       {actionSuccess ? (
-        <div className="rounded-[22px] border border-emerald-500/18 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-200">
+        <div className="rounded-[18px] border border-emerald-500/18 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-200">
           {actionSuccess}
         </div>
       ) : null}
 
-      <Card className="space-y-5 border border-white/10 bg-[#111111] text-white shadow-[0_24px_56px_rgba(0,0,0,0.22)] [&_label>span]:text-white [&_label>p]:text-white/54 [&_input]:border-white/10 [&_input]:bg-[#0d0d0d] [&_input]:text-white [&_input]:placeholder:text-white/32 [&_select]:border-white/10 [&_select]:bg-[#0d0d0d] [&_select]:text-white">
-        <div className="grid gap-4 lg:grid-cols-[1fr_240px_auto]">
-          <div className="relative">
-            <Search className="pointer-events-none absolute top-1/2 left-4 h-4 w-4 -translate-y-1/2 text-white/40" />
-            <Input
-              label="Buscar"
-              placeholder="Código, nombre o teléfono"
-              className="pl-10"
-              value={searchValue}
-              onChange={(event) => setSearchValue(event.target.value)}
-            />
-          </div>
+      <Card className="space-y-3 border border-white/10 bg-[#111111] p-3 text-white shadow-none sm:p-5 sm:shadow-[0_24px_56px_rgba(0,0,0,0.22)] [&_label>span]:text-white [&_label>p]:text-white/54 [&_select]:border-white/10 [&_select]:bg-[#0d0d0d] [&_select]:text-white">
+        <div className="grid gap-3 sm:grid-cols-[minmax(0,1fr)_220px]">
+          <label className="block min-w-0 space-y-2">
+            <span className="text-sm font-medium text-white">Buscar</span>
+            <div className="relative min-w-0">
+              <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-white/38" />
+              <input
+                type="text"
+                value={searchValue}
+                onChange={(event) => setSearchValue(event.target.value)}
+                placeholder="Código, nombre o teléfono"
+                className="h-11 w-full rounded-2xl border border-white/10 bg-[#0d0d0d] pl-10 pr-3 text-sm text-white placeholder:text-white/32"
+              />
+            </div>
+          </label>
 
           <SelectField
             label="Estado"
             value={statusFilter}
-            onChange={(event) =>
-              setStatusFilter(event.target.value as 'all' | OrderStatus)
-            }
+            onChange={(event) => setStatusFilter(event.target.value as 'all' | OrderStatus)}
           >
             {orderStatusOptions.map((option) => (
               <option key={option.value} value={option.value}>
@@ -375,39 +330,18 @@ export function AdminOrdersPage() {
               </option>
             ))}
           </SelectField>
-
-          <div className="flex items-end">
-            <Button
-              type="button"
-              variant="outline"
-              className="w-full lg:w-auto"
-              onClick={() => void reloadPage()}
-            >
-              <RefreshCw className="h-4 w-4" />
-              Recargar
-            </Button>
-          </div>
         </div>
       </Card>
 
       {orders.length === 0 ? (
         <EmptyState
-          title="Todavia no hay pedidos generados"
-          description="Los pedidos apareceran aqui cuando un cliente complete el checkout y envie su pedido por WhatsApp."
-          action={
-            <Button
-              type="button"
-              variant="secondary"
-              onClick={() => void reloadPage()}
-            >
-              Revisar nuevamente
-            </Button>
-          }
+          title="Todavía no hay pedidos"
+          description="Los pedidos aparecerán acá cuando un cliente termine su pedido."
         />
       ) : filteredOrders.length === 0 ? (
         <EmptyState
           title="No encontramos pedidos con ese filtro"
-          description="Prueba otro estado, otro termino de busqueda o limpia los filtros para volver al listado completo."
+          description="Probá otro estado o limpiá la búsqueda."
           action={
             <Button
               type="button"
@@ -422,208 +356,162 @@ export function AdminOrdersPage() {
           }
         />
       ) : (
-        <div className="grid gap-6 xl:grid-cols-[0.92fr_1.08fr]">
-          <Card className="space-y-4 border border-white/10 bg-[#111111] text-white shadow-[0_24px_56px_rgba(0,0,0,0.22)]">
-            <div className="flex items-center justify-between gap-3">
-              <div>
-                <p className="text-sm font-medium text-white">Listado</p>
-                <p className="text-sm text-white/58">
-                  {filteredOrders.length} pedido
-                  {filteredOrders.length === 1 ? '' : 's'} visibles.
-                </p>
-              </div>
-            </div>
+        <Card className="space-y-4 border border-white/10 bg-[#111111] p-3.5 text-white shadow-none sm:p-6 sm:shadow-[0_24px_56px_rgba(0,0,0,0.22)]">
+          <div>
+            <p className="text-sm font-medium text-white">Listado</p>
+            <p className="text-sm text-white/58">
+              {filteredOrders.length} pedido{filteredOrders.length === 1 ? '' : 's'} visibles.
+            </p>
+          </div>
 
-            <div className="space-y-3">
-              {filteredOrders.map((order) => (
-                <button
+          <div className="space-y-3">
+            {filteredOrders.map((order) => {
+              const isExpanded = expandedOrderId === order.id
+              const orderMessage =
+                order.whatsapp_message?.trim() ||
+                buildCustomerFollowUpMessage(order, storeName, order.items)
+
+              return (
+                <div
                   key={order.id}
-                  type="button"
-                  onClick={() => setSelectedOrderId(order.id)}
-                  className={`w-full rounded-[24px] border p-4 text-left transition ${
-                    selectedOrder?.id === order.id
-                      ? 'border-brand-strong/40 bg-[#161616] text-white shadow-[0_22px_44px_rgba(0,0,0,0.2)]'
-                      : 'border-white/10 bg-black/20 text-white hover:border-white/16'
-                  }`}
+                  className="rounded-[18px] border border-white/10 bg-black/20 p-3"
                 >
-                  <div className="flex flex-wrap items-center justify-between gap-3">
-                    <div className="space-y-1">
-                      <p className="text-sm font-semibold tracking-[-0.02em]">
-                        {order.order_code}
-                      </p>
-                      <p
-                        className={`text-sm ${
-                          selectedOrder?.id === order.id
-                            ? 'text-white/75'
-                            : 'text-white/56'
-                        }`}
+                  <div className="space-y-3">
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="min-w-0 space-y-1">
+                        <p className="truncate text-base font-semibold tracking-[-0.03em] text-white">
+                          {order.order_code}
+                        </p>
+                        <p className="truncate text-sm text-white/70">{order.customer_name}</p>
+                      </div>
+
+                      <StatusBadge
+                        tone={orderStatusTone(order.status)}
+                        className={
+                          order.status === 'completed'
+                            ? 'border-emerald-400/20 bg-emerald-500/14 text-emerald-200'
+                            : undefined
+                        }
                       >
-                        {order.customer_name} | {order.customer_phone}
-                      </p>
+                        {orderStatusCompactLabel(order.status)}
+                      </StatusBadge>
                     </div>
 
-                    <StatusBadge
-                      tone={orderStatusTone(order.status)}
-                      className={
-                        selectedOrder?.id === order.id
-                          ? 'border-white/12 bg-white/10 text-white'
-                          : ''
-                      }
-                    >
-                      {formatOrderStatus(order.status)}
-                    </StatusBadge>
-                  </div>
+                    <div className="grid grid-cols-2 gap-1 text-xs text-white/58 sm:grid-cols-4 sm:text-sm">
+                      <span>{formatCurrency(order.total)}</span>
+                      <span>{order.itemCount} item{order.itemCount === 1 ? '' : 's'}</span>
+                      <span className="truncate">{order.customer_phone}</span>
+                      <span>{formatDateTime(order.created_at)}</span>
+                    </div>
 
-                  <div
-                    className={`mt-4 grid gap-2 text-sm sm:grid-cols-3 ${
-                      selectedOrder?.id === order.id
-                        ? 'text-white/78'
-                        : 'text-white/54'
-                    }`}
-                  >
-                    <span>{order.itemCount} item{order.itemCount === 1 ? '' : 's'}</span>
-                    <span>{formatCurrency(order.total)}</span>
-                    <span>{formatDateTime(order.created_at)}</span>
-                  </div>
-                </button>
-              ))}
-            </div>
-          </Card>
-
-          {selectedOrder ? (
-            <Card className="space-y-6 border border-white/10 bg-[#111111] text-white shadow-[0_24px_56px_rgba(0,0,0,0.22)]">
-              <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
-                <div className="space-y-2">
-                  <div className="flex flex-wrap items-center gap-2">
-                    <p className="text-2xl font-semibold tracking-[-0.04em] text-white">
-                      {selectedOrder.order_code}
-                    </p>
-                    <StatusBadge tone={orderStatusTone(selectedOrder.status)}>
-                      {formatOrderStatus(selectedOrder.status)}
-                    </StatusBadge>
-                  </div>
-                  <p className="text-sm text-white/56">
-                    Creado el {formatDateTime(selectedOrder.created_at)}
-                  </p>
-                </div>
-
-                <div className="flex flex-wrap gap-2">
-                  <a
-                    href={buildWhatsAppUrl(
-                      selectedOrder.customer_phone,
-                      selectedOrderMessage,
-                    )}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="inline-flex h-10 items-center justify-center gap-2 rounded-full bg-success px-4 text-sm font-medium text-white transition hover:bg-emerald-700"
-                  >
-                    <MessageCircle className="h-4 w-4" />
-                    Abrir WhatsApp del cliente
-                  </a>
-                  <Button
-                    type="button"
-                    variant="outline"
-                    onClick={() => void copyMessage(selectedOrder)}
-                  >
-                    <Copy className="h-4 w-4" />
-                    Copiar resumen
-                  </Button>
-                </div>
-              </div>
-
-              <div className="grid gap-4 lg:grid-cols-2">
-                <div className="rounded-[24px] border border-white/10 bg-black/20 p-4">
-                  <p className="text-xs uppercase tracking-[0.22em] text-white/40">
-                    Cliente
-                  </p>
-                  <div className="mt-3 space-y-1 text-sm text-white">
-                    <p>{selectedOrder.customer_name}</p>
-                    <p>{selectedOrder.customer_phone}</p>
-                    <p className="text-white/56">
-                      {selectedOrder.customer_message || 'Sin mensaje adicional.'}
-                    </p>
-                  </div>
-                </div>
-
-                <div className="rounded-[24px] border border-white/10 bg-black/20 p-4 [&_label>span]:text-white [&_label>p]:text-white/54 [&_select]:border-white/10 [&_select]:bg-[#0d0d0d] [&_select]:text-white">
-                  <SelectField
-                    label="Cambiar estado"
-                    value={selectedOrder.status}
-                    disabled={busyOrderId === selectedOrder.id}
-                    onChange={(event) =>
-                      void updateOrderStatus(
-                        selectedOrder,
-                        event.target.value as OrderStatus,
-                      )
-                    }
-                  >
-                    {orderStatusOptions
-                      .filter((option) => option.value !== 'all')
-                      .map((option) => (
-                        <option key={option.value} value={option.value}>
-                          {option.label}
-                        </option>
-                      ))}
-                  </SelectField>
-                  <p className="mt-3 text-sm leading-6 text-white/56">
-                    Entregado / Pagado manualmente solo marca cierre operativo.
-                    No registra pagos online ni reemplaza la coordinación por WhatsApp.
-                  </p>
-                </div>
-              </div>
-
-              <div className="space-y-3">
-                <p className="text-sm font-medium text-white">Items del pedido</p>
-                {selectedOrder.items.length === 0 ? (
-                  <div className="rounded-[22px] border border-dashed border-white/12 bg-black/20 px-4 py-8 text-sm text-white/58">
-                    Este pedido no tiene items asociados.
-                  </div>
-                ) : (
-                  <div className="space-y-3">
-                    {selectedOrder.items.map((item) => (
-                      <div
-                        key={item.id}
-                        className="flex flex-col gap-2 rounded-[22px] border border-white/10 bg-black/20 p-4 sm:flex-row sm:items-center sm:justify-between"
+                    <div className="grid grid-cols-2 gap-2 sm:flex sm:flex-wrap">
+                      <a
+                        href={buildWhatsAppUrl(order.customer_phone, orderMessage)}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="inline-flex h-10 items-center justify-center gap-2 rounded-full bg-success px-4 text-sm font-medium text-white transition hover:bg-emerald-700"
                       >
-                        <div>
-                          <p className="text-sm font-medium text-white">
-                            {item.product_name}
-                          </p>
-                          <p className="text-sm text-white/56">
-                            {item.quantity} x {formatCurrency(item.unit_price)}
-                          </p>
+                        <MessageCircle className="h-4 w-4" />
+                        WhatsApp
+                      </a>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        className="w-full px-3 text-white/72 hover:bg-white/8 hover:text-white sm:w-auto"
+                        onClick={() =>
+                          setExpandedOrderId((current) => (current === order.id ? null : order.id))
+                        }
+                      >
+                        {isExpanded ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+                        {isExpanded ? 'Ocultar' : 'Ver detalle'}
+                      </Button>
+                    </div>
+
+                    {isExpanded ? (
+                      <div className="space-y-4 border-t border-white/10 pt-3">
+                        <div className="grid gap-3 sm:grid-cols-2">
+                          <div className="rounded-[16px] border border-white/10 bg-[#0d0d0d] p-3.5 text-sm">
+                            <p className="text-[0.62rem] uppercase tracking-[0.18em] text-white/40">
+                              Cliente
+                            </p>
+                            <div className="mt-2 space-y-1 text-white">
+                              <p>{order.customer_name}</p>
+                              <p>{order.customer_phone}</p>
+                              <p className="text-white/56">{order.customer_message || 'Sin mensaje adicional.'}</p>
+                            </div>
+                          </div>
+
+                          <div className="rounded-[16px] border border-white/10 bg-[#0d0d0d] p-3.5 [&_label>span]:text-white [&_label>p]:text-white/54 [&_select]:border-white/10 [&_select]:bg-black/20 [&_select]:text-white">
+                            <SelectField
+                              label="Cambiar estado"
+                              value={order.status}
+                              disabled={busyOrderId === order.id}
+                              onChange={(event) =>
+                                void updateOrderStatus(order, event.target.value as OrderStatus)
+                              }
+                            >
+                              {orderStatusOptions
+                                .filter((option) => option.value !== 'all')
+                                .map((option) => (
+                                  <option key={option.value} value={option.value}>
+                                    {option.label}
+                                  </option>
+                                ))}
+                            </SelectField>
+                          </div>
                         </div>
-                        <p className="text-sm font-semibold text-white">
-                          {formatCurrency(item.subtotal)}
-                        </p>
+
+                        <div className="space-y-2">
+                          <p className="text-sm font-medium text-white">Items</p>
+                          {order.items.length === 0 ? (
+                            <div className="rounded-[16px] border border-dashed border-white/12 bg-[#0d0d0d] px-4 py-4 text-sm text-white/58">
+                              Este pedido no tiene items asociados.
+                            </div>
+                          ) : (
+                            <div className="space-y-2">
+                              {order.items.map((item) => (
+                                <div
+                                  key={item.id}
+                                  className="flex flex-col gap-1.5 rounded-[16px] border border-white/10 bg-[#0d0d0d] p-3 text-sm sm:flex-row sm:items-center sm:justify-between"
+                                >
+                                  <div>
+                                    <p className="font-medium text-white">{item.product_name}</p>
+                                    <p className="text-white/56">
+                                      {item.quantity} x {formatCurrency(item.unit_price)}
+                                    </p>
+                                  </div>
+                                  <p className="font-semibold text-white">
+                                    {formatCurrency(item.subtotal)}
+                                  </p>
+                                </div>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+
+                        <div className="space-y-3">
+                          <div className="rounded-[16px] border border-white/10 bg-[#0d0d0d] p-3.5">
+                            <p className="text-sm font-medium text-white">Resumen para copiar</p>
+                            <pre className="mt-3 overflow-x-auto whitespace-pre-wrap text-sm leading-6 text-white/74">
+                              {orderMessage}
+                            </pre>
+                          </div>
+
+                          <div className="flex flex-wrap gap-2">
+                            <Button type="button" variant="outline" onClick={() => void copyMessage(order)}>
+                              <Copy className="h-4 w-4" />
+                              Copiar resumen
+                            </Button>
+                          </div>
+                        </div>
                       </div>
-                    ))}
+                    ) : null}
                   </div>
-                )}
-              </div>
-
-              <div className="grid gap-4 lg:grid-cols-[1fr_auto] lg:items-start">
-                <div className="rounded-[24px] border border-white/10 bg-black/20 p-4">
-                  <p className="text-sm font-medium text-white">
-                    Resumen para copiar o enviar
-                  </p>
-                  <pre className="mt-3 overflow-x-auto whitespace-pre-wrap text-sm leading-6 text-white/74">
-                    {selectedOrderMessage}
-                  </pre>
                 </div>
-
-                <div className="rounded-[24px] border border-white/10 bg-[#0d0d0d] px-5 py-4 text-white">
-                  <p className="text-xs uppercase tracking-[0.22em] text-white/40">
-                    Total
-                  </p>
-                  <p className="mt-2 text-3xl font-semibold tracking-[-0.04em]">
-                    {formatCurrency(selectedOrder.total)}
-                  </p>
-                </div>
-              </div>
-            </Card>
-          ) : null}
-        </div>
+              )
+            })}
+          </div>
+        </Card>
       )}
     </div>
   )

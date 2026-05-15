@@ -73,13 +73,11 @@ export function AdminProductImageManager({
     for (const [index, file] of files.entries()) {
       const objectPath = buildProductImageObjectPath(product.id, file.name)
 
-      const uploadResult = await supabase.storage
-        .from(productImagesBucket)
-        .upload(objectPath, file, {
-          cacheControl: '3600',
-          upsert: false,
-          contentType: file.type,
-        })
+      const uploadResult = await supabase.storage.from(productImagesBucket).upload(objectPath, file, {
+        cacheControl: '3600',
+        upsert: false,
+        contentType: file.type,
+      })
 
       if (uploadResult.error) {
         setUploading(false)
@@ -110,7 +108,7 @@ export function AdminProductImageManager({
     setSuccess(
       files.length === 1
         ? 'Imagen cargada correctamente.'
-        : `${files.length} imágenes cargadas correctamente.`,
+        : `${files.length} imagenes cargadas correctamente.`,
     )
     if (inputRef.current) {
       inputRef.current.value = ''
@@ -125,10 +123,7 @@ export function AdminProductImageManager({
 
     const client = supabase
     const updates = nextImages.map((image, index) =>
-      client
-        .from('product_images')
-        .update({ sort_order: index })
-        .eq('id', image.id),
+      client.from('product_images').update({ sort_order: index }).eq('id', image.id),
     )
 
     const results = await Promise.all(updates)
@@ -183,10 +178,7 @@ export function AdminProductImageManager({
       return
     }
 
-    if (
-      typeof window !== 'undefined' &&
-      !window.confirm('¿Eliminar esta imagen del producto?')
-    ) {
+    if (typeof window !== 'undefined' && !window.confirm('Eliminar esta imagen del producto?')) {
       return
     }
 
@@ -194,15 +186,10 @@ export function AdminProductImageManager({
     setError(null)
     setSuccess(null)
 
-    const objectPath = extractStorageObjectPathFromPublicUrl(
-      image.url,
-      productImagesBucket,
-    )
+    const objectPath = extractStorageObjectPathFromPublicUrl(image.url, productImagesBucket)
 
     if (objectPath) {
-      const removeResult = await supabase.storage
-        .from(productImagesBucket)
-        .remove([objectPath])
+      const removeResult = await supabase.storage.from(productImagesBucket).remove([objectPath])
 
       if (removeResult.error) {
         setBusyImageId(null)
@@ -211,10 +198,7 @@ export function AdminProductImageManager({
       }
     }
 
-    const deleteResult = await supabase
-      .from('product_images')
-      .delete()
-      .eq('id', image.id)
+    const deleteResult = await supabase.from('product_images').delete().eq('id', image.id)
 
     if (deleteResult.error) {
       setBusyImageId(null)
@@ -228,15 +212,15 @@ export function AdminProductImageManager({
   }
 
   return (
-    <Card className="space-y-5 border border-white/10 bg-[#111111] text-white shadow-[0_24px_56px_rgba(0,0,0,0.22)]">
+    <Card className="space-y-4 border border-white/10 bg-[#111111] p-4 text-white shadow-[0_24px_56px_rgba(0,0,0,0.22)] sm:space-y-5 sm:p-6">
       <div className="space-y-2">
-        <p className="text-sm font-medium text-white">Imágenes de {product.name}</p>
+        <p className="text-sm font-medium text-white">Imagenes de {product.name}</p>
         <p className="text-sm leading-6 text-white/64">
-          Podés seleccionar una o varias imágenes. Formatos permitidos:{' '}
+          Puedes seleccionar una o varias imagenes. Formatos permitidos:{' '}
           {productImageAllowedMimeTypes
             .map((type) => type.replace('image/', '').toUpperCase())
             .join(', ')}
-          . Máximo por archivo: {formatBytesAsMb(productImageMaxSizeBytes)}.
+          . Maximo por archivo: {formatBytesAsMb(productImageMaxSizeBytes)}.
         </p>
       </div>
 
@@ -252,16 +236,16 @@ export function AdminProductImageManager({
         </div>
       ) : null}
 
-      <div className="rounded-[24px] border border-dashed border-white/12 bg-black/20 p-4">
+      <div className="rounded-[22px] border border-dashed border-white/12 bg-black/20 p-4">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex items-center gap-3">
-            <span className="flex h-11 w-11 items-center justify-center rounded-2xl bg-black/30 text-brand-strong">
+            <span className="flex h-10 w-10 items-center justify-center rounded-2xl bg-black/30 text-brand-strong sm:h-11 sm:w-11">
               <ImagePlus className="h-5 w-5" />
             </span>
             <div>
-              <p className="text-sm font-medium text-white">Subir imágenes</p>
+              <p className="text-sm font-medium text-white">Subir imagenes</p>
               <p className="text-sm text-white/64">
-                Producto seleccionado: {product.name}. Podés subir una o varias imágenes.
+                Producto seleccionado: {product.name}. Puedes subir una o varias imagenes.
               </p>
             </div>
           </div>
@@ -273,7 +257,7 @@ export function AdminProductImageManager({
             onClick={() => inputRef.current?.click()}
           >
             <Upload className="h-4 w-4" />
-            {uploading ? 'Subiendo...' : 'Subir imágenes'}
+            {uploading ? 'Subiendo...' : 'Subir imagenes'}
           </Button>
         </div>
 
@@ -290,7 +274,7 @@ export function AdminProductImageManager({
       <div className="space-y-3">
         {orderedImages.length === 0 ? (
           <div className="rounded-[22px] border border-dashed border-white/12 bg-black/20 px-4 py-8 text-sm text-white/58">
-            Este producto todavía no tiene imágenes.
+            Este producto todavia no tiene imagenes.
           </div>
         ) : null}
 
@@ -300,9 +284,9 @@ export function AdminProductImageManager({
           return (
             <div
               key={image.id}
-              className="grid gap-4 rounded-[24px] border border-white/10 bg-black/20 p-4 lg:grid-cols-[110px_1fr_auto]"
+              className="grid gap-4 rounded-[22px] border border-white/10 bg-black/20 p-4 lg:grid-cols-[110px_1fr_auto]"
             >
-              <div className="overflow-hidden rounded-[20px] border border-white/10 bg-[#0d0d0d]">
+              <div className="overflow-hidden rounded-[18px] border border-white/10 bg-[#0d0d0d]">
                 <img
                   src={image.url}
                   alt={image.alt ?? product.name}

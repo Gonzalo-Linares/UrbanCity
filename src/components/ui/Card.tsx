@@ -1,6 +1,10 @@
-import type { HTMLAttributes } from 'react'
+import { forwardRef, type HTMLAttributes } from 'react'
 import { cn } from '@/lib/cn'
 
-export function Card({ className, ...props }: HTMLAttributes<HTMLDivElement>) {
-  return <div className={cn('surface-card p-5 sm:p-6', className)} {...props} />
-}
+export const Card = forwardRef<HTMLDivElement, HTMLAttributes<HTMLDivElement>>(
+  ({ className, ...props }, ref) => {
+    return <div ref={ref} className={cn('surface-card p-5 sm:p-6', className)} {...props} />
+  },
+)
+
+Card.displayName = 'Card'

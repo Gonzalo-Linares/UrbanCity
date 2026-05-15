@@ -39,7 +39,7 @@ export function AdminLoginPage() {
         title="No autorizado"
         description={
           error ??
-          'Tu usuario existe en Supabase Auth, pero no figura como admin activo en public.admin_users.'
+          'Tu usuario no tiene acceso habilitado al panel.'
         }
         action={
           <Button type="button" variant="secondary" onClick={() => void signOut()}>
@@ -62,44 +62,39 @@ export function AdminLoginPage() {
   }
 
   return (
-    <div className="mx-auto flex min-h-screen max-w-6xl items-center px-4 py-10 sm:px-6">
-      <div className="grid w-full gap-6 lg:grid-cols-[0.95fr_1.05fr]">
-        <section className="surface-panel flex flex-col justify-between gap-8 p-6 sm:p-8 lg:p-10">
-          <div className="space-y-5">
+    <div className="mx-auto flex min-h-screen max-w-5xl items-center px-4 py-6 sm:px-6 sm:py-10">
+      <div className="grid w-full gap-5 lg:grid-cols-[0.95fr_1.05fr]">
+        <section className="surface-panel flex flex-col justify-between gap-6 p-5 sm:p-8 lg:p-10">
+          <div className="space-y-4">
             <p className="eyebrow">Admin</p>
-            <div className="space-y-4">
+            <div className="space-y-3">
               <img
                 src={cityLogo}
                 alt="City Calzado Urbano"
-                className="h-20 w-20 rounded-3xl border border-white/10 object-cover shadow-[0_20px_46px_rgba(0,0,0,0.34)]"
+                className="h-14 w-14 rounded-3xl border border-white/10 object-cover shadow-[0_20px_46px_rgba(0,0,0,0.34)] sm:h-20 sm:w-20"
               />
-              <h1 className="page-title">
-                Ingreso seguro para gestionar City Calzado Urbano.
+              <h1 className="text-2xl font-semibold tracking-[-0.05em] text-white sm:text-5xl">
+                Panel de administracion
               </h1>
-              <p className="page-copy">
-                El acceso admin usa Supabase Auth y valida que el usuario exista
-                como admin activo en <code>public.admin_users</code>.
+              <p className="text-sm leading-6 text-white/70 sm:text-base sm:leading-7">
+                Ingresa para cargar productos, actualizar precios, revisar pedidos y
+                administrar la tienda.
               </p>
             </div>
           </div>
 
-          <div className="grid gap-3">
-            <div className="rounded-[24px] border border-white/10 bg-white/6 p-4 text-sm leading-6 text-white/78">
-              No hay usuarios compradores ni registro publico.
-            </div>
-            <div className="rounded-[24px] border border-white/10 bg-white/6 p-4 text-sm leading-6 text-white/78">
-              Si el usuario autentica pero no figura activo en la tabla admin, el
-              panel queda bloqueado.
-            </div>
+          <div className="rounded-[22px] border border-white/10 bg-white/6 p-4 text-sm leading-6 text-white/74">
+            Desde aca podes gestionar productos, categorias, pedidos y los datos
+            principales de la tienda.
           </div>
         </section>
 
-        <Card className="border border-white/10 bg-[#111111] p-6 text-white shadow-[0_28px_64px_rgba(0,0,0,0.24)] sm:p-8">
+        <Card className="border border-white/10 bg-[#111111] p-5 text-white shadow-[0_28px_64px_rgba(0,0,0,0.24)] sm:p-8">
           <form className="space-y-5 [&_label>span]:text-white [&_label>p]:text-white/54 [&_input]:border-white/10 [&_input]:bg-[#0d0d0d] [&_input]:text-white [&_input]:placeholder:text-white/32" onSubmit={form.handleSubmit(handleSubmit)}>
             <div className="space-y-2">
               <p className="text-sm font-medium text-white">Iniciar sesión</p>
               <p className="text-sm leading-6 text-white/60">
-                Usa el email y password del usuario admin creado en Supabase Auth.
+                Ingresa con tu email y contrasena.
               </p>
             </div>
 
