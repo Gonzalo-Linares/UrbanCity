@@ -1,6 +1,7 @@
 import type {
   Availability,
   CategoryRow,
+  HomeHeroSlideRow,
   OrderStatus,
   ProductImageRow,
   ProductRow,
@@ -52,6 +53,7 @@ export interface GeneratedOrderDraft {
 
 export interface StorefrontState {
   categories: CategoryRow[]
+  homeHeroSlides: HomeHeroSlideRow[]
   products: StorefrontProduct[]
   storeSettings: StoreSettingsRow
   source: 'mock' | 'supabase'

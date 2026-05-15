@@ -113,6 +113,20 @@ create table if not exists public.store_settings (
   updated_at timestamptz not null default timezone('utc', now())
 );
 
+create table if not exists public.home_hero_slides (
+  id uuid primary key default gen_random_uuid(),
+  eyebrow text not null default '',
+  title text not null,
+  subtitle text,
+  description text,
+  image_url text not null,
+  image_alt text,
+  sort_order int not null default 0,
+  is_active boolean not null default true,
+  created_at timestamptz not null default timezone('utc', now()),
+  updated_at timestamptz not null default timezone('utc', now())
+);
+
 insert into storage.buckets (id, name, public, file_size_limit, allowed_mime_types)
 values (
   'product-images',
@@ -134,6 +148,7 @@ create index if not exists idx_products_category_id on public.products(category_
 create index if not exists idx_product_images_product_id on public.product_images(product_id);
 create index if not exists idx_orders_status on public.orders(status);
 create index if not exists idx_order_items_order_id on public.order_items(order_id);
+create index if not exists idx_home_hero_slides_sort_order on public.home_hero_slides(sort_order);
 
 alter table public.admin_users enable row level security;
 alter table public.categories enable row level security;
@@ -142,6 +157,7 @@ alter table public.product_images enable row level security;
 alter table public.orders enable row level security;
 alter table public.order_items enable row level security;
 alter table public.store_settings enable row level security;
+alter table public.home_hero_slides enable row level security;
 
 grant execute on function public.is_active_admin() to anon, authenticated;
 
@@ -235,6 +251,21 @@ to authenticated
 using (public.is_active_admin())
 with check (public.is_active_admin());
 
+drop policy if exists home_hero_slides_public_read on public.home_hero_slides;
+create policy home_hero_slides_public_read
+on public.home_hero_slides
+for select
+to anon, authenticated
+using (is_active = true);
+
+drop policy if exists home_hero_slides_admin_manage on public.home_hero_slides;
+create policy home_hero_slides_admin_manage
+on public.home_hero_slides
+for all
+to authenticated
+using (public.is_active_admin())
+with check (public.is_active_admin());
+
 drop policy if exists orders_admin_manage on public.orders;
 create policy orders_admin_manage
 on public.orders
@@ -266,6 +297,12 @@ execute function public.set_updated_at();
 drop trigger if exists trg_store_settings_updated_at on public.store_settings;
 create trigger trg_store_settings_updated_at
 before update on public.store_settings
+for each row
+execute function public.set_updated_at();
+
+drop trigger if exists trg_home_hero_slides_updated_at on public.home_hero_slides;
+create trigger trg_home_hero_slides_updated_at
+before update on public.home_hero_slides
 for each row
 execute function public.set_updated_at();
 

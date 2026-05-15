@@ -24,7 +24,7 @@ import { buttonStyles } from '@/components/ui/buttonStyles'
 import { useStorefrontData } from '@/hooks/useStorefrontData'
 import { cn } from '@/lib/cn'
 
-const heroSlides = [
+const fallbackHeroSlides = [
   {
     eyebrow: 'NUEVOS INGRESOS',
     title: 'CITY DROP',
@@ -106,7 +106,7 @@ const instagramShowcaseItems = [
 ]
 
 export function HomePage() {
-  const { products, storeSettings, loading } = useStorefrontData()
+  const { products, storeSettings, homeHeroSlides, loading } = useStorefrontData()
   const [activeSlide, setActiveSlide] = useState(0)
   const [autoplayVersion, setAutoplayVersion] = useState(0)
   const [isHeroPaused, setIsHeroPaused] = useState(false)
@@ -114,6 +114,17 @@ export function HomePage() {
   const featuredProducts = products.filter((product) => product.featured)
   const visibleProducts =
     featuredProducts.length > 0 ? featuredProducts.slice(0, 4) : products.slice(0, 4)
+  const heroSlides =
+    homeHeroSlides.length > 0
+      ? homeHeroSlides.map((slide) => ({
+          eyebrow: slide.eyebrow,
+          title: slide.title,
+          subtitle: slide.subtitle ?? '',
+          description: slide.description ?? '',
+          image: slide.image_url,
+          imageAlt: slide.image_alt ?? slide.title,
+        }))
+      : fallbackHeroSlides
   const instagramUrl =
     storeSettings.instagram_url?.trim() ||
     'https://www.instagram.com/citycalzadourbano/'
@@ -167,8 +178,8 @@ export function HomePage() {
             className="hero-slider-track"
             style={{ transform: `translateX(-${activeSlide * 100}%)` }}
           >
-            {heroSlides.map((slide) => (
-              <div key={slide.eyebrow} className="hero-slide">
+            {heroSlides.map((slide, index) => (
+              <div key={`${slide.title}-${index}`} className="hero-slide">
                 <div className="shell-container relative min-h-[380px] overflow-hidden py-7 sm:min-h-[520px] sm:py-12 lg:grid lg:min-h-[620px] lg:grid-cols-[0.94fr_1.06fr] lg:items-center lg:gap-10 lg:py-16">
                   <div className="absolute inset-0 sm:hidden">
                     <div className="absolute inset-0 z-0">
@@ -252,7 +263,7 @@ export function HomePage() {
           <div className="absolute right-0 bottom-6 left-0 z-20 flex justify-center gap-2">
             {heroSlides.map((slide, index) => (
               <button
-                key={slide.eyebrow}
+                key={`${slide.title}-${index}`}
                 type="button"
                 aria-label={`Ir al slide ${index + 1}`}
                 onClick={() => goToSlide(index)}
