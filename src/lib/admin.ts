@@ -111,7 +111,7 @@ export function validateImageSize(
   if (file.size > maxSizeBytes) {
     return (
       oversizedMessage ??
-      `La imagen supera el maximo de ${formatBytesAsMb(maxSizeBytes)}.`
+      `La imagen supera el máximo de ${formatBytesAsMb(maxSizeBytes)}.`
     )
   }
 
@@ -126,6 +126,19 @@ export function validateProductImageFile(file: File) {
 }
 
 export const validateAdminImageFile = validateProductImageFile
+
+function extensionFromMimeType(mimeType: string) {
+  switch (mimeType) {
+    case 'image/webp':
+      return 'webp'
+    case 'image/jpeg':
+      return 'jpg'
+    case 'image/png':
+      return 'png'
+    default:
+      return null
+  }
+}
 
 export async function optimizeImageFile(
   file: File,
@@ -188,14 +201,22 @@ export async function optimizeImageFile(
       canvas.toBlob(resolve, outputType, quality)
     })
 
-    if (!blob || blob.size === 0 || blob.size >= originalSize) {
+    if (!blob || blob.size <= 0 || blob.size >= originalSize) {
+      return fallbackResult
+    }
+
+    const resolvedMimeType = blob.type || outputType
+    const resolvedExtension =
+      extensionFromMimeType(resolvedMimeType) ?? outputExtension ?? null
+
+    if (!resolvedMimeType || !resolvedExtension) {
       return fallbackResult
     }
 
     const dotIndex = file.name.lastIndexOf('.')
     const baseName = dotIndex >= 0 ? file.name.slice(0, dotIndex) : file.name
-    const optimizedFile = new File([blob], `${baseName}.${outputExtension}`, {
-      type: outputType,
+    const optimizedFile = new File([blob], `${baseName}.${resolvedExtension}`, {
+      type: resolvedMimeType,
       lastModified: Date.now(),
     })
 

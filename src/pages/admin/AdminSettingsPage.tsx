@@ -514,7 +514,7 @@ export function AdminSettingsPage() {
     const sizeError = validateImageSize(
       optimizedResult.file,
       adminImageMaxSizeBytes,
-      'La imagen sigue siendo demasiado pesada. Proba con una foto mas liviana.',
+      'La imagen sigue siendo demasiado pesada. Probá con una foto más liviana.',
     )
 
     if (sizeError) {
@@ -564,9 +564,9 @@ export function AdminSettingsPage() {
     replaceHeroSlide(updateResult.data, { syncDraft: false })
     setHeroSlidesSuccess(
       optimizedResult.wasOptimized
-        ? `Imagen principal actualizada correctamente. Imagen optimizada automaticamente para la Home: ${formatFileSize(
+        ? `Imagen principal actualizada correctamente. Imagen optimizada automáticamente para el inicio: ${formatFileSize(
             optimizedResult.originalSize,
-          )} -> ${formatFileSize(optimizedResult.optimizedSize)}.`
+          )} → ${formatFileSize(optimizedResult.optimizedSize)}.`
         : 'Imagen principal actualizada correctamente.',
     )
     refreshStorefront()

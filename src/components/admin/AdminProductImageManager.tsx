@@ -5,9 +5,9 @@ import { Card } from '@/components/ui/Card'
 import {
   buildProductImageObjectPath,
   extractStorageObjectPathFromPublicUrl,
-  formatFileSize,
   formatBytesAsMb,
   formatCrudError,
+  formatFileSize,
   optimizeImageFile,
   productImageAllowedMimeTypes,
   productImageMaxSizeBytes,
@@ -22,6 +22,14 @@ interface AdminProductImageManagerProps {
   product: Pick<ProductRow, 'id' | 'name'>
   images: ProductImageRow[]
   onRefresh: () => Promise<void>
+}
+
+interface PreparedUploadFile {
+  originalFile: File
+  uploadFile: File
+  originalSize: number
+  optimizedSize: number
+  wasOptimized: boolean
 }
 
 function sortImages(images: ProductImageRow[]) {
@@ -66,18 +74,13 @@ export function AdminProductImageManager({
     }
 
     setUploading(true)
-    setUploadStatus('Optimizando imagen...')
+    setUploadStatus('Optimizando imágenes...')
     setError(null)
     setSuccess(null)
 
-    const currentMaxOrder = orderedImages.reduce(
-      (maxValue, image) => Math.max(maxValue, image.sort_order),
-      -1,
-    )
-    let optimizedFilesCount = 0
-    let singleOptimizationMessage: string | null = null
+    const preparedFiles: PreparedUploadFile[] = []
 
-    for (const [index, file] of files.entries()) {
+    for (const file of files) {
       const optimizedResult = await optimizeImageFile(file, {
         maxWidth: 1400,
         maxHeight: 1400,
@@ -88,7 +91,7 @@ export function AdminProductImageManager({
       const sizeError = validateImageSize(
         optimizedResult.file,
         productImageMaxSizeBytes,
-        'La imagen sigue siendo demasiado pesada. Proba con una foto mas liviana.',
+        'La imagen sigue siendo demasiado pesada. Probá con una foto más liviana.',
       )
 
       if (sizeError) {
@@ -98,25 +101,46 @@ export function AdminProductImageManager({
         return
       }
 
-      if (optimizedResult.wasOptimized) {
+      preparedFiles.push({
+        originalFile: file,
+        uploadFile: optimizedResult.file,
+        originalSize: optimizedResult.originalSize,
+        optimizedSize: optimizedResult.optimizedSize,
+        wasOptimized: optimizedResult.wasOptimized,
+      })
+    }
+
+    const currentMaxOrder = orderedImages.reduce(
+      (maxValue, image) => Math.max(maxValue, image.sort_order),
+      -1,
+    )
+    let optimizedFilesCount = 0
+    let singleOptimizationMessage: string | null = null
+
+    for (const [index, preparedFile] of preparedFiles.entries()) {
+      if (preparedFile.wasOptimized) {
         optimizedFilesCount += 1
 
-        if (files.length === 1) {
+        if (preparedFiles.length === 1) {
           singleOptimizationMessage = `Imagen optimizada: ${formatFileSize(
-            optimizedResult.originalSize,
-          )} -> ${formatFileSize(optimizedResult.optimizedSize)}.`
+            preparedFile.originalSize,
+          )} → ${formatFileSize(preparedFile.optimizedSize)}.`
         }
       }
 
-      setUploadStatus('Subiendo imagen...')
-      const uploadFile = optimizedResult.file
-      const objectPath = buildProductImageObjectPath(product.id, uploadFile.name)
+      setUploadStatus('Subiendo imágenes...')
+      const objectPath = buildProductImageObjectPath(
+        product.id,
+        preparedFile.uploadFile.name,
+      )
 
-      const uploadResult = await supabase.storage.from(productImagesBucket).upload(objectPath, uploadFile, {
-        cacheControl: '3600',
-        upsert: false,
-        contentType: uploadFile.type,
-      })
+      const uploadResult = await supabase.storage
+        .from(productImagesBucket)
+        .upload(objectPath, preparedFile.uploadFile, {
+          cacheControl: '3600',
+          upsert: false,
+          contentType: preparedFile.uploadFile.type,
+        })
 
       if (uploadResult.error) {
         setUploading(false)
@@ -147,15 +171,16 @@ export function AdminProductImageManager({
 
     setUploading(false)
     setUploadStatus(null)
+
     const baseSuccessMessage =
-      files.length === 1
+      preparedFiles.length === 1
         ? 'Imagen cargada correctamente.'
-        : `${files.length} imagenes cargadas correctamente.`
+        : `${preparedFiles.length} imágenes cargadas correctamente.`
     const optimizationMessage =
-      files.length === 1
+      preparedFiles.length === 1
         ? singleOptimizationMessage
         : optimizedFilesCount > 0
-          ? `Se optimizaron ${optimizedFilesCount} imagenes antes de subir.`
+          ? `Se optimizaron ${optimizedFilesCount} imágenes antes de subir.`
           : null
 
     setSuccess(
@@ -163,9 +188,11 @@ export function AdminProductImageManager({
         ? `${baseSuccessMessage} ${optimizationMessage}`
         : baseSuccessMessage,
     )
+
     if (inputRef.current) {
       inputRef.current.value = ''
     }
+
     await onRefresh()
   }
 
@@ -267,13 +294,13 @@ export function AdminProductImageManager({
   return (
     <Card className="space-y-4 border border-white/10 bg-[#111111] p-4 text-white shadow-[0_24px_56px_rgba(0,0,0,0.22)] sm:space-y-5 sm:p-6">
       <div className="space-y-2">
-        <p className="text-sm font-medium text-white">Imagenes de {product.name}</p>
+        <p className="text-sm font-medium text-white">Imágenes de {product.name}</p>
         <p className="text-sm leading-6 text-white/64">
-          Puedes seleccionar una o varias imagenes. Las imagenes se optimizan automaticamente antes de subir. Podés subir fotos desde tu celular. Formatos permitidos:{' '}
+          Podés subir fotos desde tu celular. Las imágenes se optimizan automáticamente antes de subir. Formatos permitidos:{' '}
           {productImageAllowedMimeTypes
             .map((type) => type.replace('image/', '').toUpperCase())
             .join(', ')}
-          . Maximo final por archivo: {formatBytesAsMb(productImageMaxSizeBytes)}. Recomendado: fotos claras y bien encuadradas.
+          . Máximo final por archivo: {formatBytesAsMb(productImageMaxSizeBytes)}. Recomendado: fotos claras y bien encuadradas.
         </p>
       </div>
 
@@ -296,9 +323,9 @@ export function AdminProductImageManager({
               <ImagePlus className="h-5 w-5" />
             </span>
             <div>
-              <p className="text-sm font-medium text-white">Subir imagenes</p>
+              <p className="text-sm font-medium text-white">Subir imágenes</p>
               <p className="text-sm text-white/64">
-                Producto seleccionado: {product.name}. Las imagenes se optimizan automaticamente antes de subir.
+                Producto seleccionado: {product.name}. Las imágenes se optimizan automáticamente antes de subir.
               </p>
             </div>
           </div>
@@ -310,7 +337,7 @@ export function AdminProductImageManager({
             onClick={() => inputRef.current?.click()}
           >
             <Upload className="h-4 w-4" />
-            {uploading ? uploadStatus ?? 'Subiendo...' : 'Subir imagenes'}
+            {uploading ? uploadStatus ?? 'Subiendo...' : 'Subir imágenes'}
           </Button>
         </div>
 
@@ -327,7 +354,7 @@ export function AdminProductImageManager({
       <div className="space-y-3">
         {orderedImages.length === 0 ? (
           <div className="rounded-[22px] border border-dashed border-white/12 bg-black/20 px-4 py-8 text-sm text-white/58">
-            Este producto todavia no tiene imagenes.
+            Este producto todavía no tiene imágenes.
           </div>
         ) : null}
 
