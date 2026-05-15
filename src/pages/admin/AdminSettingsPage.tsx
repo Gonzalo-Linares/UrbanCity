@@ -28,10 +28,13 @@ import {
   adminImageBucket,
   adminImageMaxSizeBytes,
   buildHeroSlideImageObjectPath,
+  formatFileSize,
   formatBytesAsMb,
   formatCrudError,
+  optimizeImageFile,
   toNullableText,
-  validateAdminImageFile,
+  validateImageMimeType,
+  validateImageSize,
 } from '@/lib/admin'
 import { cn } from '@/lib/cn'
 import { isSupabaseConfigured, supabase } from '@/lib/supabase'
@@ -126,6 +129,7 @@ export function AdminSettingsPage() {
   const [heroSlideDrafts, setHeroSlideDrafts] = useState<Record<string, HeroSlideDraft>>({})
   const [heroSlideBusyId, setHeroSlideBusyId] = useState<string | null>(null)
   const [heroSlideUploadId, setHeroSlideUploadId] = useState<string | null>(null)
+  const [heroSlideUploadStatus, setHeroSlideUploadStatus] = useState<string | null>(null)
 
   const form = useForm<AdminStoreSettingsSchema>({
     resolver: zodResolver(adminStoreSettingsSchema),
@@ -489,7 +493,7 @@ export function AdminSettingsPage() {
       return
     }
 
-    const validationError = validateAdminImageFile(file)
+    const validationError = validateImageMimeType(file, adminImageAllowedMimeTypes)
 
     if (validationError) {
       setHeroSlidesError(validationError)
@@ -497,17 +501,41 @@ export function AdminSettingsPage() {
     }
 
     setHeroSlideUploadId(slide.id)
+    setHeroSlideUploadStatus('Optimizando imagen...')
     setHeroSlidesError(null)
     setHeroSlidesSuccess(null)
 
-    const objectPath = buildHeroSlideImageObjectPath(slide.id, file.name)
-    const uploadResult = await supabase.storage.from(adminImageBucket).upload(objectPath, file, {
+    const optimizedResult = await optimizeImageFile(file, {
+      maxWidth: 1800,
+      maxHeight: 1800,
+      quality: 0.84,
+      outputType: 'image/webp',
+    })
+    const sizeError = validateImageSize(
+      optimizedResult.file,
+      adminImageMaxSizeBytes,
+      'La imagen sigue siendo demasiado pesada. Probá con una foto más liviana.',
+    )
+
+    if (sizeError) {
+      setHeroSlideUploadId(null)
+      setHeroSlideUploadStatus(null)
+      setHeroSlidesError(sizeError)
+      return
+    }
+
+    setHeroSlideUploadStatus('Subiendo imagen...')
+    const uploadFile = optimizedResult.file
+    const objectPath = buildHeroSlideImageObjectPath(slide.id, uploadFile.name)
+    const uploadResult = await supabase.storage.from(adminImageBucket).upload(objectPath, uploadFile, {
       cacheControl: '3600',
       upsert: false,
+      contentType: uploadFile.type,
     })
 
     if (uploadResult.error) {
       setHeroSlideUploadId(null)
+      setHeroSlideUploadStatus(null)
       setHeroSlidesError(formatCrudError(uploadResult.error.message, uploadResult.error.name))
       return
     }
@@ -524,6 +552,7 @@ export function AdminSettingsPage() {
       .single()
 
     setHeroSlideUploadId(null)
+    setHeroSlideUploadStatus(null)
 
     if (updateResult.error || !updateResult.data) {
       setHeroSlidesError(
@@ -533,7 +562,13 @@ export function AdminSettingsPage() {
     }
 
     replaceHeroSlide(updateResult.data, { syncDraft: false })
-    setHeroSlidesSuccess('Imagen principal actualizada correctamente.')
+    setHeroSlidesSuccess(
+      optimizedResult.wasOptimized
+        ? `Imagen principal actualizada correctamente. Imagen optimizada automáticamente para el inicio: ${formatFileSize(
+            optimizedResult.originalSize,
+          )} → ${formatFileSize(optimizedResult.optimizedSize)}.`
+        : 'Imagen principal actualizada correctamente.',
+    )
     refreshStorefront()
   }
 
@@ -802,7 +837,9 @@ export function AdminSettingsPage() {
           Formatos permitidos: {adminImageAllowedMimeTypes
             .map((type) => type.replace('image/', '').toUpperCase())
             .join(', ')}
-          . Máximo por archivo: {formatBytesAsMb(adminImageMaxSizeBytes)}.
+          . La imagen se optimiza automáticamente antes de subir. Podés subir fotos desde tu celular. Máximo final por archivo: {formatBytesAsMb(
+            adminImageMaxSizeBytes,
+          )}. Recomendado: fotos claras y bien encuadradas.
         </div>
 
         {heroSlidesLoading ? (
@@ -897,7 +934,9 @@ export function AdminSettingsPage() {
                       ) : (
                         <ImagePlus className="h-4 w-4" />
                       )}
-                      {isUploading ? 'Subiendo...' : 'Cambiar imagen'}
+                      {isUploading
+                        ? heroSlideUploadStatus ?? 'Subiendo...'
+                        : 'Cambiar imagen'}
                       <input
                         type="file"
                         accept={adminImageAllowedMimeTypes.join(',')}
