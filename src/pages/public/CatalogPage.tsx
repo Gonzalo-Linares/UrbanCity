@@ -1,4 +1,4 @@
-import { useDeferredValue, useMemo, useState } from 'react'
+import { useDeferredValue, useEffect, useMemo, useRef, useState } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
 import { ProductCard } from '@/components/product/ProductCard'
 import {
@@ -12,12 +12,97 @@ import { SectionTitle } from '@/components/ui/SectionTitle'
 import { useStorefrontData } from '@/hooks/useStorefrontData'
 import { getDiscountPercent } from '@/lib/pricing'
 
+const catalogStateStorageKey = 'city-catalog-state'
+
+interface CatalogStateSnapshot {
+  searchValue: string
+  selectedCategory: string
+  selectedSizes: string[]
+  sortOption: ProductSortOption
+  scrollY: number
+}
+
+function isProductSortOption(value: unknown): value is ProductSortOption {
+  return (
+    value === 'relevance' ||
+    value === 'price-asc' ||
+    value === 'price-desc' ||
+    value === 'sale' ||
+    value === 'newest'
+  )
+}
+
+function readStoredCatalogState(): CatalogStateSnapshot | null {
+  if (typeof window === 'undefined') {
+    return null
+  }
+
+  try {
+    const rawValue = window.sessionStorage.getItem(catalogStateStorageKey)
+
+    if (!rawValue) {
+      return null
+    }
+
+    const parsedValue = JSON.parse(rawValue) as Partial<CatalogStateSnapshot>
+
+    return {
+      searchValue:
+        typeof parsedValue.searchValue === 'string' ? parsedValue.searchValue : '',
+      selectedCategory:
+        typeof parsedValue.selectedCategory === 'string'
+          ? parsedValue.selectedCategory
+          : 'all',
+      selectedSizes: Array.isArray(parsedValue.selectedSizes)
+        ? parsedValue.selectedSizes.filter(
+            (value): value is string => typeof value === 'string' && value.trim().length > 0,
+          )
+        : [],
+      sortOption: isProductSortOption(parsedValue.sortOption)
+        ? parsedValue.sortOption
+        : 'relevance',
+      scrollY:
+        typeof parsedValue.scrollY === 'number' && Number.isFinite(parsedValue.scrollY)
+          ? parsedValue.scrollY
+          : 0,
+    }
+  } catch {
+    return null
+  }
+}
+
+function persistCatalogState(snapshot: CatalogStateSnapshot) {
+  if (typeof window === 'undefined') {
+    return
+  }
+
+  try {
+    window.sessionStorage.setItem(
+      catalogStateStorageKey,
+      JSON.stringify(snapshot),
+    )
+  } catch {
+    // Ignore storage write failures and keep the catalog usable.
+  }
+}
+
 export function CatalogPage() {
   const { categories, products, loading } = useStorefrontData()
+  const [storedCatalogState] = useState<CatalogStateSnapshot | null>(
+    readStoredCatalogState,
+  )
+  const catalogStateReadyRef = useRef(!storedCatalogState)
+  const restoredScrollRef = useRef(false)
   const [searchParams, setSearchParams] = useSearchParams()
-  const [searchValue, setSearchValue] = useState('')
-  const [selectedSizes, setSelectedSizes] = useState<string[]>([])
-  const [sortOption, setSortOption] = useState<ProductSortOption>('relevance')
+  const [searchValue, setSearchValue] = useState(
+    () => storedCatalogState?.searchValue ?? '',
+  )
+  const [selectedSizes, setSelectedSizes] = useState<string[]>(
+    () => storedCatalogState?.selectedSizes ?? [],
+  )
+  const [sortOption, setSortOption] = useState<ProductSortOption>(
+    () => storedCatalogState?.sortOption ?? 'relevance',
+  )
   const deferredSearch = useDeferredValue(searchValue)
   const selectedCategory = useMemo(() => {
     const categoryParam = searchParams.get('categoria')?.trim()
@@ -30,6 +115,23 @@ export function CatalogPage() {
       ? categoryParam
       : 'all'
   }, [categories, searchParams])
+  const storedCategoryToApply = useMemo(() => {
+    const categoryParam = searchParams.get('categoria')?.trim()
+    const storedCategory = storedCatalogState?.selectedCategory?.trim()
+
+    if (
+      loading ||
+      categoryParam ||
+      !storedCategory ||
+      storedCategory === 'all'
+    ) {
+      return null
+    }
+
+    return categories.some((category) => category.slug === storedCategory)
+      ? storedCategory
+      : null
+  }, [categories, loading, searchParams, storedCatalogState])
   const availableSizes = useMemo(() => {
     return Array.from(
       new Set(
@@ -43,11 +145,6 @@ export function CatalogPage() {
       left.localeCompare(right, 'es', { numeric: true }),
     )
   }, [products])
-
-  if (loading) {
-    return <LoadingState label="Cargando catálogo..." />
-  }
-
   const normalizedSearch = deferredSearch.trim().toLowerCase()
   const filteredProducts = products.filter((product) => {
     const matchesCategory =
@@ -65,7 +162,6 @@ export function CatalogPage() {
 
     return matchesCategory && matchesSearch && matchesSize
   })
-
   const visibleProducts =
     sortOption === 'relevance'
       ? filteredProducts
@@ -116,6 +212,93 @@ export function CatalogPage() {
           }
         })
 
+  useEffect(() => {
+    if (!storedCategoryToApply) {
+      return
+    }
+
+    const nextSearchParams = new URLSearchParams(searchParams)
+    nextSearchParams.set('categoria', storedCategoryToApply)
+    setSearchParams(nextSearchParams, { replace: true })
+  }, [searchParams, setSearchParams, storedCategoryToApply])
+
+  useEffect(() => {
+    if (!catalogStateReadyRef.current) {
+      return
+    }
+
+    persistCatalogState({
+      searchValue,
+      selectedCategory,
+      selectedSizes,
+      sortOption,
+      scrollY: typeof window === 'undefined' ? 0 : window.scrollY,
+    })
+  }, [searchValue, selectedCategory, selectedSizes, sortOption])
+
+  useEffect(() => {
+    if (typeof window === 'undefined') {
+      return
+    }
+
+    let frameId = 0
+
+    function handleScroll() {
+      if (!catalogStateReadyRef.current || frameId) {
+        return
+      }
+
+      frameId = window.requestAnimationFrame(() => {
+        frameId = 0
+        persistCatalogState({
+          searchValue,
+          selectedCategory,
+          selectedSizes,
+          sortOption,
+          scrollY: window.scrollY,
+        })
+      })
+    }
+
+    window.addEventListener('scroll', handleScroll, { passive: true })
+
+    return () => {
+      if (frameId) {
+        window.cancelAnimationFrame(frameId)
+      }
+
+      window.removeEventListener('scroll', handleScroll)
+    }
+  }, [searchValue, selectedCategory, selectedSizes, sortOption])
+
+  useEffect(() => {
+    if (
+      loading ||
+      storedCategoryToApply ||
+      restoredScrollRef.current ||
+      typeof window === 'undefined'
+    ) {
+      return
+    }
+
+    restoredScrollRef.current = true
+    catalogStateReadyRef.current = true
+    const savedScrollY = storedCatalogState?.scrollY ?? 0
+
+    if (savedScrollY <= 0) {
+      return
+    }
+
+    const timeoutId = window.setTimeout(() => {
+      window.scrollTo({ top: savedScrollY, left: 0, behavior: 'auto' })
+      window.requestAnimationFrame(() => {
+        window.scrollTo({ top: savedScrollY, left: 0, behavior: 'auto' })
+      })
+    }, 0)
+
+    return () => window.clearTimeout(timeoutId)
+  }, [loading, storedCatalogState, storedCategoryToApply, visibleProducts.length])
+
   function handleCategoryChange(value: string) {
     const nextSearchParams = new URLSearchParams(searchParams)
 
@@ -144,6 +327,10 @@ export function CatalogPage() {
     setSearchValue('')
     handleCategoryChange('all')
     setSelectedSizes([])
+  }
+
+  if (loading) {
+    return <LoadingState label="Cargando catálogo..." />
   }
 
   return (
