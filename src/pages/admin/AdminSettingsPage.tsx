@@ -54,7 +54,7 @@ const defaultValues: AdminStoreSettingsSchema = {
   checkoutMessage: '',
 }
 
-const maxHeroSlides = 3
+const maxHeroSlides = 5
 
 interface HeroSlideDraft {
   eyebrow: string
@@ -343,7 +343,7 @@ export function AdminSettingsPage() {
     }
 
     if (!canCreateHeroSlide) {
-      setHeroSlidesError('Recomendado: máximo 3 imágenes principales.')
+      setHeroSlidesError('Recomendado: máximo 5 imágenes principales.')
       return
     }
 
@@ -454,7 +454,7 @@ export function AdminSettingsPage() {
     ).length
 
     if (nextIsActive && activeSlidesWithoutCurrent >= maxHeroSlides) {
-      setHeroSlidesError('Recomendado: máximo 3 imágenes visibles.')
+      setHeroSlidesError('Recomendado: máximo 5 imágenes visibles.')
       return
     }
 
@@ -817,7 +817,7 @@ export function AdminSettingsPage() {
               {heroSlideBusyId === 'new' ? 'Creando...' : 'Agregar imagen'}
             </Button>
           ) : (
-            <p className="text-xs text-white/50">Recomendado: máximo 3 imágenes principales.</p>
+            <p className="text-xs text-white/50">Recomendado: máximo 5 imágenes principales.</p>
           )}
         </div>
 
