@@ -16,6 +16,7 @@ export function CatalogPage() {
   const { categories, products, loading } = useStorefrontData()
   const [searchParams, setSearchParams] = useSearchParams()
   const [searchValue, setSearchValue] = useState('')
+  const [selectedSize, setSelectedSize] = useState('all')
   const [sortOption, setSortOption] = useState<ProductSortOption>('relevance')
   const deferredSearch = useDeferredValue(searchValue)
   const selectedCategory = useMemo(() => {
@@ -29,6 +30,19 @@ export function CatalogPage() {
       ? categoryParam
       : 'all'
   }, [categories, searchParams])
+  const availableSizes = useMemo(() => {
+    return Array.from(
+      new Set(
+        products.flatMap((product) =>
+          product.sizes
+            .filter((size) => size.is_available)
+            .map((size) => size.size_label),
+        ),
+      ),
+    ).sort((left, right) =>
+      left.localeCompare(right, 'es', { numeric: true })
+    )
+  }, [products])
 
   if (loading) {
     return <LoadingState label={'Cargando cat\u00e1logo...'} />
@@ -42,8 +56,13 @@ export function CatalogPage() {
       normalizedSearch.length === 0 ||
       product.name.toLowerCase().includes(normalizedSearch) ||
       product.description?.toLowerCase().includes(normalizedSearch)
+    const matchesSize =
+      selectedSize === 'all' ||
+      product.sizes.some(
+        (size) => size.is_available && size.size_label === selectedSize,
+      )
 
-    return matchesCategory && matchesSearch
+    return matchesCategory && matchesSearch && matchesSize
   })
 
   const visibleProducts =
@@ -108,6 +127,12 @@ export function CatalogPage() {
     setSearchParams(nextSearchParams, { replace: true })
   }
 
+  function clearFilters() {
+    setSearchValue('')
+    handleCategoryChange('all')
+    setSelectedSize('all')
+  }
+
   return (
     <div className="space-y-8">
       <section className="surface-panel p-4 sm:p-8 lg:p-10">
@@ -115,7 +140,7 @@ export function CatalogPage() {
           eyebrow={'Cat\u00e1logo'}
           title={'Encontr\u00e1 tu pr\u00f3ximo par'}
           description={
-            'Filtr\u00e1 por categor\u00eda, revis\u00e1 disponibilidad y hac\u00e9 tu pedido por WhatsApp.'
+            'Filtr\u00e1 por categor\u00eda y talle para encontrar r\u00e1pido tu pr\u00f3ximo par.'
           }
           tone="light"
           compactMobile
@@ -128,25 +153,26 @@ export function CatalogPage() {
         selectedCategory={selectedCategory}
         resultCount={visibleProducts.length}
         sortOption={sortOption}
+        availableSizes={availableSizes}
+        selectedSize={selectedSize}
         onSearchChange={setSearchValue}
         onCategoryChange={handleCategoryChange}
         onSortChange={setSortOption}
+        onSizeChange={setSelectedSize}
+        onClearFilters={clearFilters}
       />
 
       {visibleProducts.length === 0 ? (
         <EmptyState
           title="No encontramos productos con ese filtro"
           description={
-            'Prob\u00e1 limpiar la b\u00fasqueda o cambiar de categor\u00eda para volver al cat\u00e1logo completo.'
+            'Prob\u00e1 cambiar de talle, limpiar la b\u00fasqueda o elegir otra categor\u00eda.'
           }
           action={
             <Button
               type="button"
               variant="secondary"
-              onClick={() => {
-                setSearchValue('')
-                handleCategoryChange('all')
-              }}
+              onClick={clearFilters}
             >
               Limpiar filtros
             </Button>
