@@ -44,6 +44,11 @@ export function CartLineItem({ item }: { item: CartItem }) {
             >
               {item.name}
             </Link>
+            {item.sizeLabel ? (
+              <p className="text-xs font-medium uppercase tracking-[0.18em] text-white/42">
+                Talle: {item.sizeLabel}
+              </p>
+            ) : null}
             <div className="flex flex-wrap items-center gap-2">
               <StatusBadge
                 tone={availabilityTone(item)}
@@ -72,7 +77,7 @@ export function CartLineItem({ item }: { item: CartItem }) {
             <button
               type="button"
               className="flex h-8 w-8 items-center justify-center rounded-full text-white/76 transition hover:bg-white/8 hover:text-white sm:h-9 sm:w-9"
-              onClick={() => updateQuantity(item.productId, item.quantity - 1)}
+              onClick={() => updateQuantity(item.cartItemId, item.quantity - 1)}
               aria-label={`Restar una unidad de ${item.name}`}
             >
               <Minus className="h-4 w-4" />
@@ -83,7 +88,7 @@ export function CartLineItem({ item }: { item: CartItem }) {
             <button
               type="button"
               className="flex h-8 w-8 items-center justify-center rounded-full text-white/76 transition hover:bg-white/8 hover:text-white sm:h-9 sm:w-9"
-              onClick={() => updateQuantity(item.productId, item.quantity + 1)}
+              onClick={() => updateQuantity(item.cartItemId, item.quantity + 1)}
               aria-label={`Sumar una unidad de ${item.name}`}
             >
               <Plus className="h-4 w-4" />
@@ -94,7 +99,7 @@ export function CartLineItem({ item }: { item: CartItem }) {
             type="button"
             variant="ghost"
             className="h-auto px-0 py-0 text-xs text-white/58 hover:bg-transparent hover:text-white sm:text-sm"
-            onClick={() => removeItem(item.productId)}
+            onClick={() => removeItem(item.cartItemId)}
           >
             <Trash2 className="h-4 w-4" />
             Eliminar

@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { ArrowLeft, Minus, Plus, ShoppingBag } from 'lucide-react'
 import { Link, useParams } from 'react-router-dom'
 import { ProductCard } from '@/components/product/ProductCard'
@@ -12,6 +12,7 @@ import { useStorefrontData } from '@/hooks/useStorefrontData'
 import { formatAvailabilityLabel, formatCurrency } from '@/lib/formatters'
 import { getDiscountPercent, getInstallmentPerQuota } from '@/lib/pricing'
 import { useCartStore } from '@/store/cartStore'
+import type { StorefrontProduct } from '@/types/store'
 
 function availabilityTone(availability: string) {
   switch (availability) {
@@ -26,37 +27,18 @@ function availabilityTone(availability: string) {
   }
 }
 
-export function ProductDetailPage() {
-  const { slug } = useParams()
-  const { products, loading } = useStorefrontData()
+function ProductDetailContent({
+  product,
+  relatedProducts,
+}: {
+  product: StorefrontProduct
+  relatedProducts: StorefrontProduct[]
+}) {
   const addItem = useCartStore((state) => state.addItem)
   const [quantity, setQuantity] = useState(1)
-
-  if (loading) {
-    return <LoadingState label="Cargando producto..." />
-  }
-
-  const product = products.find((item) => item.slug === slug)
-
-  if (!product) {
-    return (
-      <EmptyState
-        title="Ese producto no existe o ya no está visible"
-        description="Volvé al catálogo para seguir navegando la tienda."
-        action={
-          <Link to="/catalogo" className="text-sm font-medium text-brand-strong">
-            Ir al catálogo
-          </Link>
-        }
-      />
-    )
-  }
-
-  const relatedProducts = products
-    .filter(
-      (item) => item.id !== product.id && item.category_id === product.category_id,
-    )
-    .slice(0, 3)
+  const [selectedSizeLabel, setSelectedSizeLabel] = useState<string | null>(null)
+  const [sizeError, setSizeError] = useState<string | null>(null)
+  const [cartFeedback, setCartFeedback] = useState<string | null>(null)
 
   const isSoldOut = product.availability === 'out_of_stock'
   const discountPercent = getDiscountPercent(
@@ -65,8 +47,35 @@ export function ProductDetailPage() {
   )
   const installmentPerQuota = getInstallmentPerQuota(product.installment_price)
 
+  useEffect(() => {
+    if (!cartFeedback) {
+      return
+    }
+
+    const timeoutId = window.setTimeout(() => {
+      setCartFeedback(null)
+    }, 2500)
+
+    return () => window.clearTimeout(timeoutId)
+  }, [cartFeedback])
+
+  function handleAddToCart() {
+    if (product.sizes.length > 0 && !selectedSizeLabel) {
+      setSizeError('Seleccioná un talle para continuar.')
+      return
+    }
+
+    setSizeError(null)
+    addItem(product, quantity, selectedSizeLabel)
+    setCartFeedback(
+      selectedSizeLabel
+        ? `Agregado al carrito · Talle ${selectedSizeLabel}`
+        : 'Agregado al carrito',
+    )
+  }
+
   return (
-    <div className="space-y-6 sm:space-y-8">
+    <div className="space-y-6 pb-24 sm:space-y-8 sm:pb-0">
       <Link
         to="/catalogo"
         className="inline-flex items-center gap-2 text-sm font-medium text-white/72 hover:text-white"
@@ -90,7 +99,7 @@ export function ProductDetailPage() {
             <div className="space-y-3 sm:space-y-4">
               <p className="eyebrow">{product.category?.name ?? 'Catálogo'}</p>
               <div className="space-y-3">
-                <h1 className="line-clamp-2 text-2xl leading-tight font-semibold tracking-[-0.04em] text-white sm:line-clamp-none sm:text-5xl">
+                <h1 className="line-clamp-2 text-2xl font-semibold leading-tight tracking-[-0.04em] text-white sm:line-clamp-none sm:text-5xl">
                   {product.name}
                 </h1>
                 <p className="line-clamp-2 text-sm leading-6 text-white/72 sm:line-clamp-none sm:text-base sm:leading-8">
@@ -137,11 +146,48 @@ export function ProductDetailPage() {
                 </p>
               ) : null}
               <div className="space-y-1.5 rounded-[24px] border border-white/12 bg-white/6 p-3 text-[0.8rem] leading-5 text-white/78 sm:space-y-2 sm:p-4 sm:text-sm sm:leading-6">
-                <p>💳 3 cuotas sin interés disponibles</p>
-                <p>💰 20% OFF pago contado</p>
-                <p>📲 Billeteras virtuales incluidas como pago contado</p>
+                <p>3 cuotas sin interés disponibles</p>
+                <p>20% OFF pago contado</p>
+                <p>Billeteras virtuales incluidas como pago contado</p>
               </div>
             </div>
+
+            {product.sizes.length > 0 ? (
+              <div className="space-y-3 rounded-[24px] border border-white/12 bg-white/6 p-3.5 sm:p-4">
+                <div className="space-y-1">
+                  <p className="text-sm font-medium text-white">Elegí talle</p>
+                  <p className="text-xs leading-5 text-white/58 sm:text-sm">
+                    Seleccioná un talle disponible para agregar al carrito.
+                  </p>
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  {product.sizes.map((size) => {
+                    const isSelected = selectedSizeLabel === size.size_label
+
+                    return (
+                      <button
+                        key={size.id}
+                        type="button"
+                        className={`inline-flex min-w-[52px] items-center justify-center rounded-full border px-3 py-2 text-sm font-medium transition ${
+                          isSelected
+                            ? 'border-brand-strong bg-brand-strong text-black'
+                            : 'border-white/12 bg-black/20 text-white/78 hover:border-white/24 hover:bg-white/8'
+                        }`}
+                        onClick={() => {
+                          setSelectedSizeLabel(size.size_label)
+                          setSizeError(null)
+                        }}
+                      >
+                        {size.size_label}
+                      </button>
+                    )
+                  })}
+                </div>
+                {sizeError ? (
+                  <p className="text-sm text-rose-200">{sizeError}</p>
+                ) : null}
+              </div>
+            ) : null}
 
             <div className="order-3 rounded-[24px] border border-white/12 bg-white/6 p-3 text-xs leading-5 text-white/78 sm:order-none sm:p-4 sm:text-sm sm:leading-6">
               Pedido pendiente de confirmación. Te contactamos para validar talle,
@@ -177,12 +223,21 @@ export function ProductDetailPage() {
                 variant={isSoldOut ? 'outline' : 'secondary'}
                 className="w-full sm:w-auto"
                 disabled={isSoldOut}
-                onClick={() => addItem(product, quantity)}
+                onClick={handleAddToCart}
               >
                 <ShoppingBag className="h-4 w-4" />
                 {isSoldOut ? 'Sin stock' : 'Agregar al carrito'}
               </Button>
             </div>
+
+            {cartFeedback ? (
+              <div className="hidden items-center justify-between gap-3 rounded-[18px] border border-emerald-500/18 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-200 sm:flex">
+                <p>{cartFeedback}</p>
+                <Link to="/carrito" className="shrink-0 font-medium text-brand-strong">
+                  Ver carrito
+                </Link>
+              </div>
+            ) : null}
           </div>
         </div>
       </section>
@@ -202,6 +257,86 @@ export function ProductDetailPage() {
           </div>
         </section>
       ) : null}
+
+      <div className="fixed inset-x-0 bottom-0 z-[60] border-t border-white/10 bg-[#050505]/92 px-4 py-3 backdrop-blur sm:hidden">
+        <div className="mx-auto max-w-screen-sm space-y-3">
+          {cartFeedback ? (
+            <div className="rounded-[18px] border border-emerald-500/18 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-200">
+              <div className="flex items-center justify-between gap-3">
+                <p>{cartFeedback}</p>
+                <Link to="/carrito" className="shrink-0 font-medium text-brand-strong">
+                  Ver carrito
+                </Link>
+              </div>
+            </div>
+          ) : null}
+
+          <div className="flex items-center gap-3">
+            <div className="min-w-0 flex-1">
+              <p className="text-[0.62rem] uppercase tracking-[0.18em] text-white/42">
+                Precio contado
+              </p>
+              <p className="truncate text-base font-semibold text-white">
+                {formatCurrency(product.price)}
+              </p>
+              {selectedSizeLabel ? (
+                <p className="text-xs text-white/52">Talle {selectedSizeLabel}</p>
+              ) : product.sizes.length > 0 ? (
+                <p className="text-xs text-white/52">Elegí talle</p>
+              ) : null}
+            </div>
+
+            <Button
+              type="button"
+              variant={isSoldOut ? 'outline' : 'secondary'}
+              disabled={isSoldOut}
+              onClick={handleAddToCart}
+              className="shrink-0"
+            >
+              {isSoldOut ? 'Sin stock' : 'Agregar'}
+            </Button>
+          </div>
+        </div>
+      </div>
     </div>
+  )
+}
+
+export function ProductDetailPage() {
+  const { slug } = useParams()
+  const { products, loading } = useStorefrontData()
+
+  if (loading) {
+    return <LoadingState label="Cargando producto..." />
+  }
+
+  const product = products.find((item) => item.slug === slug)
+
+  if (!product) {
+    return (
+      <EmptyState
+        title="Ese producto no existe o ya no está visible"
+        description="Volvé al catálogo para seguir navegando la tienda."
+        action={
+          <Link to="/catalogo" className="text-sm font-medium text-brand-strong">
+            Ir al catálogo
+          </Link>
+        }
+      />
+    )
+  }
+
+  const relatedProducts = products
+    .filter(
+      (item) => item.id !== product.id && item.category_id === product.category_id,
+    )
+    .slice(0, 3)
+
+  return (
+    <ProductDetailContent
+      key={product.id}
+      product={product}
+      relatedProducts={relatedProducts}
+    />
   )
 }

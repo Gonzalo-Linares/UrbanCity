@@ -132,6 +132,36 @@ export interface Database {
         }
         Relationships: []
       }
+      product_sizes: {
+        Row: {
+          id: string
+          product_id: string
+          size_label: string
+          is_available: boolean
+          sort_order: number
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          product_id: string
+          size_label: string
+          is_available?: boolean
+          sort_order?: number
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          product_id?: string
+          size_label?: string
+          is_available?: boolean
+          sort_order?: number
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       orders: {
         Row: {
           id: string
@@ -177,6 +207,7 @@ export interface Database {
           order_id: string
           product_id: string | null
           product_name: string
+          size_label: string | null
           unit_price: number
           quantity: number
           subtotal: number
@@ -187,6 +218,7 @@ export interface Database {
           order_id: string
           product_id?: string | null
           product_name: string
+          size_label?: string | null
           unit_price: number
           quantity: number
           subtotal: number
@@ -197,6 +229,7 @@ export interface Database {
           order_id?: string
           product_id?: string | null
           product_name?: string
+          size_label?: string | null
           unit_price?: number
           quantity?: number
           subtotal?: number
@@ -294,6 +327,7 @@ export interface Database {
           p_items: {
             product_id: string
             quantity: number
+            size_label?: string | null
           }[]
         }
         Returns: {
@@ -302,6 +336,7 @@ export interface Database {
           total: number
           product_id: string
           product_name: string
+          size_label: string | null
           unit_price: number
           quantity: number
           subtotal: number
@@ -317,6 +352,7 @@ export type CategoryRow = Database['public']['Tables']['categories']['Row']
 export type AdminUserRow = Database['public']['Tables']['admin_users']['Row']
 export type ProductRow = Database['public']['Tables']['products']['Row']
 export type ProductImageRow = Database['public']['Tables']['product_images']['Row']
+export type ProductSizeRow = Database['public']['Tables']['product_sizes']['Row']
 export type OrderRow = Database['public']['Tables']['orders']['Row']
 export type OrderItemRow = Database['public']['Tables']['order_items']['Row']
 export type StoreSettingsRow = Database['public']['Tables']['store_settings']['Row']

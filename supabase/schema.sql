@@ -86,6 +86,17 @@ create table if not exists public.product_images (
   created_at timestamptz not null default timezone('utc', now())
 );
 
+create table if not exists public.product_sizes (
+  id uuid primary key default gen_random_uuid(),
+  product_id uuid not null references public.products(id) on delete cascade,
+  size_label text not null,
+  is_available boolean not null default true,
+  sort_order int not null default 0,
+  created_at timestamptz not null default timezone('utc', now()),
+  updated_at timestamptz not null default timezone('utc', now()),
+  unique(product_id, size_label)
+);
+
 create table if not exists public.orders (
   id uuid primary key default gen_random_uuid(),
   order_code text not null unique,
@@ -105,6 +116,7 @@ create table if not exists public.order_items (
   order_id uuid not null references public.orders(id) on delete cascade,
   product_id uuid references public.products(id),
   product_name text not null,
+  size_label text,
   unit_price numeric(12,2) not null check (unit_price >= 0),
   quantity int not null check (quantity > 0),
   subtotal numeric(12,2) not null check (subtotal >= 0),
@@ -137,6 +149,9 @@ create table if not exists public.home_hero_slides (
   updated_at timestamptz not null default timezone('utc', now())
 );
 
+alter table public.order_items
+add column if not exists size_label text;
+
 insert into storage.buckets (id, name, public, file_size_limit, allowed_mime_types)
 values (
   'product-images',
@@ -156,6 +171,8 @@ create index if not exists idx_admin_users_user_id on public.admin_users(user_id
 create index if not exists idx_products_slug on public.products(slug);
 create index if not exists idx_products_category_id on public.products(category_id);
 create index if not exists idx_product_images_product_id on public.product_images(product_id);
+create index if not exists idx_product_sizes_product_id on public.product_sizes(product_id);
+create index if not exists idx_product_sizes_product_sort on public.product_sizes(product_id, sort_order);
 create index if not exists idx_orders_status on public.orders(status);
 create index if not exists idx_order_items_order_id on public.order_items(order_id);
 create index if not exists idx_home_hero_slides_sort_order on public.home_hero_slides(sort_order);
@@ -164,6 +181,7 @@ alter table public.admin_users enable row level security;
 alter table public.categories enable row level security;
 alter table public.products enable row level security;
 alter table public.product_images enable row level security;
+alter table public.product_sizes enable row level security;
 alter table public.orders enable row level security;
 alter table public.order_items enable row level security;
 alter table public.store_settings enable row level security;
@@ -226,6 +244,30 @@ using (
 drop policy if exists product_images_admin_manage on public.product_images;
 create policy product_images_admin_manage
 on public.product_images
+for all
+to authenticated
+using (public.is_active_admin())
+with check (public.is_active_admin());
+
+drop policy if exists product_sizes_public_read on public.product_sizes;
+create policy product_sizes_public_read
+on public.product_sizes
+for select
+to anon, authenticated
+using (
+  is_available = true
+  and exists (
+    select 1
+    from public.products
+    where products.id = product_sizes.product_id
+      and products.is_active = true
+      and products.availability <> 'hidden'
+  )
+);
+
+drop policy if exists product_sizes_admin_manage on public.product_sizes;
+create policy product_sizes_admin_manage
+on public.product_sizes
 for all
 to authenticated
 using (public.is_active_admin())
@@ -298,6 +340,12 @@ before update on public.products
 for each row
 execute function public.set_updated_at();
 
+drop trigger if exists trg_product_sizes_updated_at on public.product_sizes;
+create trigger trg_product_sizes_updated_at
+before update on public.product_sizes
+for each row
+execute function public.set_updated_at();
+
 drop trigger if exists trg_orders_updated_at on public.orders;
 create trigger trg_orders_updated_at
 before update on public.orders
@@ -331,6 +379,7 @@ returns table (
   total numeric,
   product_id uuid,
   product_name text,
+  size_label text,
   unit_price numeric,
   quantity integer,
   subtotal numeric
@@ -345,6 +394,7 @@ declare
   v_item jsonb;
   v_product public.products%rowtype;
   v_quantity integer;
+  v_size_label text;
   v_subtotal numeric(12,2);
 begin
   p_order_code := trim(coalesce(p_order_code, ''));
@@ -392,6 +442,7 @@ begin
     from jsonb_array_elements(p_items) as value
   loop
     v_quantity := (v_item ->> 'quantity')::integer;
+    v_size_label := nullif(trim(coalesce(v_item ->> 'size_label', '')), '');
 
     if v_quantity is null or v_quantity < 1 or v_quantity > 99 then
       raise exception 'Cantidad invalida en el pedido.';
@@ -408,6 +459,27 @@ begin
       raise exception 'Uno de los productos no esta disponible para la venta.';
     end if;
 
+    if exists (
+      select 1
+      from public.product_sizes
+      where product_id = v_product.id
+        and is_available = true
+    ) then
+      if v_size_label is null then
+        raise exception 'Selecciona un talle para este producto.';
+      end if;
+
+      if not exists (
+        select 1
+        from public.product_sizes
+        where product_id = v_product.id
+          and is_available = true
+          and size_label = v_size_label
+      ) then
+        raise exception 'Selecciona un talle disponible para este producto.';
+      end if;
+    end if;
+
     v_subtotal := round((v_product.price * v_quantity)::numeric, 2);
     v_total := round((v_total + v_subtotal)::numeric, 2);
 
@@ -415,6 +487,7 @@ begin
       order_id,
       product_id,
       product_name,
+      size_label,
       unit_price,
       quantity,
       subtotal
@@ -423,6 +496,7 @@ begin
       v_order_id,
       v_product.id,
       v_product.name,
+      v_size_label,
       v_product.price,
       v_quantity,
       v_subtotal
@@ -440,6 +514,7 @@ begin
     v_total,
     order_items.product_id,
     order_items.product_name,
+    order_items.size_label,
     order_items.unit_price,
     order_items.quantity,
     order_items.subtotal

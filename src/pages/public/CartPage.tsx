@@ -47,7 +47,7 @@ export function CartPage() {
       <div className="grid gap-6 lg:grid-cols-[1fr_360px] lg:items-start">
         <div className="space-y-4">
           {items.map((item) => (
-            <CartLineItem key={item.productId} item={item} />
+            <CartLineItem key={item.cartItemId} item={item} />
           ))}
         </div>
         <div className="lg:sticky lg:top-28">

@@ -9,6 +9,7 @@ import {
   mockCategories,
   mockProductImages,
   mockProducts,
+  mockProductSizes,
   mockStoreSettings,
 } from '@/data/mockProducts'
 import { isSupabaseConfigured, supabase } from '@/lib/supabase'
@@ -17,6 +18,7 @@ import type {
   HomeHeroSlideRow,
   ProductImageRow,
   ProductRow,
+  ProductSizeRow,
   StoreSettingsRow,
 } from '@/types/database'
 import type { StorefrontProduct } from '@/types/store'
@@ -50,9 +52,11 @@ function hydrateProducts(
   products: ProductRow[],
   categories: CategoryRow[],
   images: ProductImageRow[],
+  sizes: ProductSizeRow[],
 ) {
   return products.map<StorefrontProduct>((product) => {
     const productImages = images.filter((image) => image.product_id === product.id)
+    const productSizes = sizes.filter((size) => size.product_id === product.id)
 
     return {
       ...product,
@@ -60,6 +64,7 @@ function hydrateProducts(
         categories.find((category) => category.id === product.category_id) ?? null,
       images: productImages,
       primaryImage: productImages[0] ?? null,
+      sizes: productSizes,
     }
   })
 }
@@ -71,7 +76,12 @@ export function StorefrontDataProvider({ children }: PropsWithChildren) {
     homeHeroSlides: [],
     products: isSupabaseConfigured
       ? []
-      : hydrateProducts(mockProducts, mockCategories, mockProductImages),
+      : hydrateProducts(
+          mockProducts,
+          mockCategories,
+          mockProductImages,
+          mockProductSizes,
+        ),
     storeSettings: isSupabaseConfigured ? emptyStoreSettings : mockStoreSettings,
     source: isSupabaseConfigured ? 'supabase' : 'mock',
     loading: isSupabaseConfigured,
@@ -91,6 +101,7 @@ export function StorefrontDataProvider({ children }: PropsWithChildren) {
               mockProducts,
               mockCategories,
               mockProductImages,
+              mockProductSizes,
             ),
             storeSettings: mockStoreSettings,
             source: 'mock',
@@ -106,6 +117,7 @@ export function StorefrontDataProvider({ children }: PropsWithChildren) {
         categoriesResult,
         productsResult,
         imagesResult,
+        sizesResult,
         settingsResult,
         heroSlidesResult,
       ] =
@@ -127,6 +139,12 @@ export function StorefrontDataProvider({ children }: PropsWithChildren) {
             .select('*')
             .order('sort_order', { ascending: true }),
           supabase
+            .from('product_sizes')
+            .select('*')
+            .eq('is_available', true)
+            .order('sort_order', { ascending: true })
+            .order('size_label', { ascending: true }),
+          supabase
             .from('store_settings')
             .select('*')
             .order('created_at', { ascending: true })
@@ -146,6 +164,7 @@ export function StorefrontDataProvider({ children }: PropsWithChildren) {
       const loadError =
         categoriesResult.error ?? productsResult.error ?? imagesResult.error
       const heroSlides = heroSlidesResult.error ? [] : heroSlidesResult.data ?? []
+      const sizes = sizesResult.error ? [] : sizesResult.data ?? []
 
       if (loadError) {
         setValue({
@@ -163,7 +182,7 @@ export function StorefrontDataProvider({ children }: PropsWithChildren) {
       const categories = categoriesResult.data ?? []
       const products = productsResult.data ?? []
       const images = imagesResult.data ?? []
-      const hydratedProducts = hydrateProducts(products, categories, images)
+      const hydratedProducts = hydrateProducts(products, categories, images, sizes)
 
       if (settingsResult.error || !settingsResult.data) {
         setValue({

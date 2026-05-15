@@ -48,7 +48,9 @@ export function buildWhatsAppMessage({
     'Detalle del pedido:',
     ...items.map(
       (item) =>
-        `- ${item.productName} x${item.quantity} | ${formatCurrency(item.subtotal)}`,
+        `- ${item.productName}${
+          item.sizeLabel ? ` — Talle ${item.sizeLabel}` : ''
+        } x${item.quantity} | ${formatCurrency(item.subtotal)}`,
     ),
     '',
     `Total contado estimado: ${formatCurrency(total)}`,

@@ -9,6 +9,7 @@ import {
   ImagePlus,
   Package,
   Pencil,
+  Ruler,
   Star,
   Store,
   Trash2,
@@ -47,6 +48,7 @@ import type {
   CategoryRow,
   ProductImageRow,
   ProductRow,
+  ProductSizeRow,
 } from '@/types/database'
 
 interface ProductListItem extends ProductRow {
@@ -61,6 +63,7 @@ const availabilityOptions: Availability[] = [
   'out_of_stock',
   'hidden',
 ]
+const commonProductSizeLabels = ['35', '36', '37', '38', '39', '40', '41', '42', '43', '44', '45']
 
 const newProductDraftKey = 'urbancity-admin-product-new-draft'
 const editingProductDraftKeyPrefix = 'urbancity-admin-product-edit-draft:'
@@ -161,6 +164,27 @@ function toFiniteNumber(value: unknown) {
   return null
 }
 
+function buildProductSizesMap(sizes: ProductSizeRow[]) {
+  return sizes.reduce<Record<string, ProductSizeRow[]>>((accumulator, size) => {
+    if (!accumulator[size.product_id]) {
+      accumulator[size.product_id] = []
+    }
+
+    accumulator[size.product_id]?.push(size)
+    return accumulator
+  }, {})
+}
+
+function normalizeSizeDraftLabels(labels: string[]) {
+  return Array.from(
+    new Set(
+      labels
+        .map((label) => label.trim())
+        .filter((label) => label.length > 0),
+    ),
+  )
+}
+
 function readProductDraft(key: string) {
   if (typeof window === 'undefined') {
     return null
@@ -228,6 +252,7 @@ export function AdminProductsPage() {
   const [productImagesMap, setProductImagesMap] = useState<Record<string, ProductImageRow[]>>(
     {},
   )
+  const [productSizesMap, setProductSizesMap] = useState<Record<string, ProductSizeRow[]>>({})
   const [pageLoading, setPageLoading] = useState(isSupabaseConfigured)
   const [pageError, setPageError] = useState<string | null>(
     isSupabaseConfigured ? null : 'Configura Supabase para administrar productos.',
@@ -240,6 +265,9 @@ export function AdminProductsPage() {
   const [showProductGuide, setShowProductGuide] = useState(false)
   const [showProductForm, setShowProductForm] = useState(false)
   const [expandedProductId, setExpandedProductId] = useState<string | null>(null)
+  const [managingSizesProductId, setManagingSizesProductId] = useState<string | null>(null)
+  const [sizeDraftLabels, setSizeDraftLabels] = useState<string[]>([])
+  const [customSizeInput, setCustomSizeInput] = useState('')
   const imageManagerRef = useRef<HTMLDivElement | null>(null)
   const productFormRef = useRef<HTMLDivElement | null>(null)
   const productListRef = useRef<HTMLDivElement | null>(null)
@@ -333,7 +361,13 @@ export function AdminProductsPage() {
       setPageLoading(true)
       setPageError(null)
 
-      const [categoriesResult, productsResult, orderItemsResult, productImagesResult] =
+      const [
+        categoriesResult,
+        productsResult,
+        orderItemsResult,
+        productImagesResult,
+        productSizesResult,
+      ] =
         await Promise.all([
           client.from('categories').select('*').order('name', { ascending: true }),
           client.from('products').select('*').order('created_at', { ascending: false }),
@@ -343,6 +377,12 @@ export function AdminProductsPage() {
             .select('*')
             .order('sort_order', { ascending: true })
             .order('created_at', { ascending: true }),
+          client
+            .from('product_sizes')
+            .select('*')
+            .order('product_id', { ascending: true })
+            .order('sort_order', { ascending: true })
+            .order('size_label', { ascending: true }),
         ])
 
       if (ignore) {
@@ -353,7 +393,8 @@ export function AdminProductsPage() {
         categoriesResult.error ||
         productsResult.error ||
         orderItemsResult.error ||
-        productImagesResult.error
+        productImagesResult.error ||
+        productSizesResult.error
       ) {
         setPageError('No se pudieron cargar los productos desde Supabase.')
         setPageLoading(false)
@@ -364,6 +405,7 @@ export function AdminProductsPage() {
       const categoryMap = new Map(nextCategories.map((category) => [category.id, category]))
       const orderCountMap = new Map<string, number>()
       const nextProductImagesMap: Record<string, ProductImageRow[]> = {}
+      const nextProductSizesMap = buildProductSizesMap(productSizesResult.data ?? [])
 
       for (const item of orderItemsResult.data ?? []) {
         if (!item.product_id) {
@@ -383,6 +425,7 @@ export function AdminProductsPage() {
 
       setCategories(nextCategories)
       setProductImagesMap(nextProductImagesMap)
+      setProductSizesMap(nextProductSizesMap)
       setProducts(
         (productsResult.data ?? []).map((product) => ({
           ...product,
@@ -435,6 +478,25 @@ export function AdminProductsPage() {
     )
   }
 
+  function toggleProductSizes(productId: string) {
+    if (managingSizesProductId === productId) {
+      setManagingSizesProductId(null)
+      setSizeDraftLabels([])
+      setCustomSizeInput('')
+      return
+    }
+
+    const nextLabels = (productSizesMap[productId] ?? [])
+      .filter((size) => size.is_available)
+      .map((size) => size.size_label)
+
+    setManagingSizesProductId(productId)
+    setSizeDraftLabels(normalizeSizeDraftLabels(nextLabels))
+    setCustomSizeInput('')
+    setSubmitError(null)
+    setSubmitSuccess(null)
+  }
+
   function startNewProduct() {
     if (editingProductId && !confirmDiscardChanges()) {
       return
@@ -446,6 +508,7 @@ export function AdminProductsPage() {
 
     setEditingProductId(null)
     setExpandedProductId(null)
+    setManagingSizesProductId(null)
     setShowProductForm(true)
     setSubmitError(null)
     setSubmitSuccess(null)
@@ -466,6 +529,7 @@ export function AdminProductsPage() {
     setSubmitError(null)
     setSubmitSuccess(null)
     setExpandedProductId(productId)
+    setManagingSizesProductId(null)
 
     if (options?.scrollToImages) {
       pendingImageScrollRef.current = true
@@ -492,6 +556,95 @@ export function AdminProductsPage() {
   async function reloadPage() {
     setReloadKey((current) => current + 1)
     refresh()
+  }
+
+  function toggleSizeLabel(label: string) {
+    setSizeDraftLabels((current) => {
+      const normalizedLabel = label.trim()
+
+      if (!normalizedLabel) {
+        return current
+      }
+
+      return current.includes(normalizedLabel)
+        ? current.filter((currentLabel) => currentLabel !== normalizedLabel)
+        : [...current, normalizedLabel]
+    })
+  }
+
+  function handleAddCustomSize() {
+    const normalizedLabel = customSizeInput.trim()
+
+    if (!normalizedLabel) {
+      return
+    }
+
+    setSizeDraftLabels((current) =>
+      current.includes(normalizedLabel) ? current : [...current, normalizedLabel],
+    )
+    setCustomSizeInput('')
+  }
+
+  async function saveProductSizes(product: ProductListItem) {
+    if (!supabase) {
+      setSubmitError('Configura Supabase para administrar productos.')
+      return
+    }
+
+    const normalizedLabels = normalizeSizeDraftLabels(sizeDraftLabels)
+    const selectedSet = new Set(normalizedLabels)
+    const existingRows = productSizesMap[product.id] ?? []
+    const orderedLabels = [
+      ...commonProductSizeLabels.filter((label) => selectedSet.has(label)),
+      ...normalizedLabels
+        .filter((label) => !commonProductSizeLabels.includes(label))
+        .sort((left, right) => left.localeCompare(right, 'es', { numeric: true })),
+    ]
+
+    setBusyProductId(product.id)
+    setSubmitError(null)
+    setSubmitSuccess(null)
+
+    if (orderedLabels.length > 0) {
+      const { error: upsertError } = await supabase.from('product_sizes').upsert(
+        orderedLabels.map((label, index) => ({
+          product_id: product.id,
+          size_label: label,
+          is_available: true,
+          sort_order: index,
+        })),
+        {
+          onConflict: 'product_id,size_label',
+        },
+      )
+
+      if (upsertError) {
+        setBusyProductId(null)
+        setSubmitError(formatCrudError(upsertError.message, upsertError.code))
+        return
+      }
+    }
+
+    const sizeIdsToDisable = existingRows
+      .filter((size) => size.is_available && !selectedSet.has(size.size_label))
+      .map((size) => size.id)
+
+    if (sizeIdsToDisable.length > 0) {
+      const { error: disableError } = await supabase
+        .from('product_sizes')
+        .update({ is_available: false })
+        .in('id', sizeIdsToDisable)
+
+      if (disableError) {
+        setBusyProductId(null)
+        setSubmitError(formatCrudError(disableError.message, disableError.code))
+        return
+      }
+    }
+
+    setBusyProductId(null)
+    setSubmitSuccess('Talles guardados correctamente.')
+    await reloadPage()
   }
 
   async function handleSubmit(values: AdminProductSchema) {
@@ -626,6 +779,12 @@ export function AdminProductsPage() {
 
     if (expandedProductId === product.id) {
       setExpandedProductId(null)
+    }
+
+    if (managingSizesProductId === product.id) {
+      setManagingSizesProductId(null)
+      setSizeDraftLabels([])
+      setCustomSizeInput('')
     }
 
     setSubmitSuccess('Producto eliminado correctamente.')
@@ -952,6 +1111,30 @@ export function AdminProductsPage() {
               const discountPercent = getDiscountPercent(product.price, product.compare_at_price)
               const installmentPerQuota = getInstallmentPerQuota(product.installment_price)
               const isExpanded = expandedProductId === product.id
+              const isManagingSizes = managingSizesProductId === product.id
+              const sizeRows = productSizesMap[product.id] ?? []
+              const activeSizeCount = sizeRows.filter((size) => size.is_available).length
+              const customExistingSizeLabels = Array.from(
+                new Set(
+                  sizeRows
+                    .map((size) => size.size_label)
+                    .filter((label) => !commonProductSizeLabels.includes(label)),
+                ),
+              )
+              const customDraftSizeLabels = Array.from(
+                new Set(
+                  sizeDraftLabels.filter(
+                    (label) => !commonProductSizeLabels.includes(label),
+                  ),
+                ),
+              )
+              const displayCustomSizeLabels = Array.from(
+                new Set([...customExistingSizeLabels, ...customDraftSizeLabels]),
+              )
+              const displaySizeLabels = [
+                ...commonProductSizeLabels,
+                ...displayCustomSizeLabels,
+              ]
 
               return (
                 <div
@@ -986,9 +1169,14 @@ export function AdminProductsPage() {
                         {(productImagesMap[product.id] ?? []).length} imagen
                         {(productImagesMap[product.id] ?? []).length === 1 ? '' : 'es'}
                       </StatusBadge>
+                      <StatusBadge tone={activeSizeCount > 0 ? 'success' : 'muted'}>
+                        {activeSizeCount > 0
+                          ? `${activeSizeCount} talle${activeSizeCount === 1 ? '' : 's'}`
+                          : 'Sin talles'}
+                      </StatusBadge>
                     </div>
 
-                    <div className="grid min-w-0 grid-cols-[minmax(0,1fr)_minmax(0,1fr)_44px] gap-2 sm:flex sm:flex-wrap">
+                    <div className="grid min-w-0 grid-cols-[minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)_44px] gap-2 sm:flex sm:flex-wrap">
                       <Button
                         type="button"
                         variant="secondary"
@@ -1011,6 +1199,16 @@ export function AdminProductsPage() {
 
                       <Button
                         type="button"
+                        variant="outline"
+                        className="w-full min-w-0 gap-1.5 border-white/12 px-2 text-sm text-white hover:border-white/20 hover:bg-white/8 sm:w-auto sm:px-3"
+                        onClick={() => toggleProductSizes(product.id)}
+                      >
+                        <Ruler className="h-4 w-4 shrink-0" />
+                        Talles
+                      </Button>
+
+                      <Button
+                        type="button"
                         variant="ghost"
                         className="h-11 w-11 min-w-0 px-0 text-white/72 hover:bg-white/8 hover:text-white sm:h-auto sm:w-auto sm:px-3"
                         onClick={() =>
@@ -1025,11 +1223,83 @@ export function AdminProductsPage() {
                       </Button>
                     </div>
 
+                    {isManagingSizes ? (
+                      <div className="space-y-3 border-t border-white/10 pt-3">
+                        <div className="space-y-1">
+                          <p className="text-sm font-medium text-white">Talles disponibles</p>
+                          <p className="text-sm leading-6 text-white/58">
+                            Marcá los talles que querés mostrar para este producto.
+                          </p>
+                        </div>
+
+                        <div className="flex flex-wrap gap-2">
+                          {displaySizeLabels.map((label) => {
+                            const isSelected = sizeDraftLabels.includes(label)
+
+                            return (
+                              <button
+                                key={label}
+                                type="button"
+                                className={`inline-flex min-w-[54px] items-center justify-center rounded-full border px-3 py-2 text-sm font-medium transition ${
+                                  isSelected
+                                    ? 'border-brand-strong bg-brand-strong text-black'
+                                    : 'border-white/12 bg-[#0d0d0d] text-white/74 hover:border-white/24 hover:bg-white/8'
+                                }`}
+                                onClick={() => toggleSizeLabel(label)}
+                              >
+                                {label}
+                              </button>
+                            )
+                          })}
+                        </div>
+
+                        <div className="flex flex-col gap-2 sm:flex-row">
+                          <input
+                            type="text"
+                            value={customSizeInput}
+                            onChange={(event) => setCustomSizeInput(event.target.value)}
+                            placeholder="Ej: 46, 47 o Único"
+                            className="h-11 w-full rounded-2xl border border-white/10 bg-[#0d0d0d] px-4 text-sm text-white placeholder:text-white/34"
+                          />
+                          <Button
+                            type="button"
+                            variant="outline"
+                            className="sm:w-auto"
+                            onClick={handleAddCustomSize}
+                          >
+                            Agregar
+                          </Button>
+                        </div>
+
+                        <div className="flex flex-wrap gap-2">
+                          <Button
+                            type="button"
+                            variant="secondary"
+                            disabled={isBusy}
+                            onClick={() => void saveProductSizes(product)}
+                          >
+                            Guardar talles
+                          </Button>
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            className="text-white/72 hover:bg-white/8 hover:text-white"
+                            onClick={() => toggleProductSizes(product.id)}
+                          >
+                            Cerrar
+                          </Button>
+                        </div>
+                      </div>
+                    ) : null}
+
                     {isExpanded ? (
                       <div className="space-y-3 border-t border-white/10 pt-3">
                         <div className="grid gap-2 text-sm text-white/58 sm:grid-cols-2">
                           <p>Slug: {product.slug}</p>
                           <p>Visible en tienda: {visible ? 'Sí' : 'No'}</p>
+                          <p>
+                            Talles: {activeSizeCount > 0 ? `${activeSizeCount} cargados` : 'Sin talles cargados'}
+                          </p>
                           {discountPercent ? (
                             <>
                               <p>Antes: {formatCurrency(product.compare_at_price ?? 0)}</p>

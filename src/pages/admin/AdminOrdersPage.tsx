@@ -78,7 +78,9 @@ function buildCustomerFollowUpMessage(
     'Detalle:',
     ...items.map(
       (item) =>
-        `- ${item.product_name} x${item.quantity} | ${formatCurrency(item.subtotal)}`,
+        `- ${item.product_name}${
+          item.size_label ? ` - Talle ${item.size_label}` : ''
+        } x${item.quantity} | ${formatCurrency(item.subtotal)}`,
     ),
     '',
     `Total: ${formatCurrency(order.total)}`,
@@ -479,6 +481,9 @@ export function AdminOrdersPage() {
                                     <p className="text-white/56">
                                       {item.quantity} x {formatCurrency(item.unit_price)}
                                     </p>
+                                    {item.size_label ? (
+                                      <p className="text-white/48">Talle: {item.size_label}</p>
+                                    ) : null}
                                   </div>
                                   <p className="font-semibold text-white">
                                     {formatCurrency(item.subtotal)}
