@@ -1,6 +1,7 @@
 import cityLogo from '@/assets/city-logo.jpg'
-import { AtSign, MapPin, MessageCircle } from 'lucide-react'
+import { MapPin } from 'lucide-react'
 import { Link } from 'react-router-dom'
+import { SocialIcon } from '@/components/ui/SocialIcon'
 import { useStorefrontData } from '@/hooks/useStorefrontData'
 import { buildWhatsAppUrl } from '@/lib/whatsapp'
 
@@ -52,7 +53,7 @@ export function SiteFooter() {
                 rel="noreferrer"
                 className="inline-flex items-center gap-2 hover:text-white"
               >
-                <MessageCircle className="h-4 w-4 text-brand-strong" />
+                <SocialIcon type="whatsapp" className="h-4 w-4" />
                 WhatsApp
               </a>
             ) : null}
@@ -63,7 +64,7 @@ export function SiteFooter() {
                 rel="noreferrer"
                 className="inline-flex items-center gap-2 hover:text-white"
               >
-                <AtSign className="h-4 w-4 text-brand-strong" />
+                <SocialIcon type="instagram" className="h-4 w-4" />
                 Instagram
               </a>
             ) : null}

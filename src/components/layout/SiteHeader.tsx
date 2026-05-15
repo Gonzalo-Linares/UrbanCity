@@ -1,6 +1,8 @@
+import type { ReactNode } from 'react'
 import cityLogo from '@/assets/city-logo.jpg'
-import { AtSign, MessageCircle, Search, ShoppingBag } from 'lucide-react'
+import { Search, ShoppingBag } from 'lucide-react'
 import { Link, NavLink } from 'react-router-dom'
+import { SocialIcon } from '@/components/ui/SocialIcon'
 import { cn } from '@/lib/cn'
 import { useStorefrontData } from '@/hooks/useStorefrontData'
 import { buildWhatsAppUrl } from '@/lib/whatsapp'
@@ -24,21 +26,19 @@ function HeaderAction({
   to,
   label,
   badge,
-  icon: Icon,
-  iconClassName,
+  icon,
   mobileLabel = false,
 }: {
   href?: string
   to?: string
   label: string
   badge?: number
-  icon: typeof Search
-  iconClassName?: string
+  icon: ReactNode
   mobileLabel?: boolean
 }) {
   const content = (
     <>
-      <Icon className={cn('h-4 w-4', iconClassName)} />
+      {icon}
       <span
         className={cn(
           'hidden text-sm font-medium sm:inline',
@@ -133,7 +133,7 @@ export function SiteHeader() {
                 <HeaderAction
                   href={storeSettings.instagram_url}
                   label="Instagram"
-                  icon={AtSign}
+                  icon={<SocialIcon type="instagram" className="h-4 w-4" />}
                   mobileLabel={false}
                 />
               ) : null}
@@ -149,8 +149,7 @@ export function SiteHeader() {
                     'Hola, quiero consultar talles y disponibilidad.',
                   )}
                   label="WhatsApp"
-                  icon={MessageCircle}
-                  iconClassName="text-brand-strong"
+                  icon={<SocialIcon type="whatsapp" className="h-4 w-4" />}
                   mobileLabel={false}
                 />
               ) : null}
@@ -163,7 +162,7 @@ export function SiteHeader() {
                 to="/carrito"
                 label="Carrito"
                 badge={itemCount}
-                icon={ShoppingBag}
+                icon={<ShoppingBag className="h-4 w-4" />}
                 mobileLabel={false}
               />
             </div>

@@ -34,7 +34,7 @@ export function CartPage() {
   }
 
   return (
-    <div className="space-y-8 pb-20 sm:pb-0">
+    <div className="space-y-8">
       <section className="surface-panel p-5 sm:p-8 lg:p-10">
         <SectionTitle
           eyebrow="Carrito"

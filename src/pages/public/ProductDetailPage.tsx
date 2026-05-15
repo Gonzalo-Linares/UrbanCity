@@ -65,7 +65,7 @@ export function ProductDetailPage() {
   )
 
   return (
-    <div className="space-y-6 pb-20 sm:space-y-8 sm:pb-0">
+    <div className="space-y-6 sm:space-y-8">
       <Link
         to="/catalogo"
         className="inline-flex items-center gap-2 text-sm font-medium text-white/72 hover:text-white"
@@ -135,9 +135,8 @@ export function ProductDetailPage() {
             </div>
 
             <div className="order-3 rounded-[24px] border border-white/12 bg-white/6 p-3 text-xs leading-5 text-white/78 sm:order-none sm:p-4 sm:text-sm sm:leading-6">
-              Pedido pendiente de confirmación. El total publicado corresponde a
-              precio contado estimado. Confirmamos disponibilidad, talle, forma de
-              pago y precio final por WhatsApp.
+              Pedido pendiente de confirmación. Te contactamos para validar talle,
+              disponibilidad y forma de pago.
             </div>
 
             <div className="order-2 flex flex-col gap-3 sm:order-none sm:flex-row sm:items-center">

@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { MessageCircle, ShieldCheck, ShoppingBag } from 'lucide-react'
+import { ShieldCheck, ShoppingBag } from 'lucide-react'
 import { useForm } from 'react-hook-form'
 import { Link } from 'react-router-dom'
 import { Button } from '@/components/ui/Button'
@@ -9,6 +9,7 @@ import { Card } from '@/components/ui/Card'
 import { EmptyState } from '@/components/ui/EmptyState'
 import { Input } from '@/components/ui/Input'
 import { SectionTitle } from '@/components/ui/SectionTitle'
+import { SocialIcon } from '@/components/ui/SocialIcon'
 import { Textarea } from '@/components/ui/Textarea'
 import { useStorefrontData } from '@/hooks/useStorefrontData'
 import { formatCurrency } from '@/lib/formatters'
@@ -343,7 +344,7 @@ export function CheckoutPage() {
                 Boolean(checkoutBlockingMessage)
               }
             >
-              <MessageCircle className="h-4 w-4" />
+              <SocialIcon type="whatsapp" className="h-4 w-4" />
               {draft
                 ? 'Pedido ya generado'
                 : form.formState.isSubmitting
@@ -394,7 +395,7 @@ export function CheckoutPage() {
                   size: 'md',
                 })}
               >
-                <MessageCircle className="h-4 w-4" />
+                <SocialIcon type="whatsapp" className="h-4 w-4" />
                 Enviar pedido por WhatsApp
               </a>
 
