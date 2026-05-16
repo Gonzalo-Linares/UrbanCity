@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { ArrowLeft, Minus, Plus, ShoppingBag } from 'lucide-react'
 import { Link, useParams } from 'react-router-dom'
 import { ProductCard } from '@/components/product/ProductCard'
@@ -12,6 +12,7 @@ import { useStorefrontData } from '@/hooks/useStorefrontData'
 import { formatAvailabilityLabel, formatCurrency } from '@/lib/formatters'
 import { getDiscountPercent, getInstallmentPerQuota } from '@/lib/pricing'
 import { useCartStore } from '@/store/cartStore'
+import type { ProductImageRow } from '@/types/database'
 import type { StorefrontProduct } from '@/types/store'
 
 function availabilityTone(availability: string) {
@@ -39,6 +40,7 @@ function ProductDetailContent({
   const [selectedSizeLabel, setSelectedSizeLabel] = useState<string | null>(null)
   const [sizeError, setSizeError] = useState<string | null>(null)
   const [cartFeedback, setCartFeedback] = useState<string | null>(null)
+  const [selectedImageIndex, setSelectedImageIndex] = useState(0)
 
   const isSoldOut = product.availability === 'out_of_stock'
   const discountPercent = getDiscountPercent(
@@ -46,6 +48,16 @@ function ProductDetailContent({
     product.compare_at_price,
   )
   const installmentPerQuota = getInstallmentPerQuota(product.installment_price)
+  const productImages = useMemo<ProductImageRow[]>(() => {
+    if (product.images.length > 0) {
+      return product.images
+    }
+
+    return product.primaryImage ? [product.primaryImage] : []
+  }, [product.images, product.primaryImage])
+  const safeSelectedImageIndex =
+    selectedImageIndex < productImages.length ? selectedImageIndex : 0
+  const selectedImage = productImages[safeSelectedImageIndex] ?? null
 
   useEffect(() => {
     if (!cartFeedback) {
@@ -86,14 +98,44 @@ function ProductDetailContent({
 
       <section className="surface-panel overflow-hidden">
         <div className="grid gap-4 p-3.5 sm:gap-5 sm:p-8 lg:grid-cols-[1fr_0.95fr] lg:p-10">
-          <ProductVisual
-            seed={product.slug}
-            name={product.name}
-            categoryName={product.category?.name}
-            imageUrl={product.primaryImage?.url}
-            imageFit="contain"
-            className="h-[190px] sm:h-auto sm:aspect-[1/1.05] sm:min-h-[320px]"
-          />
+          <div className="space-y-3">
+            <ProductVisual
+              seed={product.slug}
+              name={product.name}
+              categoryName={product.category?.name}
+              imageUrl={selectedImage?.url}
+              imageFit="contain"
+              className="h-[190px] sm:h-auto sm:aspect-[1/1.05] sm:min-h-[320px]"
+            />
+
+            {productImages.length > 1 ? (
+              <div className="flex gap-2 overflow-x-auto pb-1">
+                {productImages.map((image, index) => {
+                  const isSelected = index === safeSelectedImageIndex
+
+                  return (
+                    <button
+                      key={image.id}
+                      type="button"
+                      className={`h-14 w-14 shrink-0 overflow-hidden rounded-[16px] border transition sm:h-[72px] sm:w-[72px] ${
+                        isSelected
+                          ? 'border-brand-strong bg-brand-strong/12'
+                          : 'border-white/10 bg-white/6 hover:border-white/22'
+                      }`}
+                      onClick={() => setSelectedImageIndex(index)}
+                      aria-label={`Ver foto ${index + 1} de producto`}
+                    >
+                      <img
+                        src={image.url}
+                        alt={image.alt ?? `${product.name} foto ${index + 1}`}
+                        className="h-full w-full object-cover"
+                      />
+                    </button>
+                  )
+                })}
+              </div>
+            ) : null}
+          </div>
 
           <div className="space-y-4 sm:space-y-6">
             <div className="space-y-3 sm:space-y-4">

@@ -1,3 +1,4 @@
+import { createPortal } from 'react-dom'
 import { useEffect, useMemo, useState } from 'react'
 import { Filter, Search, SlidersHorizontal, X } from 'lucide-react'
 import type { CategoryRow } from '@/types/database'
@@ -90,6 +91,126 @@ export function ProductFilters({
     }
   }, [showFilters])
 
+  const filterModal =
+    showFilters && typeof document !== 'undefined'
+      ? createPortal(
+          <div
+            className="fixed top-0 left-0 z-[9999] h-[100dvh] w-screen bg-black/64 backdrop-blur-[3px] sm:bg-black/66 sm:backdrop-blur-[4px]"
+            onClick={() => setShowFilters(false)}
+          >
+            <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(182,255,0,0.06),transparent_36%)]" />
+
+            <div
+              role="dialog"
+              aria-modal="true"
+              aria-labelledby="catalog-filters-title"
+              id="catalog-filters-panel"
+              className="absolute inset-x-0 bottom-0 max-h-[84dvh] overflow-y-auto rounded-t-[28px] border border-white/10 bg-[#101010]/98 p-4 text-white shadow-[0_-24px_80px_rgba(0,0,0,0.55)] sm:top-1/2 sm:left-1/2 sm:bottom-auto sm:w-[min(680px,calc(100vw-32px))] sm:-translate-x-1/2 sm:-translate-y-1/2 sm:rounded-[32px] sm:p-6"
+              onClick={(event) => event.stopPropagation()}
+            >
+              <div className="space-y-4 sm:space-y-5">
+                <div className="flex items-start justify-between gap-3">
+                  <div className="space-y-1">
+                    <p
+                      id="catalog-filters-title"
+                      className="text-lg font-semibold tracking-[-0.03em] text-white"
+                    >
+                      Filtrar productos
+                    </p>
+                    <p className="text-sm leading-6 text-white/58">
+                      Elegí categoría y talle para encontrar rápido tu próximo par.
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    className="inline-flex h-10 w-10 items-center justify-center rounded-2xl border border-white/12 bg-black/20 text-white/72 transition hover:bg-white/8 hover:text-white"
+                    onClick={() => setShowFilters(false)}
+                    aria-label="Cerrar filtros"
+                  >
+                    <X className="h-4 w-4" />
+                  </button>
+                </div>
+
+                <div className="space-y-3">
+                  <p className="text-[0.68rem] font-semibold uppercase tracking-[0.2em] text-white/46">
+                    Categorías
+                  </p>
+                  <div className="flex flex-wrap gap-2">
+                    <button
+                      type="button"
+                      className={filterChipClass(selectedCategory === 'all')}
+                      onClick={() => onCategoryChange('all')}
+                    >
+                      Todas
+                    </button>
+                    {categories.map((category) => (
+                      <button
+                        key={category.id}
+                        type="button"
+                        className={filterChipClass(selectedCategory === category.slug)}
+                        onClick={() => onCategoryChange(category.slug)}
+                      >
+                        {category.name}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {availableSizes.length > 0 ? (
+                  <div className="space-y-3">
+                    <div className="space-y-1">
+                      <p className="text-[0.68rem] font-semibold uppercase tracking-[0.2em] text-white/46">
+                        Talles
+                      </p>
+                      <p className="text-xs text-white/54">Podés elegir más de uno.</p>
+                    </div>
+                    <div className="flex flex-wrap gap-2">
+                      <button
+                        type="button"
+                        className={filterChipClass(selectedSizes.length === 0)}
+                        onClick={() => onClearSizes?.()}
+                      >
+                        Todos
+                      </button>
+                      {availableSizes.map((size) => (
+                        <button
+                          key={size}
+                          type="button"
+                          className={filterChipClass(selectedSizes.includes(size))}
+                          onClick={() => onSizeToggle(size)}
+                        >
+                          {size}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                ) : null}
+
+                <div className="sticky bottom-0 -mx-4 mt-5 border-t border-white/10 bg-[#101010]/96 px-4 pt-3 pb-1 backdrop-blur sm:-mx-6 sm:px-6">
+                  <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                    <button
+                      type="button"
+                      className="inline-flex h-11 items-center justify-center rounded-2xl border border-white/12 px-4 text-sm font-medium text-white/76 transition hover:bg-white/8 hover:text-white sm:w-auto"
+                      onClick={onClearFilters}
+                    >
+                      Limpiar
+                    </button>
+                    <button
+                      type="button"
+                      className="inline-flex h-11 w-full items-center justify-center rounded-2xl bg-brand-strong px-4 text-sm font-semibold text-black transition hover:bg-brand-strong/90 sm:w-auto"
+                      onClick={() => setShowFilters(false)}
+                    >
+                      Ver {resultCount} productos
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>,
+          document.body,
+        )
+      : null
+
   return (
     <>
       <div className="space-y-3 rounded-[28px] border border-white/10 bg-[#151515] p-4 shadow-[0_24px_50px_rgba(0,0,0,0.26)] sm:space-y-4 sm:p-6">
@@ -176,119 +297,7 @@ export function ProductFilters({
         ) : null}
       </div>
 
-      {showFilters ? (
-        <div
-          className="fixed inset-0 z-[80] bg-black/70 backdrop-blur-sm"
-          onClick={() => setShowFilters(false)}
-        >
-          <div
-            role="dialog"
-            aria-modal="true"
-            aria-labelledby="catalog-filters-title"
-            id="catalog-filters-panel"
-            className="absolute inset-x-0 bottom-0 max-h-[82vh] overflow-y-auto rounded-t-[28px] border border-white/10 bg-[#101010] p-4 text-white shadow-[0_-24px_80px_rgba(0,0,0,0.55)] sm:top-1/2 sm:left-1/2 sm:bottom-auto sm:w-[min(680px,calc(100vw-32px))] sm:-translate-x-1/2 sm:-translate-y-1/2 sm:rounded-[32px] sm:p-6"
-            onClick={(event) => event.stopPropagation()}
-          >
-            <div className="space-y-4 sm:space-y-5">
-              <div className="flex items-start justify-between gap-3">
-                <div className="space-y-1">
-                  <p
-                    id="catalog-filters-title"
-                    className="text-lg font-semibold tracking-[-0.03em] text-white"
-                  >
-                    Filtrar productos
-                  </p>
-                  <p className="text-sm leading-6 text-white/58">
-                    Elegí categoría y talle para encontrar rápido tu próximo par.
-                  </p>
-                </div>
-                <button
-                  type="button"
-                  className="inline-flex h-10 w-10 items-center justify-center rounded-2xl border border-white/12 bg-black/20 text-white/72 transition hover:bg-white/8 hover:text-white"
-                  onClick={() => setShowFilters(false)}
-                  aria-label="Cerrar filtros"
-                >
-                  <X className="h-4 w-4" />
-                </button>
-              </div>
-
-              <div className="space-y-3">
-                <p className="text-[0.68rem] font-semibold uppercase tracking-[0.2em] text-white/46">
-                  Categorías
-                </p>
-                <div className="flex flex-wrap gap-2">
-                  <button
-                    type="button"
-                    className={filterChipClass(selectedCategory === 'all')}
-                    onClick={() => onCategoryChange('all')}
-                  >
-                    Todas
-                  </button>
-                  {categories.map((category) => (
-                    <button
-                      key={category.id}
-                      type="button"
-                      className={filterChipClass(selectedCategory === category.slug)}
-                      onClick={() => onCategoryChange(category.slug)}
-                    >
-                      {category.name}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              {availableSizes.length > 0 ? (
-                <div className="space-y-3">
-                  <div className="space-y-1">
-                    <p className="text-[0.68rem] font-semibold uppercase tracking-[0.2em] text-white/46">
-                      Talles
-                    </p>
-                    <p className="text-xs text-white/54">Podés elegir más de uno.</p>
-                  </div>
-                  <div className="flex flex-wrap gap-2">
-                    <button
-                      type="button"
-                      className={filterChipClass(selectedSizes.length === 0)}
-                      onClick={() => onClearSizes?.()}
-                    >
-                      Todos
-                    </button>
-                    {availableSizes.map((size) => (
-                      <button
-                        key={size}
-                        type="button"
-                        className={filterChipClass(selectedSizes.includes(size))}
-                        onClick={() => onSizeToggle(size)}
-                      >
-                        {size}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              ) : null}
-
-              <div className="sticky bottom-0 -mx-4 mt-5 border-t border-white/10 bg-[#101010]/96 px-4 pt-3 pb-1 backdrop-blur sm:-mx-6 sm:px-6">
-                <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-                  <button
-                    type="button"
-                    className="inline-flex h-11 items-center justify-center rounded-2xl border border-white/12 px-4 text-sm font-medium text-white/76 transition hover:bg-white/8 hover:text-white sm:w-auto"
-                    onClick={onClearFilters}
-                  >
-                    Limpiar
-                  </button>
-                  <button
-                    type="button"
-                    className="inline-flex h-11 w-full items-center justify-center rounded-2xl bg-brand-strong px-4 text-sm font-semibold text-black transition hover:bg-brand-strong/90 sm:w-auto"
-                    onClick={() => setShowFilters(false)}
-                  >
-                    Ver {resultCount} productos
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      ) : null}
+      {filterModal}
     </>
   )
 }
