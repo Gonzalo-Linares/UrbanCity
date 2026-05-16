@@ -1,5 +1,6 @@
 import { useDeferredValue, useEffect, useMemo, useState } from 'react'
 import {
+  CheckCircle2,
   CheckCheck,
   ChevronDown,
   ChevronUp,
@@ -8,7 +9,7 @@ import {
   MessageCircle,
   Search,
   ShoppingBag,
-  XCircle,
+  Trash2,
 } from 'lucide-react'
 import { AdminMetricCard } from '@/components/admin/AdminMetricCard'
 import { AdminPageHeader } from '@/components/admin/AdminPageHeader'
@@ -20,7 +21,11 @@ import { SelectField } from '@/components/ui/SelectField'
 import { StatusBadge } from '@/components/ui/StatusBadge'
 import { useAdminOutletData } from '@/hooks/useAdminShellData'
 import { formatCrudError } from '@/lib/admin'
-import { formatCurrency, formatDateTime, formatOrderStatus } from '@/lib/formatters'
+import {
+  formatCurrency,
+  formatDateTime,
+  formatOrderStatus,
+} from '@/lib/formatters'
 import { isSupabaseConfigured, supabase } from '@/lib/supabase'
 import { buildWhatsAppUrl } from '@/lib/whatsapp'
 import type { OrderItemRow, OrderRow, OrderStatus } from '@/types/database'
@@ -30,8 +35,28 @@ interface OrderListItem extends OrderRow {
   itemCount: number
 }
 
-const orderStatusOptions: Array<{ value: 'all' | OrderStatus; label: string }> = [
-  { value: 'all', label: 'Todos los estados' },
+type OrderStatusFilter = 'active' | 'all' | OrderStatus
+
+const activeStatuses: OrderStatus[] = [
+  'pending',
+  'confirmed',
+  'ready_for_pickup',
+]
+
+const orderStatusFilterOptions: Array<{
+  value: OrderStatusFilter
+  label: string
+}> = [
+  { value: 'active', label: 'Activos' },
+  { value: 'pending', label: 'Pendiente' },
+  { value: 'confirmed', label: 'Confirmado' },
+  { value: 'ready_for_pickup', label: 'Listo para retirar' },
+  { value: 'completed', label: 'Entregados' },
+  { value: 'cancelled', label: 'Cancelados' },
+  { value: 'all', label: 'Todos' },
+]
+
+const orderUpdateOptions: Array<{ value: OrderStatus; label: string }> = [
   { value: 'pending', label: 'Pendiente' },
   { value: 'confirmed', label: 'Confirmado' },
   { value: 'ready_for_pickup', label: 'Listo para retirar' },
@@ -109,6 +134,112 @@ function buildCustomerFollowUpMessage(
   return lines.join('\n')
 }
 
+function buildVisibleOrdersLabel(
+  statusFilter: OrderStatusFilter,
+  count: number,
+) {
+  if (statusFilter === 'active') {
+    return `${count} pedido${count === 1 ? '' : 's'} activo${count === 1 ? '' : 's'}`
+  }
+
+  if (statusFilter === 'all') {
+    return `${count} pedido${count === 1 ? '' : 's'} visible${count === 1 ? '' : 's'}`
+  }
+
+  switch (statusFilter) {
+    case 'pending':
+      return `${count} pedido${count === 1 ? '' : 's'} pendiente${count === 1 ? '' : 's'}`
+    case 'confirmed':
+      return `${count} pedido${count === 1 ? '' : 's'} confirmado${count === 1 ? '' : 's'}`
+    case 'ready_for_pickup':
+      return `${count} listo${count === 1 ? '' : 's'} para retirar`
+    case 'completed':
+      return `${count} pedido${count === 1 ? '' : 's'} entregado${count === 1 ? '' : 's'}`
+    case 'cancelled':
+      return `${count} pedido${count === 1 ? '' : 's'} cancelado${count === 1 ? '' : 's'}`
+    default:
+      return `${count} pedido${count === 1 ? '' : 's'}`
+  }
+}
+
+function getEmptyStateCopy(
+  statusFilter: OrderStatusFilter,
+  hasSearch: boolean,
+) {
+  if (hasSearch) {
+    return {
+      title: 'No encontramos pedidos con ese filtro',
+      description: 'Probá otra búsqueda o cambia el estado seleccionado.',
+    }
+  }
+
+  switch (statusFilter) {
+    case 'active':
+      return {
+        title: 'No hay pedidos activos',
+        description:
+          'Los pedidos pendientes, confirmados o listos para retirar aparecerán acá.',
+      }
+    case 'completed':
+      return {
+        title: 'No hay pedidos entregados',
+        description:
+          'Los pedidos marcados como entregados o pagados manualmente aparecerán acá.',
+      }
+    case 'cancelled':
+      return {
+        title: 'No hay pedidos cancelados',
+        description: 'Los pedidos cancelados aparecerán acá cuando existan.',
+      }
+    case 'pending':
+      return {
+        title: 'No hay pedidos pendientes',
+        description: 'Los nuevos pedidos aparecerán acá para poder confirmarlos.',
+      }
+    case 'confirmed':
+      return {
+        title: 'No hay pedidos confirmados',
+        description: 'Los pedidos confirmados aparecerán acá hasta quedar listos.',
+      }
+    case 'ready_for_pickup':
+      return {
+        title: 'No hay pedidos listos para retirar',
+        description:
+          'Los pedidos listos para retirar aparecerán acá para marcar la entrega.',
+      }
+    default:
+      return {
+        title: 'Todavía no hay pedidos',
+        description: 'Los pedidos aparecerán acá cuando un cliente termine su pedido.',
+      }
+  }
+}
+
+function getQuickAction(order: OrderListItem) {
+  if (order.status === 'pending') {
+    return {
+      label: 'Confirmar',
+      nextStatus: 'confirmed' as OrderStatus,
+    }
+  }
+
+  if (order.status === 'confirmed') {
+    return {
+      label: 'Listo',
+      nextStatus: 'ready_for_pickup' as OrderStatus,
+    }
+  }
+
+  if (order.status === 'ready_for_pickup') {
+    return {
+      label: 'Entregado',
+      nextStatus: 'completed' as OrderStatus,
+    }
+  }
+
+  return null
+}
+
 export function AdminOrdersPage() {
   const { counts, loading, refresh, storeName } = useAdminOutletData()
   const [orders, setOrders] = useState<OrderListItem[]>([])
@@ -118,7 +249,7 @@ export function AdminOrdersPage() {
   )
   const [actionError, setActionError] = useState<string | null>(null)
   const [actionSuccess, setActionSuccess] = useState<string | null>(null)
-  const [statusFilter, setStatusFilter] = useState<'all' | OrderStatus>('all')
+  const [statusFilter, setStatusFilter] = useState<OrderStatusFilter>('active')
   const [searchValue, setSearchValue] = useState('')
   const [expandedOrderId, setExpandedOrderId] = useState<string | null>(null)
   const [reloadKey, setReloadKey] = useState(0)
@@ -188,7 +319,13 @@ export function AdminOrdersPage() {
     const normalizedSearch = deferredSearch.trim().toLowerCase()
 
     return orders.filter((order) => {
-      const matchesStatus = statusFilter === 'all' || order.status === statusFilter
+      const matchesStatus =
+        statusFilter === 'all'
+          ? true
+          : statusFilter === 'active'
+            ? activeStatuses.includes(order.status)
+            : order.status === statusFilter
+
       const matchesSearch =
         normalizedSearch.length === 0 ||
         order.order_code.toLowerCase().includes(normalizedSearch) ||
@@ -216,7 +353,7 @@ export function AdminOrdersPage() {
     if (
       typeof window !== 'undefined' &&
       status === 'cancelled' &&
-      !window.confirm(`Cancelar el pedido ${order.order_code}?`)
+      !window.confirm(`¿Cancelar definitivamente el pedido ${order.order_code}?`)
     ) {
       return
     }
@@ -224,7 +361,7 @@ export function AdminOrdersPage() {
     if (
       typeof window !== 'undefined' &&
       status === 'completed' &&
-      !window.confirm(`Marcar ${order.order_code} como entregado?`)
+      !window.confirm('¿Marcar este pedido como entregado/pagado?')
     ) {
       return
     }
@@ -251,6 +388,58 @@ export function AdminOrdersPage() {
     await reloadPage()
   }
 
+  async function deleteOrder(order: OrderListItem) {
+    if (!supabase) {
+      return
+    }
+
+    if (
+      typeof window !== 'undefined' &&
+      !window.confirm(
+        `¿Eliminar definitivamente el pedido ${order.order_code}? Esta acción no se puede deshacer.`,
+      )
+    ) {
+      return
+    }
+
+    setBusyOrderId(order.id)
+    setActionError(null)
+    setActionSuccess(null)
+
+    const deleteItemsResult = await supabase
+      .from('order_items')
+      .delete()
+      .eq('order_id', order.id)
+
+    if (deleteItemsResult.error) {
+      setBusyOrderId(null)
+      setActionError(
+        `No se pudo eliminar ${order.order_code}. ${formatCrudError(
+          deleteItemsResult.error.message,
+          deleteItemsResult.error.code,
+        )}`,
+      )
+      return
+    }
+
+    const deleteOrderResult = await supabase.from('orders').delete().eq('id', order.id)
+
+    setBusyOrderId(null)
+
+    if (deleteOrderResult.error) {
+      setActionError(
+        `No se pudo eliminar ${order.order_code}. ${formatCrudError(
+          deleteOrderResult.error.message,
+          deleteOrderResult.error.code,
+        )}`,
+      )
+      return
+    }
+
+    setActionSuccess(`Pedido ${order.order_code} eliminado correctamente.`)
+    await reloadPage()
+  }
+
   async function copyMessage(order: OrderListItem) {
     const message =
       order.whatsapp_message?.trim() ||
@@ -265,6 +454,11 @@ export function AdminOrdersPage() {
     }
   }
 
+  const emptyStateCopy = getEmptyStateCopy(
+    statusFilter,
+    deferredSearch.trim().length > 0,
+  )
+
   return (
     <div className="space-y-5 sm:space-y-8">
       <AdminPageHeader
@@ -276,15 +470,30 @@ export function AdminOrdersPage() {
       />
 
       <div className="grid grid-cols-2 gap-2.5 sm:gap-4 xl:grid-cols-4">
-        <AdminMetricCard title="Total" value={counts.ordersTotal} description="Recibidos" icon={ShoppingBag} />
-        <AdminMetricCard title="Pendientes" value={counts.ordersPending} description="A confirmar" icon={Clock3} />
+        <AdminMetricCard
+          title="Activos"
+          value={counts.ordersPending + counts.ordersConfirmed + counts.ordersReady}
+          description="Pendientes, confirmados y listos."
+          icon={ShoppingBag}
+        />
+        <AdminMetricCard
+          title="Pendientes"
+          value={counts.ordersPending}
+          description="Para revisar"
+          icon={Clock3}
+        />
         <AdminMetricCard
           title="En curso"
           value={counts.ordersConfirmed + counts.ordersReady}
-          description="Confirmados"
+          description="Confirmados y listos"
           icon={CheckCheck}
         />
-        <AdminMetricCard title="Cancelados" value={counts.ordersCancelled} description="Sin entrega" icon={XCircle} />
+        <AdminMetricCard
+          title="Entregados"
+          value={counts.ordersCompleted}
+          description="Ventas cerradas"
+          icon={CheckCircle2}
+        />
       </div>
 
       {pageError ? (
@@ -324,9 +533,11 @@ export function AdminOrdersPage() {
           <SelectField
             label="Estado"
             value={statusFilter}
-            onChange={(event) => setStatusFilter(event.target.value as 'all' | OrderStatus)}
+            onChange={(event) =>
+              setStatusFilter(event.target.value as OrderStatusFilter)
+            }
           >
-            {orderStatusOptions.map((option) => (
+            {orderStatusFilterOptions.map((option) => (
               <option key={option.value} value={option.value}>
                 {option.label}
               </option>
@@ -342,15 +553,15 @@ export function AdminOrdersPage() {
         />
       ) : filteredOrders.length === 0 ? (
         <EmptyState
-          title="No encontramos pedidos con ese filtro"
-          description="Probá otro estado o limpiá la búsqueda."
+          title={emptyStateCopy.title}
+          description={emptyStateCopy.description}
           action={
             <Button
               type="button"
               variant="secondary"
               onClick={() => {
                 setSearchValue('')
-                setStatusFilter('all')
+                setStatusFilter('active')
               }}
             >
               Limpiar filtros
@@ -362,7 +573,7 @@ export function AdminOrdersPage() {
           <div>
             <p className="text-sm font-medium text-white">Listado</p>
             <p className="text-sm text-white/58">
-              {filteredOrders.length} pedido{filteredOrders.length === 1 ? '' : 's'} visibles.
+              {buildVisibleOrdersLabel(statusFilter, filteredOrders.length)}.
             </p>
           </div>
 
@@ -372,6 +583,7 @@ export function AdminOrdersPage() {
               const orderMessage =
                 order.whatsapp_message?.trim() ||
                 buildCustomerFollowUpMessage(order, storeName, order.items)
+              const quickAction = getQuickAction(order)
 
               return (
                 <div
@@ -406,25 +618,46 @@ export function AdminOrdersPage() {
                       <span>{formatDateTime(order.created_at)}</span>
                     </div>
 
-                    <div className="grid grid-cols-2 gap-2 sm:flex sm:flex-wrap">
+                    <div className="grid gap-2 sm:flex sm:flex-wrap">
+                      {quickAction ? (
+                        <Button
+                          type="button"
+                          variant="secondary"
+                          className="w-full sm:w-auto"
+                          disabled={busyOrderId === order.id}
+                          onClick={() =>
+                            void updateOrderStatus(order, quickAction.nextStatus)
+                          }
+                        >
+                          {quickAction.label}
+                        </Button>
+                      ) : null}
+
                       <a
                         href={buildWhatsAppUrl(order.customer_phone, orderMessage)}
                         target="_blank"
                         rel="noreferrer"
-                        className="inline-flex h-10 items-center justify-center gap-2 rounded-full bg-success px-4 text-sm font-medium text-white transition hover:bg-emerald-700"
+                        className="inline-flex h-10 w-full items-center justify-center gap-2 rounded-full bg-success px-4 text-sm font-medium text-white transition hover:bg-emerald-700 sm:w-auto"
                       >
                         <MessageCircle className="h-4 w-4" />
                         WhatsApp
                       </a>
+
                       <Button
                         type="button"
                         variant="ghost"
                         className="w-full px-3 text-white/72 hover:bg-white/8 hover:text-white sm:w-auto"
                         onClick={() =>
-                          setExpandedOrderId((current) => (current === order.id ? null : order.id))
+                          setExpandedOrderId((current) =>
+                            current === order.id ? null : order.id,
+                          )
                         }
                       >
-                        {isExpanded ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+                        {isExpanded ? (
+                          <ChevronUp className="h-4 w-4" />
+                        ) : (
+                          <ChevronDown className="h-4 w-4" />
+                        )}
                         {isExpanded ? 'Ocultar' : 'Ver detalle'}
                       </Button>
                     </div>
@@ -439,7 +672,9 @@ export function AdminOrdersPage() {
                             <div className="mt-2 space-y-1 text-white">
                               <p>{order.customer_name}</p>
                               <p>{order.customer_phone}</p>
-                              <p className="text-white/56">{order.customer_message || 'Sin mensaje adicional.'}</p>
+                              <p className="text-white/56">
+                                {order.customer_message || 'Sin mensaje adicional.'}
+                              </p>
                             </div>
                           </div>
 
@@ -449,16 +684,17 @@ export function AdminOrdersPage() {
                               value={order.status}
                               disabled={busyOrderId === order.id}
                               onChange={(event) =>
-                                void updateOrderStatus(order, event.target.value as OrderStatus)
+                                void updateOrderStatus(
+                                  order,
+                                  event.target.value as OrderStatus,
+                                )
                               }
                             >
-                              {orderStatusOptions
-                                .filter((option) => option.value !== 'all')
-                                .map((option) => (
-                                  <option key={option.value} value={option.value}>
-                                    {option.label}
-                                  </option>
-                                ))}
+                              {orderUpdateOptions.map((option) => (
+                                <option key={option.value} value={option.value}>
+                                  {option.label}
+                                </option>
+                              ))}
                             </SelectField>
                           </div>
                         </div>
@@ -503,9 +739,24 @@ export function AdminOrdersPage() {
                           </div>
 
                           <div className="flex flex-wrap gap-2">
-                            <Button type="button" variant="outline" onClick={() => void copyMessage(order)}>
+                            <Button
+                              type="button"
+                              variant="outline"
+                              onClick={() => void copyMessage(order)}
+                            >
                               <Copy className="h-4 w-4" />
                               Copiar resumen
+                            </Button>
+
+                            <Button
+                              type="button"
+                              variant="outline"
+                              className="border-rose-500/20 text-rose-200 hover:bg-rose-500/10 hover:text-rose-100"
+                              disabled={busyOrderId === order.id}
+                              onClick={() => void deleteOrder(order)}
+                            >
+                              <Trash2 className="h-4 w-4" />
+                              Eliminar pedido
                             </Button>
                           </div>
                         </div>
