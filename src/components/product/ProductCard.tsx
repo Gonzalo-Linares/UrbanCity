@@ -198,7 +198,7 @@ export function ProductCard({ product }: { product: StorefrontProduct }) {
                 className={cn(
                   'order-1 w-full min-w-0 px-3 text-[0.8rem] sm:order-1 sm:h-10 sm:px-3 sm:text-[0.78rem] xl:text-sm',
                   !isSoldOut &&
-                    'sm:border sm:border-white/12 sm:bg-white/6 sm:text-white sm:shadow-none sm:hover:bg-white/10',
+                    'sm:border-transparent sm:bg-brand-strong sm:text-black sm:shadow-[0_14px_28px_rgba(182,255,0,0.2)] sm:hover:bg-[#d1ff52]',
                 )}
                 onClick={handleQuickAction}
               >
@@ -221,7 +221,7 @@ export function ProductCard({ product }: { product: StorefrontProduct }) {
                     className:
                       'order-2 w-full justify-center gap-1.5 px-3 text-[0.8rem] sm:order-2 sm:h-10 sm:w-auto sm:min-w-[108px] sm:px-3 sm:text-[0.78rem] xl:text-sm',
                   }),
-                  'whitespace-nowrap text-white/76 shadow-none sm:border-transparent sm:bg-brand-strong sm:text-black sm:shadow-[0_14px_28px_rgba(182,255,0,0.2)] sm:hover:bg-[#d1ff52]',
+                  'whitespace-nowrap text-white/76 shadow-none sm:border sm:border-white/12 sm:bg-white/6 sm:text-white sm:hover:bg-white/10',
                 )}
               >
                 <span className="sm:hidden">Ver</span>
