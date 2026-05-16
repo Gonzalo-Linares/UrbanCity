@@ -14,6 +14,7 @@ export interface StorefrontProduct extends ProductRow {
   images: ProductImageRow[]
   primaryImage: ProductImageRow | null
   sizes: ProductSizeRow[]
+  catalogSlot: number | null
 }
 
 export interface CartItem {

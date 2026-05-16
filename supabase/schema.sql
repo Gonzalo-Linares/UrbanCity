@@ -97,6 +97,16 @@ create table if not exists public.product_sizes (
   unique(product_id, size_label)
 );
 
+create table if not exists public.catalog_featured_products (
+  id uuid primary key default gen_random_uuid(),
+  product_id uuid not null references public.products(id) on delete cascade,
+  slot int not null check (slot between 1 and 8),
+  created_at timestamptz not null default timezone('utc', now()),
+  updated_at timestamptz not null default timezone('utc', now()),
+  unique(slot),
+  unique(product_id)
+);
+
 create table if not exists public.orders (
   id uuid primary key default gen_random_uuid(),
   order_code text not null unique,
@@ -173,6 +183,10 @@ create index if not exists idx_products_category_id on public.products(category_
 create index if not exists idx_product_images_product_id on public.product_images(product_id);
 create index if not exists idx_product_sizes_product_id on public.product_sizes(product_id);
 create index if not exists idx_product_sizes_product_sort on public.product_sizes(product_id, sort_order);
+create index if not exists idx_catalog_featured_products_slot
+on public.catalog_featured_products(slot);
+create index if not exists idx_catalog_featured_products_product_id
+on public.catalog_featured_products(product_id);
 create index if not exists idx_orders_status on public.orders(status);
 create index if not exists idx_order_items_order_id on public.order_items(order_id);
 create index if not exists idx_home_hero_slides_sort_order on public.home_hero_slides(sort_order);
@@ -182,6 +196,7 @@ alter table public.categories enable row level security;
 alter table public.products enable row level security;
 alter table public.product_images enable row level security;
 alter table public.product_sizes enable row level security;
+alter table public.catalog_featured_products enable row level security;
 alter table public.orders enable row level security;
 alter table public.order_items enable row level security;
 alter table public.store_settings enable row level security;
@@ -273,6 +288,21 @@ to authenticated
 using (public.is_active_admin())
 with check (public.is_active_admin());
 
+drop policy if exists catalog_featured_products_public_read on public.catalog_featured_products;
+create policy catalog_featured_products_public_read
+on public.catalog_featured_products
+for select
+to anon, authenticated
+using (true);
+
+drop policy if exists catalog_featured_products_admin_manage on public.catalog_featured_products;
+create policy catalog_featured_products_admin_manage
+on public.catalog_featured_products
+for all
+to authenticated
+using (public.is_active_admin())
+with check (public.is_active_admin());
+
 drop policy if exists product_images_bucket_public_read on storage.objects;
 create policy product_images_bucket_public_read
 on storage.objects
@@ -343,6 +373,12 @@ execute function public.set_updated_at();
 drop trigger if exists trg_product_sizes_updated_at on public.product_sizes;
 create trigger trg_product_sizes_updated_at
 before update on public.product_sizes
+for each row
+execute function public.set_updated_at();
+
+drop trigger if exists set_catalog_featured_products_updated_at on public.catalog_featured_products;
+create trigger set_catalog_featured_products_updated_at
+before update on public.catalog_featured_products
 for each row
 execute function public.set_updated_at();
 

@@ -162,6 +162,30 @@ export interface Database {
         }
         Relationships: []
       }
+      catalog_featured_products: {
+        Row: {
+          id: string
+          product_id: string
+          slot: number
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          product_id: string
+          slot: number
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          product_id?: string
+          slot?: number
+          created_at?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       orders: {
         Row: {
           id: string
@@ -353,6 +377,8 @@ export type AdminUserRow = Database['public']['Tables']['admin_users']['Row']
 export type ProductRow = Database['public']['Tables']['products']['Row']
 export type ProductImageRow = Database['public']['Tables']['product_images']['Row']
 export type ProductSizeRow = Database['public']['Tables']['product_sizes']['Row']
+export type CatalogFeaturedProductRow =
+  Database['public']['Tables']['catalog_featured_products']['Row']
 export type OrderRow = Database['public']['Tables']['orders']['Row']
 export type OrderItemRow = Database['public']['Tables']['order_items']['Row']
 export type StoreSettingsRow = Database['public']['Tables']['store_settings']['Row']

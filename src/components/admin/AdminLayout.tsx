@@ -11,6 +11,7 @@ import { useAdminShellData } from '@/hooks/useAdminShellData'
 const pageTitles: Record<string, string> = {
   '/admin': 'Resumen general',
   '/admin/productos': 'Productos',
+  '/admin/catalogo': 'Catálogo',
   '/admin/categorias': 'Categorías',
   '/admin/pedidos': 'Pedidos',
   '/admin/configuracion': 'Configuración',

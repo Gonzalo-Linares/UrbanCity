@@ -1,5 +1,6 @@
 import {
   LayoutGrid,
+  ListOrdered,
   Package,
   Settings,
   ShoppingBag,
@@ -31,6 +32,12 @@ const navItems = [
     label: 'Productos',
     icon: Package,
     badgeKey: 'productsTotal',
+  },
+  {
+    to: '/admin/catalogo',
+    label: 'Catálogo',
+    icon: ListOrdered,
+    badgeKey: null,
   },
   {
     to: '/admin/categorias',

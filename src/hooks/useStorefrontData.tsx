@@ -14,6 +14,7 @@ import {
 } from '@/data/mockProducts'
 import { isSupabaseConfigured, supabase } from '@/lib/supabase'
 import type {
+  CatalogFeaturedProductRow,
   CategoryRow,
   HomeHeroSlideRow,
   ProductImageRow,
@@ -65,8 +66,23 @@ function hydrateProducts(
       images: productImages,
       primaryImage: productImages[0] ?? null,
       sizes: productSizes,
+      catalogSlot: null,
     }
   })
+}
+
+function applyCatalogSlots(
+  products: StorefrontProduct[],
+  catalogFeaturedProducts: CatalogFeaturedProductRow[],
+) {
+  const catalogSlotByProductId = new Map(
+    catalogFeaturedProducts.map((item) => [item.product_id, item.slot]),
+  )
+
+  return products.map<StorefrontProduct>((product) => ({
+    ...product,
+    catalogSlot: catalogSlotByProductId.get(product.id) ?? null,
+  }))
 }
 
 export function StorefrontDataProvider({ children }: PropsWithChildren) {
@@ -76,11 +92,14 @@ export function StorefrontDataProvider({ children }: PropsWithChildren) {
     homeHeroSlides: [],
     products: isSupabaseConfigured
       ? []
-      : hydrateProducts(
-          mockProducts,
-          mockCategories,
-          mockProductImages,
-          mockProductSizes,
+      : applyCatalogSlots(
+          hydrateProducts(
+            mockProducts,
+            mockCategories,
+            mockProductImages,
+            mockProductSizes,
+          ),
+          [],
         ),
     storeSettings: isSupabaseConfigured ? emptyStoreSettings : mockStoreSettings,
     source: isSupabaseConfigured ? 'supabase' : 'mock',
@@ -97,11 +116,14 @@ export function StorefrontDataProvider({ children }: PropsWithChildren) {
           setValue({
             categories: mockCategories,
             homeHeroSlides: [],
-            products: hydrateProducts(
-              mockProducts,
-              mockCategories,
-              mockProductImages,
-              mockProductSizes,
+            products: applyCatalogSlots(
+              hydrateProducts(
+                mockProducts,
+                mockCategories,
+                mockProductImages,
+                mockProductSizes,
+              ),
+              [],
             ),
             storeSettings: mockStoreSettings,
             source: 'mock',
@@ -120,6 +142,7 @@ export function StorefrontDataProvider({ children }: PropsWithChildren) {
         sizesResult,
         settingsResult,
         heroSlidesResult,
+        catalogFeaturedProductsResult,
       ] =
         await Promise.all([
           supabase
@@ -155,6 +178,10 @@ export function StorefrontDataProvider({ children }: PropsWithChildren) {
             .select('*')
             .eq('is_active', true)
             .order('sort_order', { ascending: true }),
+          supabase
+            .from('catalog_featured_products')
+            .select('*')
+            .order('slot', { ascending: true }),
         ])
 
       if (ignore) {
@@ -165,6 +192,10 @@ export function StorefrontDataProvider({ children }: PropsWithChildren) {
         categoriesResult.error ?? productsResult.error ?? imagesResult.error
       const heroSlides = heroSlidesResult.error ? [] : heroSlidesResult.data ?? []
       const sizes = sizesResult.error ? [] : sizesResult.data ?? []
+      const catalogFeaturedProducts =
+        catalogFeaturedProductsResult.error
+          ? []
+          : catalogFeaturedProductsResult.data ?? []
 
       if (loadError) {
         setValue({
@@ -182,7 +213,10 @@ export function StorefrontDataProvider({ children }: PropsWithChildren) {
       const categories = categoriesResult.data ?? []
       const products = productsResult.data ?? []
       const images = imagesResult.data ?? []
-      const hydratedProducts = hydrateProducts(products, categories, images, sizes)
+      const hydratedProducts = applyCatalogSlots(
+        hydrateProducts(products, categories, images, sizes),
+        catalogFeaturedProducts,
+      )
 
       if (settingsResult.error || !settingsResult.data) {
         setValue({

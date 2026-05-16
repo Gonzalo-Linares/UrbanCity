@@ -11,6 +11,7 @@ import { LoadingState } from '@/components/ui/LoadingState'
 import { SectionTitle } from '@/components/ui/SectionTitle'
 import { useStorefrontData } from '@/hooks/useStorefrontData'
 import { getDiscountPercent } from '@/lib/pricing'
+import type { StorefrontProduct } from '@/types/store'
 
 const catalogStateStorageKey = 'city-catalog-state'
 
@@ -20,6 +21,31 @@ interface CatalogStateSnapshot {
   selectedSizes: string[]
   sortOption: ProductSortOption
   scrollY: number
+}
+
+function sortByRelevance(left: StorefrontProduct, right: StorefrontProduct) {
+  const leftSlot = left.catalogSlot ?? null
+  const rightSlot = right.catalogSlot ?? null
+
+  if (leftSlot !== null || rightSlot !== null) {
+    if (leftSlot === null) {
+      return 1
+    }
+
+    if (rightSlot === null) {
+      return -1
+    }
+
+    return leftSlot - rightSlot
+  }
+
+  if (left.featured !== right.featured) {
+    return left.featured ? -1 : 1
+  }
+
+  return (
+    new Date(right.created_at).getTime() - new Date(left.created_at).getTime()
+  )
 }
 
 function isProductSortOption(value: unknown): value is ProductSortOption {
@@ -165,7 +191,7 @@ export function CatalogPage() {
   })
   const visibleProducts =
     sortOption === 'relevance'
-      ? filteredProducts
+      ? [...filteredProducts].sort(sortByRelevance)
       : [...filteredProducts].sort((left, right) => {
           switch (sortOption) {
             case 'price-asc':

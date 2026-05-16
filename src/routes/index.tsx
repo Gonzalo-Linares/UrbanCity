@@ -3,6 +3,7 @@ import { AdminLayout } from '@/components/admin/AdminLayout'
 import { AdminCategoriesPage } from '@/pages/admin/AdminCategoriesPage'
 import { PublicLayout } from '@/components/layout/PublicLayout'
 import { AdminDashboardPage } from '@/pages/admin/AdminDashboardPage'
+import { AdminCatalogPage } from '@/pages/admin/AdminCatalogPage'
 import { AdminLoginPage } from '@/pages/admin/AdminLoginPage'
 import { AdminOrdersPage } from '@/pages/admin/AdminOrdersPage'
 import { AdminProductsPage } from '@/pages/admin/AdminProductsPage'
@@ -31,6 +32,10 @@ export const router = createBrowserRouter([
       {
         path: 'productos',
         element: <AdminProductsPage />,
+      },
+      {
+        path: 'catalogo',
+        element: <AdminCatalogPage />,
       },
       {
         path: 'categorias',
