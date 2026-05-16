@@ -92,6 +92,7 @@ export function CatalogPage() {
     readStoredCatalogState,
   )
   const catalogStateReadyRef = useRef(!storedCatalogState)
+  const restoredCategoryRef = useRef(false)
   const restoredScrollRef = useRef(false)
   const [searchParams, setSearchParams] = useSearchParams()
   const [searchValue, setSearchValue] = useState(
@@ -213,10 +214,18 @@ export function CatalogPage() {
         })
 
   useEffect(() => {
-    if (!storedCategoryToApply) {
+    const categoryParam = searchParams.get('categoria')?.trim()
+
+    if (categoryParam) {
+      restoredCategoryRef.current = true
       return
     }
 
+    if (!storedCategoryToApply || restoredCategoryRef.current) {
+      return
+    }
+
+    restoredCategoryRef.current = true
     const nextSearchParams = new URLSearchParams(searchParams)
     nextSearchParams.set('categoria', storedCategoryToApply)
     setSearchParams(nextSearchParams, { replace: true })
@@ -358,7 +367,6 @@ export function CatalogPage() {
         onSortChange={setSortOption}
         onSizeToggle={toggleSelectedSize}
         onClearSizes={clearSelectedSizes}
-        onClearFilters={clearFilters}
       />
 
       {visibleProducts.length === 0 ? (
