@@ -140,8 +140,11 @@ export function ProductCard({ product }: { product: StorefrontProduct }) {
   return (
     <>
       <article className="group overflow-hidden rounded-[22px] border border-white/10 bg-[#111111] p-1.5 transition duration-300 hover:-translate-y-1 hover:border-brand-strong/35 hover:shadow-[0_24px_44px_rgba(0,0,0,0.34)] sm:rounded-[30px] sm:p-2.5">
-        <Link to={`/catalogo/${product.slug}`} className="relative block">
-          <div className="relative">
+        <Link
+          to={`/catalogo/${product.slug}`}
+          className="relative block overflow-hidden rounded-[18px] sm:rounded-[24px]"
+        >
+          <div className="relative overflow-hidden rounded-[18px] sm:rounded-[24px]">
             <ProductVisual
               seed={product.slug}
               name={product.name}
@@ -155,7 +158,8 @@ export function ProductCard({ product }: { product: StorefrontProduct }) {
               <img
                 src={hoverImageUrl}
                 alt=""
-                className="pointer-events-none absolute inset-0 hidden h-full w-full rounded-[18px] bg-white object-contain opacity-0 transition duration-300 sm:rounded-[24px] md:block md:group-hover:opacity-100"
+                aria-hidden="true"
+                className="pointer-events-none absolute inset-0 z-10 hidden h-full w-full rounded-[18px] bg-white object-contain opacity-0 transition-opacity duration-300 sm:block sm:rounded-[24px] sm:group-hover:opacity-100"
                 loading="lazy"
               />
             ) : null}

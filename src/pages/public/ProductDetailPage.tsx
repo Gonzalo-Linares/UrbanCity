@@ -97,7 +97,7 @@ function ProductDetailContent({
       </Link>
 
       <section className="surface-panel overflow-hidden">
-        <div className="grid gap-4 p-3.5 sm:gap-5 sm:p-8 lg:grid-cols-[minmax(0,1.12fr)_minmax(420px,0.88fr)] lg:p-8 xl:grid-cols-[minmax(0,1.2fr)_minmax(440px,0.8fr)] xl:p-10">
+        <div className="grid gap-4 p-3.5 sm:gap-5 sm:p-8 lg:grid-cols-[minmax(0,1.05fr)_minmax(480px,0.95fr)] lg:p-8 xl:grid-cols-[minmax(0,1.08fr)_minmax(520px,0.92fr)] xl:p-10 2xl:grid-cols-[minmax(0,1.1fr)_minmax(560px,0.9fr)]">
           <div className="space-y-3">
             <ProductVisual
               seed={product.slug}
@@ -137,7 +137,7 @@ function ProductDetailContent({
             ) : null}
           </div>
 
-          <div className="space-y-4 lg:self-start lg:space-y-5">
+          <div className="space-y-4 lg:self-start lg:space-y-4 xl:space-y-5">
             <div className="space-y-3">
               <p className="eyebrow">{product.category?.name ?? 'Catálogo'}</p>
 
@@ -169,43 +169,38 @@ function ProductDetailContent({
 
             <div className="space-y-3 border-b border-white/10 pb-4">
               {product.installment_price ? (
-                <div className="flex items-start justify-between gap-4">
+                <div className="grid gap-3 sm:grid-cols-[minmax(0,0.8fr)_minmax(220px,1fr)] sm:items-start">
                   <div>
                     <p className="text-[0.65rem] font-semibold uppercase tracking-[0.18em] text-white/42">
                       Precio lista
                     </p>
-                    <p className="text-lg font-semibold text-white/82">
+                    <p className="text-lg font-semibold text-white/78">
                       {formatCurrency(product.installment_price)}
                     </p>
                   </div>
 
                   {installmentPerQuota ? (
-                    <p className="max-w-[220px] text-right text-sm font-medium leading-5 text-brand-strong">
+                    <div className="sm:text-right">
+                      <p className="text-sm font-semibold leading-5 text-brand-strong">
                       3 cuotas sin interés de {formatCurrency(installmentPerQuota)}
-                    </p>
+                      </p>
+                    </div>
                   ) : null}
                 </div>
               ) : null}
 
-              <div>
-                <div className="flex flex-wrap items-end justify-between gap-2">
-                  <div>
-                    <p className="text-[0.65rem] font-semibold uppercase tracking-[0.18em] text-white/42">
-                      Precio contado
-                    </p>
-                    <p className="text-3xl font-semibold tracking-[-0.04em] text-white sm:text-4xl">
-                      {formatCurrency(product.price)}
-                    </p>
-                  </div>
-                  <p className="text-sm font-medium text-brand-strong">
-                    con transferencia o contado
-                  </p>
-                </div>
+              <div className="space-y-1.5">
+                <p className="text-4xl font-semibold tracking-[-0.04em] text-white sm:text-5xl lg:text-[3.3rem]">
+                  {formatCurrency(product.price)}
+                </p>
+                <p className="text-sm font-medium text-brand-strong sm:text-base">
+                  con transferencia o contado
+                </p>
               </div>
             </div>
 
             {product.sizes.length > 0 ? (
-              <div className="space-y-2.5 rounded-[24px] border border-white/12 bg-white/6 p-3 sm:p-4">
+              <div className="space-y-2.5 rounded-[24px] border border-white/12 bg-white/6 p-3 sm:p-3.5">
                 <div className="space-y-1">
                   <p className="text-sm font-medium text-white">Elegí talle</p>
                   <p className="text-xs leading-5 text-white/58 sm:text-sm">
@@ -288,13 +283,13 @@ function ProductDetailContent({
               </div>
             ) : null}
 
-            <div className="space-y-3 rounded-[24px] border border-white/12 bg-white/6 p-3.5 sm:p-4">
+            <div className="space-y-2.5 rounded-[24px] border border-white/12 bg-white/6 p-3.5 sm:p-4">
               <p className="text-[0.65rem] font-semibold uppercase tracking-[0.18em] text-white/42">
                 Medios de pago
               </p>
               <div className="space-y-2 text-sm leading-6 text-white/72">
                 {installmentPerQuota ? <p>3 cuotas sin interés disponibles.</p> : null}
-                <p>Go Cuotas y CrediApp disponibles según condiciones del medio de pago.</p>
+                <p>Go Cuotas y CrediApp disponibles.</p>
                 <p>20% OFF abonando contado o transferencia.</p>
               </div>
             </div>
