@@ -133,7 +133,7 @@ function ProductDetailContent({
   }
 
   return (
-    <div className="relative w-full space-y-6 pb-24 sm:space-y-8 sm:pb-0">
+    <div className="relative w-full space-y-6 pb-32 sm:space-y-8 sm:pb-0">
       <Link
         to="/catalogo"
         className="inline-flex items-center gap-2 text-sm font-medium text-white/72 hover:text-white"
@@ -152,7 +152,7 @@ function ProductDetailContent({
           )}
         >
           {hasDesktopImageRail ? (
-            <aside className="hidden lg:sticky lg:top-36 lg:flex lg:flex-col lg:items-center lg:gap-3 lg:self-start">
+            <aside className="hidden lg:flex lg:flex-col lg:items-center lg:gap-3 lg:self-start">
               {productImages.map((image, index) => renderThumbnail(image, index, true))}
             </aside>
           ) : null}
@@ -165,7 +165,7 @@ function ProductDetailContent({
                 categoryName={product.category?.name}
                 imageUrl={selectedImage?.url}
                 imageFit="contain"
-                className="h-[300px] w-full max-w-full rounded-[24px] border border-white/8 bg-white sm:h-[460px] lg:h-[calc(100vh-230px)] lg:min-h-[620px] lg:max-h-[780px] xl:min-h-[700px] 2xl:min-h-[760px]"
+                className="h-[300px] w-full max-w-full rounded-[24px] border border-white/8 bg-white sm:h-[460px] lg:h-[calc(100vh-230px)] lg:min-h-[580px] lg:max-h-[760px] xl:min-h-[640px] 2xl:min-h-[700px]"
               />
             </div>
 
@@ -176,7 +176,7 @@ function ProductDetailContent({
             ) : null}
           </div>
 
-          <aside className="lg:sticky lg:top-36 lg:self-start">
+          <aside className="lg:self-start">
             <div className="space-y-4 lg:border-l lg:border-white/10 lg:pl-8 xl:space-y-5 xl:pl-10">
               <div className="space-y-3">
                 <p className="eyebrow">{product.category?.name ?? 'Catálogo'}</p>
@@ -224,14 +224,14 @@ function ProductDetailContent({
                         <p className="text-sm font-semibold leading-5 text-brand-strong">
                           3 cuotas sin interés de {formatCurrency(installmentPerQuota)}
                         </p>
-                        <div className="mt-2 inline-flex items-center justify-end gap-2">
+                        <div className="mt-2 inline-flex items-center justify-end gap-2.5">
                           <img
                             src={goCuotasLogo}
                             alt="Go Cuotas"
-                            className="h-5 w-auto object-contain"
+                            className="h-7 w-auto object-contain sm:h-8"
                             loading="lazy"
                           />
-                          <span className="text-xs font-semibold uppercase tracking-[0.12em] text-white/78">
+                          <span className="text-xs font-semibold uppercase tracking-[0.12em] text-white/82 sm:text-[0.8rem]">
                             SIN interés con DÉBITO
                           </span>
                         </div>
@@ -412,9 +412,17 @@ function ProductDetailContent({
               variant={isSoldOut ? 'outline' : 'secondary'}
               disabled={isSoldOut}
               onClick={handleAddToCart}
-              className="shrink-0"
+              className="h-12 shrink-0 px-4 text-sm"
             >
-              {isSoldOut ? 'Sin stock' : 'Agregar'}
+              <ShoppingBag className="h-4 w-4" />
+              {isSoldOut ? (
+                'Sin stock'
+              ) : (
+                <>
+                  <span className="hidden min-[380px]:inline">Agregar al carrito</span>
+                  <span className="min-[380px]:hidden">Agregar</span>
+                </>
+              )}
             </Button>
           </div>
         </div>
