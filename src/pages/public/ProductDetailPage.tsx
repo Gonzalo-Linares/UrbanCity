@@ -71,6 +71,16 @@ function ProductDetailContent({
   const hasDesktopImageRail = productImages.length > 1
 
   useEffect(() => {
+    if (typeof window !== 'undefined') {
+      window.scrollTo({
+        top: 0,
+        left: 0,
+        behavior: 'auto',
+      })
+    }
+  }, [product.id])
+
+  useEffect(() => {
     if (!cartFeedback) {
       return
     }
@@ -209,7 +219,7 @@ function ProductDetailContent({
 
               <div className="space-y-3 border-y border-white/10 py-4">
                 {product.installment_price ? (
-                  <div className="grid grid-cols-[minmax(0,0.7fr)_minmax(180px,1fr)] items-start gap-4">
+                  <div className="grid gap-3 sm:grid-cols-[minmax(0,0.7fr)_minmax(180px,1fr)] sm:items-start sm:gap-4">
                     <div>
                       <p className="text-[0.65rem] font-semibold uppercase tracking-[0.18em] text-white/42">
                         Precio lista
@@ -220,18 +230,18 @@ function ProductDetailContent({
                     </div>
 
                     {installmentPerQuota ? (
-                      <div className="text-right">
+                      <div className="sm:text-right">
                         <p className="text-sm font-semibold leading-5 text-brand-strong">
                           3 cuotas sin interés de {formatCurrency(installmentPerQuota)}
                         </p>
-                        <div className="mt-2 inline-flex items-center justify-end gap-2.5">
+                        <div className="mt-2 inline-flex items-center gap-2 sm:justify-end">
                           <img
                             src={goCuotasLogo}
                             alt="Go Cuotas"
-                            className="h-7 w-auto object-contain sm:h-8"
+                            className="h-6 w-auto object-contain sm:h-8"
                             loading="lazy"
                           />
-                          <span className="text-xs font-semibold uppercase tracking-[0.12em] text-white/82 sm:text-[0.8rem]">
+                          <span className="text-[0.72rem] font-semibold uppercase tracking-[0.1em] text-white/82 sm:text-[0.8rem]">
                             SIN interés con DÉBITO
                           </span>
                         </div>

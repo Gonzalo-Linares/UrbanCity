@@ -31,12 +31,12 @@ export function CartSummary({
           <span>{itemCount}</span>
         </div>
         <div className="flex items-center justify-between text-sm text-white/70">
-          <span>Estado del pedido</span>
-          <span>Pendiente de confirmación</span>
+          <span>Subtotal contado</span>
+          <span>{formatCurrency(total)}</span>
         </div>
         <div className="glass-divider bg-gradient-to-r from-transparent via-white/18 to-transparent" />
         <div className="flex items-end justify-between gap-4">
-          <span className="text-sm text-white/70">Total contado estimado</span>
+          <span className="text-sm text-white/70">Total</span>
           <span className="text-2xl font-semibold tracking-[-0.04em] sm:text-3xl">
             {formatCurrency(total)}
           </span>
@@ -44,7 +44,7 @@ export function CartSummary({
       </div>
 
       <div className="rounded-2xl border border-white/10 bg-black/20 px-4 py-3 text-sm text-white/72">
-        Precio contado publicado. Tarjeta/cuotas y precio final se confirman por WhatsApp.
+        Coordinás pago y retiro por WhatsApp.
       </div>
 
       <Link
@@ -55,10 +55,20 @@ export function CartSummary({
         <ArrowRight className="h-4 w-4" />
       </Link>
 
+      <Link
+        to="/catalogo"
+        className={cn(
+          buttonStyles({ variant: 'outline', size: 'md' }),
+          'w-full justify-center border-white/10 bg-black/20 text-white/76 hover:bg-white/8 hover:text-white',
+        )}
+      >
+        Seguir comprando
+      </Link>
+
       <Button
         type="button"
         variant="ghost"
-        className="w-full border border-white/10 bg-black/20 text-white/72 hover:bg-white/8 hover:text-white"
+        className="w-full text-white/46 hover:bg-transparent hover:text-white/68"
         onClick={onClearCart}
       >
         Vaciar carrito

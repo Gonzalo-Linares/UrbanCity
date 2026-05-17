@@ -19,6 +19,7 @@ const promoStripItems = [
   'BILLETERAS VIRTUALES CON 20% OFF',
   'PEDIDOS POR WHATSAPP',
 ]
+const promoStripLoopItems = Array.from({ length: 4 }).flatMap(() => promoStripItems)
 
 const navLinks = [
   { to: '/', label: 'Inicio' },
@@ -55,7 +56,7 @@ export function SiteHeader() {
     <header className="sticky top-0 z-40 border-b border-white/10 bg-[#050505]/96 backdrop-blur-xl">
       <div className="promo-strip-full border-b border-black/10 bg-[#b6ff00] py-2 text-[#050505]">
         <div className="promo-strip-track">
-          {[...promoStripItems, ...promoStripItems].map((item, index) => (
+          {promoStripLoopItems.map((item, index) => (
             <span
               key={`${item}-${index}`}
               className="inline-flex items-center gap-4 px-5 text-[0.68rem] font-semibold uppercase tracking-[0.28em]"

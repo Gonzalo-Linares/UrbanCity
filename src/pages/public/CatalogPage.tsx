@@ -1,5 +1,5 @@
 import { useDeferredValue, useEffect, useMemo, useRef, useState } from 'react'
-import { Link, useSearchParams } from 'react-router-dom'
+import { useSearchParams } from 'react-router-dom'
 import { ProductCard } from '@/components/product/ProductCard'
 import {
   ProductFilters,
@@ -413,12 +413,6 @@ export function CatalogPage() {
         </div>
       )}
 
-      <div className="flex flex-col items-start justify-between gap-3 border-t border-white/10 pt-2 text-sm text-white/62 sm:flex-row sm:items-center">
-        <p>Consultá disponibilidad y coordiná el pago por WhatsApp.</p>
-        <Link to="/carrito" className="font-medium text-brand-strong">
-          Ver carrito
-        </Link>
-      </div>
     </div>
   )
 }
