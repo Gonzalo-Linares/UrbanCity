@@ -1,9 +1,15 @@
 import cityLogo from '@/assets/city-logo.jpg'
-import { Search, ShoppingBag } from 'lucide-react'
+import { Search, ShoppingBag, X } from 'lucide-react'
+import { useEffect, useState } from 'react'
 import { Link, NavLink } from 'react-router-dom'
 import { SocialIcon } from '@/components/ui/SocialIcon'
 import { cn } from '@/lib/cn'
 import { useStorefrontData } from '@/hooks/useStorefrontData'
+import {
+  CART_ADDED_EVENT,
+  type CartAddedEventDetail,
+} from '@/lib/cartEvents'
+import { formatCurrency } from '@/lib/formatters'
 import { buildWhatsAppUrl } from '@/lib/whatsapp'
 import { useCartStore } from '@/store/cartStore'
 
@@ -23,9 +29,39 @@ const navLinks = [
 export function SiteHeader() {
   const { storeSettings } = useStorefrontData()
   const hasWhatsApp = Boolean(storeSettings.whatsapp_phone)
+  const [lastAddedItem, setLastAddedItem] = useState<CartAddedEventDetail | null>(null)
   const itemCount = useCartStore((state) =>
     state.items.reduce((total, item) => total + item.quantity, 0),
   )
+
+  useEffect(() => {
+    if (typeof window === 'undefined') {
+      return
+    }
+
+    function handleCartAdded(event: Event) {
+      const customEvent = event as CustomEvent<CartAddedEventDetail>
+      setLastAddedItem(customEvent.detail)
+    }
+
+    window.addEventListener(CART_ADDED_EVENT, handleCartAdded as EventListener)
+
+    return () => {
+      window.removeEventListener(CART_ADDED_EVENT, handleCartAdded as EventListener)
+    }
+  }, [])
+
+  useEffect(() => {
+    if (!lastAddedItem) {
+      return
+    }
+
+    const timeoutId = window.setTimeout(() => {
+      setLastAddedItem(null)
+    }, 4000)
+
+    return () => window.clearTimeout(timeoutId)
+  }, [lastAddedItem])
 
   return (
     <header className="sticky top-0 z-40 border-b border-white/10 bg-[#050505]/96 backdrop-blur-xl">
@@ -111,16 +147,85 @@ export function SiteHeader() {
                 <span className="hidden h-4 w-px bg-white/12 sm:block" />
               ) : null}
 
-              <Link
-                to="/carrito"
-                className="relative inline-flex h-9 min-w-[44px] items-center justify-center rounded-full border border-white/10 bg-white/6 px-2.5 text-white/82 transition hover:border-white/18 hover:bg-white/10 hover:text-white sm:h-auto sm:min-w-0 sm:gap-2 sm:rounded-none sm:border-transparent sm:bg-transparent sm:px-0 sm:text-white/72"
-              >
-                <ShoppingBag className="h-5 w-5 sm:h-4 sm:w-4" />
-                <span className="hidden text-sm font-medium sm:inline">Carrito</span>
-                <span className="absolute -right-1 -top-1 flex h-5 min-w-5 items-center justify-center rounded-full bg-brand-strong px-1.5 text-[0.65rem] font-bold text-black sm:static sm:ml-0 sm:h-5 sm:min-w-5">
-                  {itemCount}
-                </span>
-              </Link>
+              <div className="relative">
+                <Link
+                  to="/carrito"
+                  className="relative inline-flex h-9 min-w-[44px] items-center justify-center rounded-full border border-white/10 bg-white/6 px-2.5 text-white/82 transition hover:border-white/18 hover:bg-white/10 hover:text-white sm:h-auto sm:min-w-0 sm:gap-2 sm:rounded-none sm:border-transparent sm:bg-transparent sm:px-0 sm:text-white/72"
+                  onClick={() => setLastAddedItem(null)}
+                >
+                  <ShoppingBag className="h-5 w-5 sm:h-4 sm:w-4" />
+                  <span className="hidden text-sm font-medium sm:inline">Carrito</span>
+                  <span className="absolute -right-1 -top-1 flex h-5 min-w-5 items-center justify-center rounded-full bg-brand-strong px-1.5 text-[0.65rem] font-bold text-black sm:static sm:ml-0 sm:h-5 sm:min-w-5">
+                    {itemCount}
+                  </span>
+                </Link>
+
+                {lastAddedItem ? (
+                  <div className="absolute right-0 top-full z-50 mt-3 hidden w-[320px] rounded-[28px] border border-black/8 bg-[#f8f8f4] p-4 text-[#111111] shadow-[0_24px_54px_rgba(0,0,0,0.28)] md:block">
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="space-y-1">
+                        <p className="text-xs font-semibold uppercase tracking-[0.18em] text-[#111111]/48">
+                          ¡Agregado al carrito!
+                        </p>
+                        <p className="text-lg font-semibold tracking-[-0.03em] text-[#111111]">
+                          {lastAddedItem.name}
+                        </p>
+                        {lastAddedItem.sizeLabel ? (
+                          <p className="text-sm text-[#111111]/62">
+                            Talle {lastAddedItem.sizeLabel}
+                          </p>
+                        ) : null}
+                      </div>
+
+                      <button
+                        type="button"
+                        className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-black/10 text-[#111111]/60 transition hover:bg-black/5 hover:text-[#111111]"
+                        onClick={() => setLastAddedItem(null)}
+                        aria-label="Cerrar resumen del carrito"
+                      >
+                        <X className="h-4 w-4" />
+                      </button>
+                    </div>
+
+                    <div className="mt-4 flex items-center gap-3">
+                      {lastAddedItem.imageUrl ? (
+                        <div className="flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-[18px] border border-black/8 bg-white">
+                          <img
+                            src={lastAddedItem.imageUrl}
+                            alt=""
+                            aria-hidden="true"
+                            className="h-full w-full object-contain"
+                            loading="lazy"
+                          />
+                        </div>
+                      ) : (
+                        <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-[18px] border border-black/8 bg-white text-[#111111]/42">
+                          <ShoppingBag className="h-6 w-6" />
+                        </div>
+                      )}
+
+                      <div className="min-w-0 space-y-1 text-sm text-[#111111]/70">
+                        <p>
+                          {lastAddedItem.quantity} x {formatCurrency(lastAddedItem.price)}
+                        </p>
+                        <p className="font-semibold text-[#111111]">
+                          Total ({lastAddedItem.quantity}{' '}
+                          {lastAddedItem.quantity === 1 ? 'producto' : 'productos'}):{' '}
+                          {formatCurrency(lastAddedItem.price * lastAddedItem.quantity)}
+                        </p>
+                      </div>
+                    </div>
+
+                    <Link
+                      to="/carrito"
+                      className="mt-4 inline-flex h-11 w-full items-center justify-center rounded-full bg-[#111111] px-4 text-sm font-semibold text-white transition hover:bg-black"
+                      onClick={() => setLastAddedItem(null)}
+                    >
+                      Ver carrito
+                    </Link>
+                  </div>
+                ) : null}
+              </div>
             </div>
           </div>
 

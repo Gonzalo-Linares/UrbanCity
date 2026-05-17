@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/Button'
 import { buttonStyles } from '@/components/ui/buttonStyles'
 import { StatusBadge } from '@/components/ui/StatusBadge'
 import { cn } from '@/lib/cn'
+import { dispatchCartAddedEvent } from '@/lib/cartEvents'
 import { formatAvailabilityLabel, formatCurrency } from '@/lib/formatters'
 import { getDiscountPercent, getInstallmentPerQuota } from '@/lib/pricing'
 import { useCartStore } from '@/store/cartStore'
@@ -108,6 +109,13 @@ export function ProductCard({ product }: { product: StorefrontProduct }) {
 
   function handleDirectAdd() {
     addItem(product, 1, null)
+    dispatchCartAddedEvent({
+      name: product.name,
+      price: product.installment_price ?? product.price,
+      imageUrl: product.primaryImage?.url ?? product.images[0]?.url ?? null,
+      sizeLabel: null,
+      quantity: 1,
+    })
     setCartFeedback('Agregado al carrito')
   }
 
@@ -131,6 +139,13 @@ export function ProductCard({ product }: { product: StorefrontProduct }) {
     }
 
     addItem(product, 1, selectedSizeLabel)
+    dispatchCartAddedEvent({
+      name: product.name,
+      price: product.installment_price ?? product.price,
+      imageUrl: product.primaryImage?.url ?? product.images[0]?.url ?? null,
+      sizeLabel: selectedSizeLabel,
+      quantity: 1,
+    })
     closeQuickAdd()
     setSelectedSizeLabel(null)
     setCartFeedback(`Agregado al carrito · Talle ${selectedSizeLabel}`)
@@ -250,7 +265,7 @@ export function ProductCard({ product }: { product: StorefrontProduct }) {
             </div>
 
             {cartFeedback ? (
-              <div className="rounded-[18px] border border-emerald-500/18 bg-emerald-500/10 px-3 py-2.5 text-sm text-emerald-200">
+              <div className="rounded-[18px] border border-emerald-500/18 bg-emerald-500/10 px-3 py-2.5 text-sm text-emerald-200 md:hidden">
                 <div className="flex flex-wrap items-center justify-between gap-2">
                   <p>{cartFeedback}</p>
                   <Link
