@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+﻿import { useMemo, useState } from 'react'
 import { zodResolver } from '@hookform/resolvers/zod'
 import crediAppLogo from '@/assets/CrediApp_icon.png'
 import goCuotasLogo from '@/assets/GoCuotas_icon.png'
@@ -205,6 +205,13 @@ export function CheckoutPage() {
       )
 
       if (rpcError) {
+        console.error('[checkout:create_order_with_items]', {
+          message: rpcError.message,
+          details: rpcError.details,
+          hint: rpcError.hint,
+          code: rpcError.code,
+        })
+
         setSubmitError(
           rpcError.message?.toLowerCase().includes('talle')
             ? 'No pudimos confirmar el pedido. Revisá que el talle elegido siga disponible.'
@@ -280,7 +287,7 @@ export function CheckoutPage() {
         <SectionTitle
           eyebrow="Checkout"
           title="Completá tus datos y generá el pedido"
-          description="Tu pedido queda pendiente de confirmación. Coordinás disponibilidad, retiro y pago por WhatsApp."
+          description="Completá tus datos y seguí con la coordinación por WhatsApp."
           tone="light"
         />
       </section>
@@ -293,54 +300,70 @@ export function CheckoutPage() {
             </div>
           ) : null}
 
-          <div className="grid gap-4 sm:grid-cols-2">
-            <div className="rounded-[24px] border border-white/10 bg-black/20 p-4">
-              <p className="text-xs uppercase tracking-[0.22em] text-white/42">
-                Confirmación
-              </p>
-              <p className="mt-2 text-sm leading-6 text-white/74">
-                Pedido pendiente de confirmación.
-              </p>
-            </div>
-            <div className="rounded-[24px] border border-white/10 bg-black/20 p-4">
-              <p className="text-xs uppercase tracking-[0.22em] text-white/42">
-                Pago
-              </p>
-              <p className="mt-2 text-sm leading-6 text-white/74">
-                El pago se coordina con el comercio.
-              </p>
-            </div>
+          <div className="rounded-[24px] border border-white/10 bg-black/20 p-4 sm:p-5">
+            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-brand-strong/82">
+              Cómo funciona tu pedido
+            </p>
+            <ol className="mt-4 space-y-3 text-sm leading-6 text-white/74">
+              <li className="flex items-start gap-3">
+                <span className="inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-full border border-white/10 bg-white/6 text-[0.72rem] font-semibold text-white">
+                  1
+                </span>
+                <span>Generás el pedido.</span>
+              </li>
+              <li className="flex items-start gap-3">
+                <span className="inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-full border border-white/10 bg-white/6 text-[0.72rem] font-semibold text-white">
+                  2
+                </span>
+                <span>Se abre WhatsApp con el resumen.</span>
+              </li>
+              <li className="flex items-start gap-3">
+                <span className="inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-full border border-white/10 bg-white/6 text-[0.72rem] font-semibold text-white">
+                  3
+                </span>
+                <span>Confirmamos disponibilidad, talle y forma de pago.</span>
+              </li>
+            </ol>
+            <p className="mt-4 text-sm font-medium text-white/58">
+              No se realiza ningún pago online desde la web.
+            </p>
           </div>
 
-          <div className="rounded-[24px] border border-white/10 bg-black/20 p-4 text-sm leading-6 text-white/74">
-            Al generar el pedido no estás pagando online. Confirmamos
-            disponibilidad, talle, forma de pago y precio final por WhatsApp.
-          </div>
-
-          <div className="rounded-[20px] border border-white/10 bg-[#111111]/82 px-4 py-3">
-            <div className="flex flex-col gap-2.5 sm:flex-row sm:items-center sm:justify-between">
-              <p className="text-sm font-medium text-white/76">
-                También podés pagar con Go Cuotas y CrediApp.
-              </p>
-              <div className="flex flex-wrap items-center gap-2">
-                <span className="inline-flex h-9 items-center justify-center rounded-full border border-white/10 bg-white/[0.04] px-3.5">
-                  <img
-                    src={goCuotasLogo}
-                    alt="Go Cuotas"
-                    className="max-h-5 max-w-[96px] object-contain brightness-110 contrast-125"
-                    loading="lazy"
-                  />
-                </span>
-                <span className="inline-flex h-9 items-center justify-center rounded-full border border-white/10 bg-white/[0.04] px-3.5">
-                  <img
-                    src={crediAppLogo}
-                    alt="CrediApp"
-                    className="max-h-5 max-w-[96px] object-contain brightness-110 contrast-125"
-                    loading="lazy"
-                  />
-                </span>
+          <div className="rounded-[18px] border border-white/10 bg-black/15 px-4 py-3">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-[0.18em] text-white/42">
+                  Otros medios de pago
+                </p>
+                <p className="mt-1 text-sm text-white/72">
+                  Go Cuotas y CrediApp disponibles.
+                </p>
+              </div>
+              <div className="flex flex-wrap items-center gap-2.5">
+                <img
+                  src={goCuotasLogo}
+                  alt="Go Cuotas"
+                  className="max-h-6 w-auto object-contain brightness-110 contrast-125"
+                  loading="lazy"
+                />
+                <img
+                  src={crediAppLogo}
+                  alt="CrediApp"
+                  className="max-h-6 w-auto object-contain brightness-110 contrast-125"
+                  loading="lazy"
+                />
               </div>
             </div>
+          </div>
+
+          <div className="space-y-1">
+            <p className="text-xs font-semibold uppercase tracking-[0.22em] text-brand-strong/82">
+              Datos para coordinar
+            </p>
+            <p className="text-sm leading-6 text-white/60">
+              Completá tus datos y te enviamos el resumen listo para seguir por
+              WhatsApp.
+            </p>
           </div>
 
           <form
@@ -498,14 +521,19 @@ export function CheckoutPage() {
 
             <div className="space-y-3">
               <div className="flex items-center justify-between">
-                <span className="text-sm text-white/58">Total contado estimado</span>
+                <span className="text-sm text-white/58">Subtotal contado</span>
+                <span className="text-base font-semibold text-white">
+                  {formatCurrency(total)}
+                </span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-sm text-white/58">Total</span>
                 <span className="text-2xl font-semibold tracking-[-0.03em] text-white">
                   {formatCurrency(total)}
                 </span>
               </div>
               <p className="text-sm leading-6 text-white/62">
-                El precio publicado corresponde a pago contado. Tarjeta/cuotas y
-                precio final se confirman por WhatsApp.
+                Coordinamos el pago por WhatsApp.
               </p>
             </div>
           </Card>

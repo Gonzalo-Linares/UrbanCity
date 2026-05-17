@@ -1,7 +1,6 @@
-import { MapPin, Timer } from 'lucide-react'
+import { ArrowUpRight, MapPin, Timer } from 'lucide-react'
 import { Card } from '@/components/ui/Card'
 import { SocialIcon } from '@/components/ui/SocialIcon'
-import { buttonStyles } from '@/components/ui/buttonStyles'
 import { SectionTitle } from '@/components/ui/SectionTitle'
 import { useStorefrontData } from '@/hooks/useStorefrontData'
 import { buildWhatsAppUrl } from '@/lib/whatsapp'
@@ -22,6 +21,12 @@ export function ContactPage() {
   const address = normalizedAddress || fallbackAddress
   const embeddedMapUrl = fallbackEmbedUrl
   const openMapUrl = fallbackPlaceUrl
+  const whatsappUrl = hasWhatsApp
+    ? buildWhatsAppUrl(
+        storeSettings.whatsapp_phone,
+        'Hola, quiero hacer una consulta sobre el local.',
+      )
+    : null
 
   return (
     <div className="space-y-6 sm:space-y-8">
@@ -36,28 +41,16 @@ export function ContactPage() {
 
       <section className="overflow-hidden rounded-[28px] border border-white/10 bg-[#111111]">
         <div className="space-y-4 p-5 sm:p-6 lg:p-8">
-          <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-            <div className="space-y-2">
-              <p className="text-xs font-semibold uppercase tracking-[0.24em] text-brand-strong/76">
-                Ubicación
-              </p>
-              <h2 className="text-2xl font-semibold tracking-[-0.04em] text-white sm:text-3xl">
-                Encontranos en el local
-              </h2>
-              <p className="text-sm leading-6 text-white/68 sm:leading-7">
-                {address}
-              </p>
-            </div>
-
-            <a
-              href={openMapUrl}
-              target="_blank"
-              rel="noreferrer"
-              className={buttonStyles({ variant: 'outline' })}
-            >
-              <MapPin className="h-4 w-4" />
-              Abrir en Google Maps
-            </a>
+          <div className="space-y-2">
+            <p className="text-xs font-semibold uppercase tracking-[0.24em] text-brand-strong/76">
+              Ubicación
+            </p>
+            <h2 className="text-2xl font-semibold tracking-[-0.04em] text-white sm:text-3xl">
+              Encontranos en el local
+            </h2>
+            <p className="text-sm leading-6 text-white/68 sm:leading-7">
+              {address}
+            </p>
           </div>
 
           <div className="min-h-[260px] overflow-hidden rounded-[24px] border border-white/10 sm:min-h-[360px] sm:rounded-[28px]">
@@ -73,17 +66,28 @@ export function ContactPage() {
       </section>
 
       <div className="grid grid-cols-2 gap-3 xl:grid-cols-4">
-        <Card className="space-y-2.5 border border-white/10 bg-[#151515] p-4 sm:space-y-3 sm:p-5">
-          <MapPin className="h-4 w-4 text-brand-strong sm:h-5 sm:w-5" />
-          <h2 className="text-base font-semibold tracking-[-0.03em] text-white sm:text-lg">
-            Dirección
-          </h2>
-          <p className="text-xs leading-6 text-white/68 sm:text-sm sm:leading-7">
-            {address}
-          </p>
-        </Card>
+        <a
+          href={openMapUrl}
+          target="_blank"
+          rel="noreferrer"
+          className="group rounded-[24px] border border-white/10 bg-[#151515] p-4 text-left shadow-[0_18px_40px_rgba(0,0,0,0.18)] transition hover:border-white/16 hover:bg-white/[0.04] sm:p-5"
+        >
+          <div className="space-y-2.5 sm:space-y-3">
+            <MapPin className="h-4 w-4 text-brand-strong sm:h-5 sm:w-5" />
+            <h2 className="text-base font-semibold tracking-[-0.03em] text-white sm:text-lg">
+              Dirección
+            </h2>
+            <p className="text-xs leading-6 text-white/68 sm:text-sm sm:leading-7">
+              {address}
+            </p>
+            <span className="inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-[0.18em] text-brand-strong">
+              Abrir mapa
+              <ArrowUpRight className="h-3.5 w-3.5 transition group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+            </span>
+          </div>
+        </a>
 
-        <Card className="space-y-2.5 border border-white/10 bg-[#151515] p-4 sm:space-y-3 sm:p-5">
+        <Card className="space-y-2.5 border border-white/10 bg-[#151515] p-4 shadow-[0_18px_40px_rgba(0,0,0,0.18)] sm:space-y-3 sm:p-5">
           <Timer className="h-4 w-4 text-brand-strong sm:h-5 sm:w-5" />
           <h2 className="text-base font-semibold tracking-[-0.03em] text-white sm:text-lg">
             Horarios
@@ -93,65 +97,50 @@ export function ContactPage() {
           </p>
         </Card>
 
-        <Card className="space-y-2.5 border border-white/10 bg-[#151515] p-4 sm:space-y-3 sm:p-5">
-          <SocialIcon type="instagram" className="h-4 w-4 sm:h-5 sm:w-5" />
-          <h2 className="text-base font-semibold tracking-[-0.03em] text-white sm:text-lg">
-            Instagram
-          </h2>
-          <p className="text-xs leading-6 text-white/68 sm:text-sm sm:leading-7">
-            Novedades y modelos.
-          </p>
-        </Card>
+        <a
+          href={instagramUrl}
+          target="_blank"
+          rel="noreferrer"
+          className="group rounded-[24px] border border-white/10 bg-[#151515] p-4 text-left shadow-[0_18px_40px_rgba(0,0,0,0.18)] transition hover:border-white/16 hover:bg-white/[0.04] sm:p-5"
+        >
+          <div className="space-y-2.5 sm:space-y-3">
+            <SocialIcon type="instagram" className="h-4 w-4 sm:h-5 sm:w-5" />
+            <h2 className="text-base font-semibold tracking-[-0.03em] text-white sm:text-lg">
+              Instagram
+            </h2>
+            <p className="text-xs leading-6 text-white/68 sm:text-sm sm:leading-7">
+              Novedades, ingresos y promos del local.
+            </p>
+            <span className="inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-[0.18em] text-brand-strong">
+              Ver perfil
+              <ArrowUpRight className="h-3.5 w-3.5 transition group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+            </span>
+          </div>
+        </a>
 
-        <Card className="space-y-2.5 border border-white/10 bg-[#151515] p-4 sm:space-y-3 sm:p-5">
-          <SocialIcon type="whatsapp" className="h-4 w-4 sm:h-5 sm:w-5" />
-          <h2 className="text-base font-semibold tracking-[-0.03em] text-white sm:text-lg">
-            WhatsApp
-          </h2>
-          <p className="text-xs leading-6 text-white/68 sm:text-sm sm:leading-7">
-            Consultas del local.
-          </p>
-        </Card>
+        {hasWhatsApp && whatsappUrl ? (
+          <a
+            href={whatsappUrl}
+            target="_blank"
+            rel="noreferrer"
+            className="group rounded-[24px] border border-white/10 bg-[#151515] p-4 text-left shadow-[0_18px_40px_rgba(0,0,0,0.18)] transition hover:border-white/16 hover:bg-white/[0.04] sm:p-5"
+          >
+            <div className="space-y-2.5 sm:space-y-3">
+              <SocialIcon type="whatsapp" className="h-4 w-4 sm:h-5 sm:w-5" />
+              <h2 className="text-base font-semibold tracking-[-0.03em] text-white sm:text-lg">
+                WhatsApp
+              </h2>
+              <p className="text-xs leading-6 text-white/68 sm:text-sm sm:leading-7">
+                Consultas rápidas, disponibilidad y coordinación.
+              </p>
+              <span className="inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-[0.18em] text-brand-strong">
+                Escribir ahora
+                <ArrowUpRight className="h-3.5 w-3.5 transition group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+              </span>
+            </div>
+          </a>
+        ) : null}
       </div>
-
-      <Card className="border border-white/10 bg-[#151515] p-4 text-white shadow-none sm:p-6">
-        <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap">
-          <a
-            href={openMapUrl}
-            target="_blank"
-            rel="noreferrer"
-            className={`${buttonStyles({ variant: 'outline' })} w-full justify-center sm:w-auto`}
-          >
-            <MapPin className="h-4 w-4" />
-            Abrir Google Maps
-          </a>
-
-          <a
-            href={instagramUrl}
-            target="_blank"
-            rel="noreferrer"
-            className={`${buttonStyles({ variant: 'outline' })} w-full justify-center sm:w-auto`}
-          >
-            <SocialIcon type="instagram" className="h-4 w-4" />
-            Ir a Instagram
-          </a>
-
-          {hasWhatsApp ? (
-            <a
-              href={buildWhatsAppUrl(
-                storeSettings.whatsapp_phone,
-                'Hola, quiero hacer una consulta sobre el local.',
-              )}
-              target="_blank"
-              rel="noreferrer"
-              className={`${buttonStyles({ variant: 'whatsapp' })} w-full justify-center sm:w-auto`}
-            >
-              <SocialIcon type="whatsapp" className="h-4 w-4" />
-              Escribir WhatsApp
-            </a>
-          ) : null}
-        </div>
-      </Card>
     </div>
   )
 }

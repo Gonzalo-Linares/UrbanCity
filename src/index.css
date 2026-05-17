@@ -127,7 +127,8 @@
   .promo-strip-track {
     display: flex;
     width: max-content;
-    animation: marquee 22s linear infinite;
+    min-width: max-content;
+    animation: marquee 28s linear infinite;
   }
 
   .promo-strip-full:hover .promo-strip-track {
@@ -146,7 +147,10 @@
   }
 
   .featured-products-track {
-    animation: featuredProductsMarquee 30s linear infinite;
+    display: flex;
+    width: max-content;
+    min-width: max-content;
+    animation: featuredProductsMarquee 34s linear infinite;
     will-change: transform;
   }
 
@@ -162,7 +166,7 @@
   }
 
   to {
-    transform: translateX(-50%);
+    transform: translateX(-25%);
   }
 }
 
@@ -172,7 +176,7 @@
   }
 
   to {
-    transform: translateX(-50%);
+    transform: translateX(-25%);
   }
 }
 

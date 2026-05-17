@@ -114,14 +114,9 @@ const instagramShowcaseItems = [
     alt: 'Promoción de 3 cuotas sin interés',
   },
   {
-    label: 'Sneakers urbanos',
+    label: 'Nuevos pares',
     image: zapatillas1Image,
-    alt: 'Modelos de sneakers urbanos disponibles',
-  },
-  {
-    label: 'Disponibles en tienda',
-    image: zapatillas2Image,
-    alt: 'Modelos disponibles en tienda City Calzado Urbano',
+    alt: 'Nuevos pares de zapatillas urbanas en City Calzado Urbano',
   },
 ]
 
@@ -132,10 +127,24 @@ export function HomePage() {
   const [isHeroPaused, setIsHeroPaused] = useState(false)
 
   const featuredProducts = products.filter((product) => product.featured)
-  const featuredCarouselProducts =
-    featuredProducts.length > 1
-      ? [...featuredProducts, ...featuredProducts]
-      : featuredProducts
+  const featuredBaseProducts =
+    featuredProducts.length >= 4
+      ? featuredProducts
+      : featuredProducts.length > 0
+        ? [
+            ...featuredProducts,
+            ...products
+              .filter(
+                (product) =>
+                  !featuredProducts.some((featured) => featured.id === product.id),
+              )
+              .slice(0, Math.max(0, 8 - featuredProducts.length)),
+          ]
+        : products.slice(0, 8)
+  const featuredLoopProducts =
+    featuredBaseProducts.length > 0
+      ? Array.from({ length: 4 }).flatMap(() => featuredBaseProducts)
+      : []
   const singleFeaturedProduct = featuredProducts[0] ?? null
   const heroSlides =
     homeHeroSlides.length > 0
@@ -303,43 +312,51 @@ export function HomePage() {
       </section>
 
       <section className="space-y-6">
-        <SectionTitle
-          eyebrow="Destacados"
-          title="Modelos destacados"
-          description="Elegí tu próximo par y descubrí los modelos disponibles."
-          tone="light"
-        />
+        <section className="relative left-1/2 w-screen -translate-x-1/2 overflow-hidden bg-[#050505] py-1">
+          <div className="mx-auto w-full max-w-[1800px] px-4 sm:px-6 lg:px-8">
+            <SectionTitle
+              eyebrow="Destacados"
+              title="Modelos destacados"
+              description="Elegí tu próximo par y descubrí los modelos disponibles."
+              tone="light"
+            />
+          </div>
 
-        {featuredProducts.length > 1 ? (
-          <div className="relative overflow-hidden">
-            <div className="overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-              <div className="featured-products-track flex w-max gap-3 sm:gap-4">
-                {featuredCarouselProducts.map((product, index) => (
+          {featuredLoopProducts.length > 0 ? (
+            <div className="relative mt-6 overflow-hidden">
+              <div className="pointer-events-none absolute inset-y-0 left-0 z-10 w-8 bg-gradient-to-r from-[#050505] to-transparent sm:w-12 lg:w-16" />
+              <div className="pointer-events-none absolute inset-y-0 right-0 z-10 w-8 bg-gradient-to-l from-[#050505] to-transparent sm:w-12 lg:w-16" />
+              <div className="featured-products-track flex w-max min-w-max gap-3 sm:gap-4">
+                {featuredLoopProducts.map((product, index) => (
                   <div
                     key={`${product.id}-${index}`}
-                    className="w-[46vw] shrink-0 sm:w-[260px] md:w-[280px] lg:w-[300px]"
+                    className="w-[78vw] shrink-0 sm:w-[260px] md:w-[280px] lg:w-[300px] xl:w-[320px]"
                   >
                     <ProductCard product={product} />
                   </div>
                 ))}
               </div>
             </div>
-          </div>
-        ) : singleFeaturedProduct ? (
-          <div className="max-w-[320px]">
-            <ProductCard product={singleFeaturedProduct} />
-          </div>
-        ) : (
-          <EmptyState
-            title="Todavía no hay modelos destacados"
-            description="En cuanto haya productos publicados, los vas a ver acá primero."
-            action={
-              <Link to="/catalogo" className="text-sm font-medium text-brand-strong">
-                Ver catálogo
-              </Link>
-            }
-          />
-        )}
+          ) : singleFeaturedProduct ? (
+            <div className="mx-auto mt-6 w-full max-w-[1800px] px-4 sm:px-6 lg:px-8">
+              <div className="max-w-[320px]">
+                <ProductCard product={singleFeaturedProduct} />
+              </div>
+            </div>
+          ) : (
+            <div className="mx-auto mt-6 w-full max-w-[1800px] px-4 sm:px-6 lg:px-8">
+              <EmptyState
+                title="Todavía no hay modelos destacados"
+                description="En cuanto haya productos publicados, los vas a ver acá primero."
+                action={
+                  <Link to="/catalogo" className="text-sm font-medium text-brand-strong">
+                    Ver catálogo
+                  </Link>
+                }
+              />
+            </div>
+          )}
+        </section>
       </section>
 
       <section className="grid grid-cols-2 items-stretch gap-2 md:grid-cols-4 md:gap-4">
@@ -363,7 +380,7 @@ export function HomePage() {
                 {item.title}
               </h3>
               {isPaymentAppsCard ? (
-                <div className="mt-2.5 flex w-full items-center justify-center gap-4 md:mt-3 md:gap-20">
+                <div className="mt-2.5 flex w-full items-center justify-center gap-4 md:mt-3 md:gap-6">
                   {logos.map((logo) => (
                     <img
                       key={logo.name}
@@ -390,59 +407,87 @@ export function HomePage() {
         })}
       </section>
 
-      <section className="grid gap-5 lg:grid-cols-[0.86fr_1.14fr] lg:gap-6">
-        <div className="rounded-[28px] border border-white/10 bg-[#151515] p-5 shadow-[0_28px_60px_rgba(0,0,0,0.24)] sm:rounded-[32px] sm:p-8">
-          <p className="eyebrow">Instagram</p>
-          <div className="mt-4 space-y-3 sm:mt-5 sm:space-y-4">
-            <h2 className="text-2xl font-semibold tracking-[-0.04em] text-white sm:text-4xl">
-              Seguinos en Instagram
-            </h2>
-            <p className="max-w-lg text-sm leading-6 text-white/68 sm:leading-7">
-              Mirá nuevos ingresos, promos, talles disponibles y modelos que van
-              entrando al local.
-            </p>
-          </div>
-
-          <div className="mt-5 sm:mt-6">
-            <a
-              href={instagramUrl}
-              target="_blank"
-              rel="noreferrer"
-              className={buttonStyles({ variant: 'outline', size: 'lg' })}
-            >
-              <SocialIcon type="instagram" className="h-4 w-4" />
-              Ver Instagram
-            </a>
-          </div>
-        </div>
-
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-2 lg:grid-cols-3">
-          {instagramShowcaseItems.map((item) => (
-            <a
-              key={item.label}
-              href={instagramUrl}
-              target="_blank"
-              rel="noreferrer"
-              className="group relative min-h-[150px] overflow-hidden rounded-[22px] border border-white/10 bg-[#111111] shadow-[0_22px_50px_rgba(0,0,0,0.2)] sm:min-h-[220px] sm:rounded-[28px]"
-            >
-              <img
-                src={item.image}
-                alt={item.alt}
-                className="h-full w-full object-cover transition duration-300 group-hover:scale-[1.03]"
-              />
-              <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(5,5,5,0.12),rgba(5,5,5,0.72))]" />
-              <div className="absolute inset-x-0 top-0 flex justify-start p-3 sm:p-4">
-                <span className="rounded-full border border-white/12 bg-black/45 px-2.5 py-1 text-[0.58rem] font-semibold uppercase tracking-[0.18em] text-white sm:px-3 sm:text-[0.68rem]">
-                  {item.label}
-                </span>
-              </div>
-              <div className="absolute inset-x-0 bottom-0 p-3 sm:p-4">
-                <p className="text-xs font-medium text-white/90 sm:text-sm">
-                  @citycalzadourbano
+      <section className="relative left-1/2 w-screen -translate-x-1/2 overflow-hidden border-y border-white/10 bg-[#080808]">
+        <div className="mx-auto w-full max-w-[1800px] px-4 py-10 sm:px-6 lg:px-8 lg:py-14">
+          <div className="min-w-0 space-y-4 lg:flex lg:items-end lg:justify-between lg:gap-8 lg:space-y-0">
+            <div className="min-w-0 space-y-3">
+              <p className="eyebrow">Instagram</p>
+              <div className="min-w-0 space-y-2">
+                <h2 className="text-2xl font-semibold tracking-[-0.04em] text-white sm:text-4xl">
+                  Seguinos en Instagram
+                </h2>
+                <p className="max-w-[54ch] text-sm leading-6 text-white/68 sm:text-base sm:leading-7">
+                  Mirá nuevos ingresos, promos del local y una selección más
+                  editorial del universo CITY.
                 </p>
               </div>
-            </a>
-          ))}
+            </div>
+
+            <div className="flex min-w-0 flex-wrap items-center gap-3">
+              <a
+                href={instagramUrl}
+                target="_blank"
+                rel="noreferrer"
+                className={buttonStyles({ variant: 'outline', size: 'lg' })}
+              >
+                <SocialIcon type="instagram" className="h-4 w-4" />
+                Ver Instagram
+              </a>
+              <span className="truncate text-sm text-white/42">
+                @citycalzadourbano
+              </span>
+            </div>
+          </div>
+
+          <div className="mt-6 overflow-x-auto pb-2 [scrollbar-width:none] lg:hidden [&::-webkit-scrollbar]:hidden">
+            <div className="flex gap-3">
+              {instagramShowcaseItems.map((item, index) => (
+                <a
+                  key={`${item.alt}-${index}`}
+                  href={instagramUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="group relative h-[200px] w-[66vw] max-w-[240px] shrink-0 overflow-hidden rounded-[22px] border border-white/10 bg-[#111111]"
+                >
+                  <img
+                    src={item.image}
+                    alt={item.alt}
+                    className="h-full w-full object-contain transition duration-300 group-hover:scale-[1.02]"
+                  />
+                  <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(5,5,5,0.06),rgba(5,5,5,0.42)_54%,rgba(5,5,5,0.82)_100%)]" />
+                  <div className="absolute inset-x-0 top-0 p-4">
+                    <span className="inline-flex rounded-full border border-white/12 bg-black/36 px-2.5 py-1 text-[0.58rem] font-semibold uppercase tracking-[0.18em] text-white">
+                      {item.label}
+                    </span>
+                  </div>
+                </a>
+              ))}
+            </div>
+          </div>
+
+          <div className="mt-6 hidden grid-cols-5 gap-3 lg:grid">
+            {instagramShowcaseItems.map((item, index) => (
+              <a
+                key={`${item.alt}-${index}`}
+                href={instagramUrl}
+                target="_blank"
+                rel="noreferrer"
+                className="group relative h-[220px] min-w-0 overflow-hidden rounded-[22px] border border-white/10 bg-[#111111] xl:h-[240px] 2xl:h-[260px]"
+              >
+                <img
+                  src={item.image}
+                  alt={item.alt}
+                  className="h-full w-full object-contain transition duration-300 group-hover:scale-[1.02]"
+                />
+                <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(5,5,5,0.04),rgba(5,5,5,0.28)_48%,rgba(5,5,5,0.72)_100%)]" />
+                <div className="absolute inset-x-0 top-0 p-4">
+                  <span className="inline-flex rounded-full border border-white/12 bg-black/36 px-2.5 py-1 text-[0.58rem] font-semibold uppercase tracking-[0.18em] text-white">
+                    {item.label}
+                  </span>
+                </div>
+              </a>
+            ))}
+          </div>
         </div>
       </section>
     </div>

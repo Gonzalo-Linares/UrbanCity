@@ -1,13 +1,10 @@
 import cityLogo from '@/assets/city-logo.jpg'
 import { MapPin } from 'lucide-react'
 import { Link } from 'react-router-dom'
-import { SocialIcon } from '@/components/ui/SocialIcon'
 import { useStorefrontData } from '@/hooks/useStorefrontData'
-import { buildWhatsAppUrl } from '@/lib/whatsapp'
 
 export function SiteFooter() {
   const { storeSettings } = useStorefrontData()
-  const hasWhatsApp = Boolean(storeSettings.whatsapp_phone)
 
   return (
     <footer className="mt-10 border-t border-white/10 bg-[#050505]">
@@ -23,7 +20,7 @@ export function SiteFooter() {
               <p className="text-sm font-semibold tracking-[-0.03em] text-white sm:text-base">
                 {storeSettings.store_name || 'City Calzado Urbano'}
               </p>
-              <p className="text-xs text-white/54">Sneakers y calzado urbano</p>
+              <p className="text-xs text-white/54">Galería Provincial · San Juan</p>
             </div>
           </div>
 
@@ -43,31 +40,6 @@ export function SiteFooter() {
           </div>
 
           <div className="flex flex-wrap gap-x-4 gap-y-2 text-sm text-white/66 md:justify-end">
-            {hasWhatsApp ? (
-              <a
-                href={buildWhatsAppUrl(
-                  storeSettings.whatsapp_phone,
-                  'Hola, quiero hacer una consulta.',
-                )}
-                target="_blank"
-                rel="noreferrer"
-                className="inline-flex items-center gap-2 hover:text-white"
-              >
-                <SocialIcon type="whatsapp" className="h-4 w-4" />
-                WhatsApp
-              </a>
-            ) : null}
-            {storeSettings.instagram_url ? (
-              <a
-                href={storeSettings.instagram_url}
-                target="_blank"
-                rel="noreferrer"
-                className="inline-flex items-center gap-2 hover:text-white"
-              >
-                <SocialIcon type="instagram" className="h-4 w-4" />
-                Instagram
-              </a>
-            ) : null}
             {storeSettings.address ? (
               <span className="inline-flex items-center gap-2">
                 <MapPin className="h-4 w-4 text-brand-strong" />
@@ -78,7 +50,7 @@ export function SiteFooter() {
         </div>
 
         <div className="mt-4 border-t border-white/10 pt-3 text-center text-xs text-white/50">
-          {'Pedidos por WhatsApp \u00b7 Retiro coordinado \u00b7 City Calzado Urbano'}
+          {'City Calzado Urbano \u00b7 Galería Provincial \u00b7 San Juan'}
         </div>
       </div>
     </footer>
