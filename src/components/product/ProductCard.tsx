@@ -165,16 +165,19 @@ export function ProductCard({ product }: { product: StorefrontProduct }) {
               categoryName={product.category?.name}
               imageUrl={primaryImageUrl}
               imageFit="contain"
-              className="aspect-square rounded-[18px] border border-white/8 bg-white sm:aspect-[4/4.5] sm:rounded-[24px]"
+              imageScale="fill"
+              className="aspect-square rounded-[18px] border border-white/8 bg-[#101010] sm:aspect-square sm:rounded-[24px]"
             />
 
             {hoverImageUrl ? (
-              <img
-                src={hoverImageUrl}
-                alt=""
-                aria-hidden="true"
-                className="pointer-events-none absolute inset-0 z-10 hidden h-full w-full rounded-[18px] bg-white object-contain opacity-0 transition-opacity duration-300 md:block md:group-hover:opacity-100 sm:rounded-[24px]"
-                loading="lazy"
+              <ProductVisual
+                seed={`${product.slug}-hover`}
+                name={product.name}
+                categoryName={product.category?.name}
+                imageUrl={hoverImageUrl}
+                imageFit="contain"
+                imageScale="fill"
+                className="pointer-events-none absolute inset-0 z-10 hidden rounded-[18px] opacity-0 transition-opacity duration-300 md:block md:group-hover:opacity-100 sm:rounded-[24px]"
               />
             ) : null}
           </div>
