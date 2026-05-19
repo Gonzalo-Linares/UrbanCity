@@ -165,10 +165,15 @@ function ProductDetailContent({
         onClick={() => setSelectedImageIndex(index)}
         aria-label={`Ver foto ${index + 1} de producto`}
       >
-        <img
-          src={image.url}
-          alt={image.alt ?? `${product.name} foto ${index + 1}`}
-          className="h-full w-full bg-white object-contain"
+        <ProductVisual
+          seed={`${product.slug}-thumb-${index}`}
+          name={image.alt ?? `${product.name} foto ${index + 1}`}
+          categoryName={product.category?.name}
+          imageUrl={image.url}
+          imageFit="contain"
+          visualStyle="compact"
+          imageScale="fill"
+          className="h-full w-full rounded-[18px] bg-[#101010]"
         />
       </button>
     )
@@ -209,7 +214,8 @@ function ProductDetailContent({
                 categoryName={product.category?.name}
                 imageUrl={selectedImage?.url}
                 imageFit="contain"
-                className="h-[300px] w-full max-w-full rounded-[24px] border border-white/8 bg-white sm:h-[460px] lg:h-[calc(100vh-230px)] lg:min-h-[580px] lg:max-h-[760px] xl:min-h-[640px] 2xl:min-h-[700px]"
+                imageScale="large"
+                className="h-[300px] w-full max-w-full rounded-[24px] border border-white/8 bg-[#101010] sm:h-[460px] lg:h-[calc(100vh-230px)] lg:min-h-[580px] lg:max-h-[760px] xl:min-h-[640px] 2xl:min-h-[700px]"
               />
             </div>
 

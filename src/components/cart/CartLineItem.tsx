@@ -36,7 +36,9 @@ export function CartLineItem({ item }: { item: CartItem }) {
             name={item.name}
             imageUrl={item.imageUrl}
             imageFit="contain"
-            className="h-full w-full rounded-[20px]"
+            visualStyle="compact"
+            imageScale="normal"
+            className="h-full w-full rounded-[20px] bg-[#101010]"
           />
         </Link>
 
