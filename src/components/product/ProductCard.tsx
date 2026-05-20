@@ -177,6 +177,7 @@ export function ProductCard({ product }: { product: StorefrontProduct }) {
                 imageUrl={hoverImageUrl}
                 imageFit="contain"
                 imageScale="fill"
+                imageFetchPriority="low"
                 className="pointer-events-none absolute inset-0 z-10 hidden rounded-[18px] opacity-0 transition-opacity duration-300 md:block md:group-hover:opacity-100 sm:rounded-[24px]"
               />
             ) : null}

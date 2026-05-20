@@ -17,6 +17,8 @@ interface ProductVisualProps {
   imageFit?: 'cover' | 'contain'
   visualStyle?: 'stage' | 'compact'
   imageScale?: 'normal' | 'large' | 'fill'
+  imageLoading?: 'lazy' | 'eager'
+  imageFetchPriority?: 'auto' | 'high' | 'low'
 }
 
 function hashSeed(seed: string) {
@@ -34,6 +36,8 @@ export function ProductVisual({
   imageFit = 'cover',
   visualStyle = 'stage',
   imageScale = 'normal',
+  imageLoading = 'lazy',
+  imageFetchPriority = 'auto',
 }: ProductVisualProps) {
   if (imageUrl && /^(https?:\/\/|\/)/.test(imageUrl)) {
     const isContain = imageFit === 'contain'
@@ -68,6 +72,7 @@ export function ProductVisual({
               : 'scale-110 opacity-[0.18] blur-2xl',
           )}
           loading="lazy"
+          fetchPriority="low"
           decoding="async"
         />
         <div
@@ -91,7 +96,8 @@ export function ProductVisual({
         <img
           src={imageUrl}
           alt={name}
-          loading="lazy"
+          loading={imageLoading}
+          fetchPriority={imageFetchPriority}
           decoding="async"
           className={cn(
             'relative z-10 h-full w-full transform-gpu',
@@ -122,7 +128,11 @@ export function ProductVisual({
       <img
         src={cityLogo}
         alt=""
+        aria-hidden="true"
         className="pointer-events-none absolute -right-10 -bottom-10 h-40 w-40 rounded-full opacity-[0.08] grayscale"
+        loading="lazy"
+        fetchPriority="low"
+        decoding="async"
       />
       <div className="absolute inset-x-0 top-0 flex items-start justify-between p-4 text-[0.68rem] uppercase tracking-[0.22em] text-white/64">
         <span>{categoryName ?? 'Seleccion'}</span>
