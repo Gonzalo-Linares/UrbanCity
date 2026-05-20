@@ -161,6 +161,16 @@ export function HomePage() {
     storeSettings.instagram_url?.trim() ||
     'https://www.instagram.com/citycalzadourbano/'
   const slideCount = heroSlides.length
+  const getHeroImageLoading = (index: number) =>
+    index === 0
+      ? {
+          loading: 'eager' as const,
+          fetchPriority: 'high' as const,
+        }
+      : {
+          loading: 'lazy' as const,
+          fetchPriority: 'low' as const,
+        }
 
   useEffect(() => {
     if (slideCount <= 1 || isHeroPaused) {
@@ -218,6 +228,8 @@ export function HomePage() {
                       <img
                         src={slide.image}
                         alt={slide.imageAlt}
+                        {...getHeroImageLoading(index)}
+                        decoding="async"
                         className="h-full w-full object-cover object-center"
                       />
                     </div>
@@ -264,6 +276,8 @@ export function HomePage() {
                       <img
                         src={slide.image}
                         alt={slide.imageAlt}
+                        {...getHeroImageLoading(index)}
+                        decoding="async"
                         className="h-[360px] w-full object-cover object-center lg:h-[500px]"
                       />
                       <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(5,5,5,0.08),rgba(5,5,5,0.18)_42%,rgba(5,5,5,0.64)_100%)]" />
@@ -452,6 +466,9 @@ export function HomePage() {
                   <img
                     src={item.image}
                     alt={item.alt}
+                    loading="lazy"
+                    fetchPriority="low"
+                    decoding="async"
                     className="h-full w-full object-contain transition duration-300 group-hover:scale-[1.02]"
                   />
                   <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(5,5,5,0.06),rgba(5,5,5,0.42)_54%,rgba(5,5,5,0.82)_100%)]" />
@@ -477,6 +494,9 @@ export function HomePage() {
                 <img
                   src={item.image}
                   alt={item.alt}
+                  loading="lazy"
+                  fetchPriority="low"
+                  decoding="async"
                   className="h-full w-full object-contain transition duration-300 group-hover:scale-[1.02]"
                 />
                 <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(5,5,5,0.04),rgba(5,5,5,0.28)_48%,rgba(5,5,5,0.72)_100%)]" />

@@ -173,6 +173,7 @@ function ProductDetailContent({
           imageFit="contain"
           visualStyle="compact"
           imageScale="fill"
+          imageFetchPriority="low"
           className="h-full w-full rounded-[18px] bg-[#101010]"
         />
       </button>
@@ -215,6 +216,8 @@ function ProductDetailContent({
                 imageUrl={selectedImage?.url}
                 imageFit="contain"
                 imageScale="large"
+                imageLoading="eager"
+                imageFetchPriority={safeSelectedImageIndex === 0 ? 'high' : 'auto'}
                 className="h-[300px] w-full max-w-full rounded-[24px] border border-white/8 bg-[#101010] sm:h-[460px] lg:h-[calc(100vh-230px)] lg:min-h-[580px] lg:max-h-[760px] xl:min-h-[640px] 2xl:min-h-[700px]"
               />
             </div>
