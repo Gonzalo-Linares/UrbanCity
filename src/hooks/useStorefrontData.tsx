@@ -35,7 +35,11 @@ interface StorefrontContextValue {
   refresh: () => void
 }
 
+type StorefrontValue = Omit<StorefrontContextValue, 'refresh'>
+
 const StorefrontContext = createContext<StorefrontContextValue | null>(null)
+const STOREFRONT_CACHE_KEY = 'urban-city-storefront-cache-v1'
+const STOREFRONT_CACHE_TTL_MS = 5 * 60 * 1000
 
 const emptyStoreSettings: StoreSettingsRow = {
   id: '',
@@ -49,20 +53,127 @@ const emptyStoreSettings: StoreSettingsRow = {
   updated_at: '',
 }
 
+interface StorefrontCacheEntry {
+  cachedAt: number
+  data: StorefrontValue
+}
+
+function clearStorefrontCache() {
+  if (typeof window === 'undefined') {
+    return
+  }
+
+  try {
+    window.localStorage.removeItem(STOREFRONT_CACHE_KEY)
+  } catch {
+    // Storage can be unavailable in private browsing or hardened browsers.
+  }
+}
+
+function isCachedStorefrontValue(value: unknown): value is StorefrontValue {
+  if (!value || typeof value !== 'object') {
+    return false
+  }
+
+  const candidate = value as Partial<StorefrontValue>
+
+  return (
+    Array.isArray(candidate.categories) &&
+    Array.isArray(candidate.homeHeroSlides) &&
+    Array.isArray(candidate.products) &&
+    Boolean(candidate.storeSettings) &&
+    typeof candidate.storeSettings === 'object' &&
+    candidate.source === 'supabase' &&
+    candidate.loading === false &&
+    candidate.error === null
+  )
+}
+
+function readStorefrontCache() {
+  if (typeof window === 'undefined') {
+    return null
+  }
+
+  try {
+    const rawCache = window.localStorage.getItem(STOREFRONT_CACHE_KEY)
+
+    if (!rawCache) {
+      return null
+    }
+
+    const parsedCache = JSON.parse(rawCache) as Partial<StorefrontCacheEntry>
+    const cacheAge = Date.now() - (parsedCache.cachedAt ?? 0)
+
+    if (
+      typeof parsedCache.cachedAt !== 'number' ||
+      cacheAge < 0 ||
+      cacheAge > STOREFRONT_CACHE_TTL_MS ||
+      !isCachedStorefrontValue(parsedCache.data)
+    ) {
+      clearStorefrontCache()
+      return null
+    }
+
+    return parsedCache.data
+  } catch {
+    clearStorefrontCache()
+    return null
+  }
+}
+
+function writeStorefrontCache(data: StorefrontValue) {
+  if (
+    typeof window === 'undefined' ||
+    data.source !== 'supabase' ||
+    data.loading ||
+    data.error
+  ) {
+    return
+  }
+
+  try {
+    const cacheEntry: StorefrontCacheEntry = {
+      cachedAt: Date.now(),
+      data,
+    }
+
+    window.localStorage.setItem(STOREFRONT_CACHE_KEY, JSON.stringify(cacheEntry))
+  } catch {
+    // Cache failures must not block rendering fresh public data.
+  }
+}
+
 function hydrateProducts(
   products: ProductRow[],
   categories: CategoryRow[],
   images: ProductImageRow[],
   sizes: ProductSizeRow[],
 ) {
+  const categoryById = new Map(categories.map((category) => [category.id, category]))
+  const imagesByProductId = new Map<string, ProductImageRow[]>()
+  const sizesByProductId = new Map<string, ProductSizeRow[]>()
+
+  images.forEach((image) => {
+    const productImages = imagesByProductId.get(image.product_id) ?? []
+    productImages.push(image)
+    imagesByProductId.set(image.product_id, productImages)
+  })
+
+  sizes.forEach((size) => {
+    const productSizes = sizesByProductId.get(size.product_id) ?? []
+    productSizes.push(size)
+    sizesByProductId.set(size.product_id, productSizes)
+  })
+
   return products.map<StorefrontProduct>((product) => {
-    const productImages = images.filter((image) => image.product_id === product.id)
-    const productSizes = sizes.filter((size) => size.product_id === product.id)
+    const productImages = imagesByProductId.get(product.id) ?? []
+    const productSizes = sizesByProductId.get(product.id) ?? []
 
     return {
       ...product,
-      category:
-        categories.find((category) => category.id === product.category_id) ?? null,
+      category: product.category_id
+        ? categoryById.get(product.category_id) ?? null
+        : null,
       images: productImages,
       primaryImage: productImages[0] ?? null,
       sizes: productSizes,
@@ -85,27 +196,56 @@ function applyCatalogSlots(
   }))
 }
 
+function createMockStorefrontValue(): StorefrontValue {
+  return {
+    categories: mockCategories,
+    homeHeroSlides: [],
+    products: applyCatalogSlots(
+      hydrateProducts(
+        mockProducts,
+        mockCategories,
+        mockProductImages,
+        mockProductSizes,
+      ),
+      [],
+    ),
+    storeSettings: mockStoreSettings,
+    source: 'mock',
+    loading: false,
+    error: null,
+  }
+}
+
+function createInitialStorefrontValue(): StorefrontValue {
+  if (!isSupabaseConfigured) {
+    return createMockStorefrontValue()
+  }
+
+  return (
+    readStorefrontCache() ?? {
+      categories: [],
+      homeHeroSlides: [],
+      products: [],
+      storeSettings: emptyStoreSettings,
+      source: 'supabase',
+      loading: true,
+      error: null,
+    }
+  )
+}
+
+function hasVisibleStorefrontData(value: StorefrontValue) {
+  return (
+    value.products.length > 0 ||
+    value.categories.length > 0 ||
+    value.homeHeroSlides.length > 0 ||
+    Boolean(value.storeSettings.id)
+  )
+}
+
 export function StorefrontDataProvider({ children }: PropsWithChildren) {
   const [reloadKey, setReloadKey] = useState(0)
-  const [value, setValue] = useState<Omit<StorefrontContextValue, 'refresh'>>({
-    categories: isSupabaseConfigured ? [] : mockCategories,
-    homeHeroSlides: [],
-    products: isSupabaseConfigured
-      ? []
-      : applyCatalogSlots(
-          hydrateProducts(
-            mockProducts,
-            mockCategories,
-            mockProductImages,
-            mockProductSizes,
-          ),
-          [],
-        ),
-    storeSettings: isSupabaseConfigured ? emptyStoreSettings : mockStoreSettings,
-    source: isSupabaseConfigured ? 'supabase' : 'mock',
-    loading: isSupabaseConfigured,
-    error: null,
-  })
+  const [value, setValue] = useState<StorefrontValue>(createInitialStorefrontValue)
 
   useEffect(() => {
     let ignore = false
@@ -113,23 +253,7 @@ export function StorefrontDataProvider({ children }: PropsWithChildren) {
     async function loadStorefront() {
       if (!isSupabaseConfigured || !supabase) {
         if (!ignore) {
-          setValue({
-            categories: mockCategories,
-            homeHeroSlides: [],
-            products: applyCatalogSlots(
-              hydrateProducts(
-                mockProducts,
-                mockCategories,
-                mockProductImages,
-                mockProductSizes,
-              ),
-              [],
-            ),
-            storeSettings: mockStoreSettings,
-            source: 'mock',
-            loading: false,
-            error: null,
-          })
+          setValue(createMockStorefrontValue())
         }
 
         return
@@ -198,14 +322,24 @@ export function StorefrontDataProvider({ children }: PropsWithChildren) {
           : catalogFeaturedProductsResult.data ?? []
 
       if (loadError) {
-        setValue({
-          categories: [],
-          homeHeroSlides: heroSlides,
-          products: [],
-          storeSettings: emptyStoreSettings,
-          source: 'supabase',
-          loading: false,
-          error: 'No se pudieron cargar los datos de la tienda en este momento.',
+        setValue((current) => {
+          if (hasVisibleStorefrontData(current)) {
+            return {
+              ...current,
+              loading: false,
+              error: null,
+            }
+          }
+
+          return {
+            categories: [],
+            homeHeroSlides: heroSlides,
+            products: [],
+            storeSettings: emptyStoreSettings,
+            source: 'supabase',
+            loading: false,
+            error: 'No se pudieron cargar los datos de la tienda en este momento.',
+          }
         })
         return
       }
@@ -219,19 +353,29 @@ export function StorefrontDataProvider({ children }: PropsWithChildren) {
       )
 
       if (settingsResult.error || !settingsResult.data) {
-        setValue({
-          categories,
-          homeHeroSlides: heroSlides,
-          products: hydratedProducts,
-          storeSettings: emptyStoreSettings,
-          source: 'supabase',
-          loading: false,
-          error: 'Falta configurar los datos del comercio.',
+        setValue((current) => {
+          if (hasVisibleStorefrontData(current)) {
+            return {
+              ...current,
+              loading: false,
+              error: null,
+            }
+          }
+
+          return {
+            categories,
+            homeHeroSlides: heroSlides,
+            products: hydratedProducts,
+            storeSettings: emptyStoreSettings,
+            source: 'supabase',
+            loading: false,
+            error: 'Falta configurar los datos del comercio.',
+          }
         })
         return
       }
 
-      setValue({
+      const nextValue: StorefrontValue = {
         categories,
         homeHeroSlides: heroSlides,
         products: hydratedProducts,
@@ -239,7 +383,10 @@ export function StorefrontDataProvider({ children }: PropsWithChildren) {
         source: 'supabase',
         loading: false,
         error: null,
-      })
+      }
+
+      writeStorefrontCache(nextValue)
+      setValue(nextValue)
     }
 
     loadStorefront()
