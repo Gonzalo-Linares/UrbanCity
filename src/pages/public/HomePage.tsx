@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import crediAppLogo from '@/assets/CrediApp_icon.png'
 import cuotasSinInteresImage from '@/assets/CuotasSinInteres.webp'
 import estanteriaImage from '@/assets/Estanteria.webp'
@@ -125,6 +125,9 @@ export function HomePage() {
   const [activeSlide, setActiveSlide] = useState(0)
   const [autoplayVersion, setAutoplayVersion] = useState(0)
   const [isHeroPaused, setIsHeroPaused] = useState(false)
+  const featuredScrollerRef = useRef<HTMLDivElement | null>(null)
+  const featuredAutoScrollPausedRef = useRef(false)
+  const featuredResumeTimeoutRef = useRef<number | null>(null)
 
   const featuredProducts = products.filter((product) => product.featured)
   const featuredBaseProducts =
@@ -183,6 +186,80 @@ export function HomePage() {
 
     return () => window.clearTimeout(timeoutId)
   }, [activeSlide, autoplayVersion, isHeroPaused, slideCount])
+
+  useEffect(() => {
+    const scroller = featuredScrollerRef.current
+
+    if (!scroller || featuredLoopProducts.length === 0 || typeof window === 'undefined') {
+      return
+    }
+
+    const mobileQuery = window.matchMedia('(max-width: 767px)')
+    const reducedMotionQuery = window.matchMedia('(prefers-reduced-motion: reduce)')
+
+    if (!mobileQuery.matches || reducedMotionQuery.matches) {
+      return
+    }
+
+    const activeScroller = scroller
+    let frameId = 0
+    let lastTimestamp = 0
+    const pixelsPerSecond = 18
+
+    function tick(timestamp: number) {
+      if (!lastTimestamp) {
+        lastTimestamp = timestamp
+      }
+
+      const delta = timestamp - lastTimestamp
+      lastTimestamp = timestamp
+
+      if (!featuredAutoScrollPausedRef.current) {
+        activeScroller.scrollLeft += (pixelsPerSecond * delta) / 1000
+
+        const track =
+          activeScroller.querySelector<HTMLElement>('.featured-products-track')
+        const loopWidth = track ? track.scrollWidth / 4 : 0
+
+        if (loopWidth > 0 && activeScroller.scrollLeft >= loopWidth) {
+          activeScroller.scrollLeft -= loopWidth
+        }
+      }
+
+      frameId = window.requestAnimationFrame(tick)
+    }
+
+    frameId = window.requestAnimationFrame(tick)
+
+    return () => {
+      window.cancelAnimationFrame(frameId)
+
+      if (featuredResumeTimeoutRef.current) {
+        window.clearTimeout(featuredResumeTimeoutRef.current)
+        featuredResumeTimeoutRef.current = null
+      }
+    }
+  }, [featuredLoopProducts.length])
+
+  function pauseFeaturedAutoScroll() {
+    featuredAutoScrollPausedRef.current = true
+
+    if (featuredResumeTimeoutRef.current) {
+      window.clearTimeout(featuredResumeTimeoutRef.current)
+      featuredResumeTimeoutRef.current = null
+    }
+  }
+
+  function resumeFeaturedAutoScrollSoon() {
+    if (featuredResumeTimeoutRef.current) {
+      window.clearTimeout(featuredResumeTimeoutRef.current)
+    }
+
+    featuredResumeTimeoutRef.current = window.setTimeout(() => {
+      featuredAutoScrollPausedRef.current = false
+      featuredResumeTimeoutRef.current = null
+    }, 1800)
+  }
 
   function goToSlide(index: number) {
     if (slideCount === 0) {
@@ -337,9 +414,20 @@ export function HomePage() {
           </div>
 
           {featuredLoopProducts.length > 0 ? (
-            <div className="relative mt-6 snap-x snap-mandatory overflow-x-auto overflow-y-hidden px-4 pb-2 scroll-px-4 [scrollbar-width:none] md:overflow-hidden md:px-0 md:pb-0 md:snap-none [&::-webkit-scrollbar]:hidden">
-              <div className="pointer-events-none absolute inset-y-0 left-0 z-10 w-8 bg-gradient-to-r from-[#050505] to-transparent sm:w-12 lg:w-16" />
-              <div className="pointer-events-none absolute inset-y-0 right-0 z-10 w-8 bg-gradient-to-l from-[#050505] to-transparent sm:w-12 lg:w-16" />
+            <div
+              ref={featuredScrollerRef}
+              className="relative mt-6 snap-x snap-mandatory overflow-x-auto overflow-y-hidden px-4 pb-2 scroll-px-4 [scrollbar-width:none] md:overflow-hidden md:px-0 md:pb-0 md:snap-none [&::-webkit-scrollbar]:hidden"
+              onTouchStart={pauseFeaturedAutoScroll}
+              onTouchEnd={resumeFeaturedAutoScrollSoon}
+              onTouchCancel={resumeFeaturedAutoScrollSoon}
+              onMouseDown={pauseFeaturedAutoScroll}
+              onMouseUp={resumeFeaturedAutoScrollSoon}
+              onMouseLeave={resumeFeaturedAutoScrollSoon}
+              onFocusCapture={pauseFeaturedAutoScroll}
+              onBlurCapture={resumeFeaturedAutoScrollSoon}
+            >
+              <div className="pointer-events-none absolute inset-y-0 left-0 z-10 hidden w-8 bg-gradient-to-r from-[#050505] to-transparent md:block md:w-12 lg:w-16" />
+              <div className="pointer-events-none absolute inset-y-0 right-0 z-10 hidden w-8 bg-gradient-to-l from-[#050505] to-transparent md:block md:w-12 lg:w-16" />
               <div className="featured-products-track flex w-max min-w-max gap-3 sm:gap-4">
                 {featuredLoopProducts.map((product, index) => (
                   <div
