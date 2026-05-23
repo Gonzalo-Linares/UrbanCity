@@ -197,14 +197,14 @@ export function HomePage() {
     const mobileQuery = window.matchMedia('(max-width: 767px)')
     const reducedMotionQuery = window.matchMedia('(prefers-reduced-motion: reduce)')
 
-    if (!mobileQuery.matches || reducedMotionQuery.matches) {
+    if (!mobileQuery.matches) {
       return
     }
 
     const activeScroller = scroller
     let frameId = 0
     let lastTimestamp = 0
-    const pixelsPerSecond = 18
+    const pixelsPerSecond = reducedMotionQuery.matches ? 12 : 36
 
     function tick(timestamp: number) {
       if (!lastTimestamp) {
@@ -416,7 +416,7 @@ export function HomePage() {
           {featuredLoopProducts.length > 0 ? (
             <div
               ref={featuredScrollerRef}
-              className="relative mt-6 snap-x snap-mandatory overflow-x-auto overflow-y-hidden px-4 pb-2 scroll-px-4 [scrollbar-width:none] md:overflow-hidden md:px-0 md:pb-0 md:snap-none [&::-webkit-scrollbar]:hidden"
+              className="relative mt-6 overflow-x-auto overflow-y-hidden px-4 pb-2 [scrollbar-width:none] md:snap-none md:overflow-hidden md:px-0 md:pb-0 [&::-webkit-scrollbar]:hidden"
               onTouchStart={pauseFeaturedAutoScroll}
               onTouchEnd={resumeFeaturedAutoScrollSoon}
               onTouchCancel={resumeFeaturedAutoScrollSoon}
@@ -432,7 +432,7 @@ export function HomePage() {
                 {featuredLoopProducts.map((product, index) => (
                   <div
                     key={`${product.id}-${index}`}
-                    className="w-[78vw] shrink-0 snap-start sm:w-[260px] md:w-[280px] lg:w-[300px] xl:w-[320px]"
+                    className="w-[78vw] shrink-0 sm:w-[260px] md:w-[280px] lg:w-[300px] xl:w-[320px]"
                   >
                     <ProductCard product={product} />
                   </div>
