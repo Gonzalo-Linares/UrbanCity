@@ -120,6 +120,20 @@ const instagramShowcaseItems = [
   },
 ]
 
+function DelayedHomeLoadingState() {
+  const [isVisible, setIsVisible] = useState(false)
+
+  useEffect(() => {
+    const timeoutId = window.setTimeout(() => {
+      setIsVisible(true)
+    }, 350)
+
+    return () => window.clearTimeout(timeoutId)
+  }, [])
+
+  return isVisible ? <LoadingState label="Preparando la tienda..." /> : null
+}
+
 export function HomePage() {
   const { products, storeSettings, homeHeroSlides, loading } = useStorefrontData()
   const [activeSlide, setActiveSlide] = useState(0)
@@ -269,7 +283,7 @@ export function HomePage() {
   }
 
   if (loading) {
-    return <LoadingState label="Preparando la tienda..." />
+    return <DelayedHomeLoadingState />
   }
 
   return (
