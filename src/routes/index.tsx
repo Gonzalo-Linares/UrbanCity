@@ -1,53 +1,88 @@
 import { createBrowserRouter } from 'react-router-dom'
-import { AdminLayout } from '@/components/admin/AdminLayout'
-import { AdminCategoriesPage } from '@/pages/admin/AdminCategoriesPage'
 import { PublicLayout } from '@/components/layout/PublicLayout'
-import { AdminDashboardPage } from '@/pages/admin/AdminDashboardPage'
-import { AdminCatalogPage } from '@/pages/admin/AdminCatalogPage'
-import { AdminLoginPage } from '@/pages/admin/AdminLoginPage'
-import { AdminOrdersPage } from '@/pages/admin/AdminOrdersPage'
-import { AdminProductsPage } from '@/pages/admin/AdminProductsPage'
-import { AdminSettingsPage } from '@/pages/admin/AdminSettingsPage'
-import { CartPage } from '@/pages/public/CartPage'
-import { CatalogPage } from '@/pages/public/CatalogPage'
-import { CheckoutPage } from '@/pages/public/CheckoutPage'
-import { ContactPage } from '@/pages/public/ContactPage'
 import { HomePage } from '@/pages/public/HomePage'
 import { NotFoundPage } from '@/pages/public/NotFoundPage'
-import { ProductDetailPage } from '@/pages/public/ProductDetailPage'
+import {
+  AdminCatalogPage,
+  AdminCategoriesPage,
+  AdminDashboardPage,
+  AdminLayout,
+  AdminLoginPage,
+  AdminOrdersPage,
+  AdminProductsPage,
+  AdminSettingsPage,
+  CartPage,
+  CatalogPage,
+  CheckoutPage,
+  ContactPage,
+  ProductDetailPage,
+  RouteSuspense,
+} from '@/routes/lazyRoutes'
 
 export const router = createBrowserRouter([
   {
     path: '/admin/login',
-    element: <AdminLoginPage />,
+    element: (
+      <RouteSuspense>
+        <AdminLoginPage />
+      </RouteSuspense>
+    ),
   },
   {
     path: '/admin',
-    element: <AdminLayout />,
+    element: (
+      <RouteSuspense>
+        <AdminLayout />
+      </RouteSuspense>
+    ),
     children: [
       {
         index: true,
-        element: <AdminDashboardPage />,
+        element: (
+          <RouteSuspense>
+            <AdminDashboardPage />
+          </RouteSuspense>
+        ),
       },
       {
         path: 'productos',
-        element: <AdminProductsPage />,
+        element: (
+          <RouteSuspense>
+            <AdminProductsPage />
+          </RouteSuspense>
+        ),
       },
       {
         path: 'catalogo',
-        element: <AdminCatalogPage />,
+        element: (
+          <RouteSuspense>
+            <AdminCatalogPage />
+          </RouteSuspense>
+        ),
       },
       {
         path: 'categorias',
-        element: <AdminCategoriesPage />,
+        element: (
+          <RouteSuspense>
+            <AdminCategoriesPage />
+          </RouteSuspense>
+        ),
       },
       {
         path: 'pedidos',
-        element: <AdminOrdersPage />,
+        element: (
+          <RouteSuspense>
+            <AdminOrdersPage />
+          </RouteSuspense>
+        ),
       },
       {
         path: 'configuracion',
-        element: <AdminSettingsPage />,
+        element: (
+          <RouteSuspense>
+            <AdminSettingsPage />
+          </RouteSuspense>
+        ),
       },
     ],
   },
@@ -61,23 +96,43 @@ export const router = createBrowserRouter([
       },
       {
         path: 'catalogo',
-        element: <CatalogPage />,
+        element: (
+          <RouteSuspense>
+            <CatalogPage />
+          </RouteSuspense>
+        ),
       },
       {
         path: 'catalogo/:slug',
-        element: <ProductDetailPage />,
+        element: (
+          <RouteSuspense>
+            <ProductDetailPage />
+          </RouteSuspense>
+        ),
       },
       {
         path: 'carrito',
-        element: <CartPage />,
+        element: (
+          <RouteSuspense>
+            <CartPage />
+          </RouteSuspense>
+        ),
       },
       {
         path: 'checkout',
-        element: <CheckoutPage />,
+        element: (
+          <RouteSuspense>
+            <CheckoutPage />
+          </RouteSuspense>
+        ),
       },
       {
         path: 'contacto',
-        element: <ContactPage />,
+        element: (
+          <RouteSuspense>
+            <ContactPage />
+          </RouteSuspense>
+        ),
       },
     ],
   },
