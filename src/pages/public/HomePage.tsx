@@ -19,7 +19,6 @@ import {
 import { Link } from 'react-router-dom'
 import { ProductCard } from '@/components/product/ProductCard'
 import { EmptyState } from '@/components/ui/EmptyState'
-import { LoadingState } from '@/components/ui/LoadingState'
 import { SectionTitle } from '@/components/ui/SectionTitle'
 import { SocialIcon } from '@/components/ui/SocialIcon'
 import { buttonStyles } from '@/components/ui/buttonStyles'
@@ -120,6 +119,60 @@ const instagramShowcaseItems = [
   },
 ]
 
+function HomePageSkeleton() {
+  return (
+    <div
+      aria-hidden="true"
+      className="flex animate-pulse flex-col gap-10 sm:gap-14"
+    >
+      <section className="relative left-1/2 w-screen -translate-x-1/2 overflow-hidden border-b border-white/10 bg-[#050505]">
+        <div className="shell-container relative min-h-[380px] overflow-hidden py-7 sm:min-h-[520px] sm:py-12 lg:grid lg:min-h-[620px] lg:grid-cols-[0.94fr_1.06fr] lg:items-center lg:gap-10 lg:py-16">
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_80%_30%,rgba(182,255,0,0.05),transparent_32%),linear-gradient(135deg,#080808_0%,#0d0d0d_55%,#050505_100%)] sm:hidden" />
+          <div className="relative z-10 max-w-[72%] space-y-4 sm:max-w-[72%] sm:space-y-5 lg:max-w-xl">
+            <div className="h-3 w-28 rounded-full bg-brand-strong/12" />
+            <div className="space-y-3">
+              <div className="h-9 w-[min(19rem,74vw)] rounded-lg bg-white/10 sm:h-14 lg:h-16" />
+              <div className="h-8 w-[min(16rem,64vw)] rounded-lg bg-brand-strong/10 sm:h-12 lg:h-14" />
+            </div>
+            <div className="space-y-2 pt-1">
+              <div className="h-3 w-full max-w-[340px] rounded-full bg-white/8" />
+              <div className="h-3 w-3/4 max-w-[260px] rounded-full bg-white/8" />
+            </div>
+            <div className="h-11 w-36 rounded-full bg-brand-strong/14 sm:h-14 sm:w-44" />
+          </div>
+
+          <div className="relative z-10 hidden items-center justify-end sm:flex">
+            <div className="h-[360px] w-full max-w-[620px] rounded-[34px] border border-white/8 bg-[radial-gradient(circle_at_48%_36%,rgba(182,255,0,0.06),transparent_34%),linear-gradient(135deg,#121212,#090909)] lg:h-[500px]" />
+          </div>
+        </div>
+      </section>
+
+      <section className="space-y-6">
+        <div className="space-y-3">
+          <div className="h-3 w-24 rounded-full bg-brand-strong/12" />
+          <div className="h-8 w-56 rounded-lg bg-white/10 sm:h-10 sm:w-72" />
+          <div className="h-3 w-full max-w-[340px] rounded-full bg-white/8" />
+        </div>
+        <div className="flex gap-3 overflow-hidden sm:gap-4">
+          {[0, 1, 2].map((item) => (
+            <div
+              key={item}
+              className="w-[78vw] max-w-[320px] shrink-0 rounded-[22px] border border-white/8 bg-[#111111] p-1.5 sm:p-2.5"
+            >
+              <div className="aspect-square rounded-[18px] border border-white/6 bg-[radial-gradient(circle_at_50%_35%,rgba(182,255,0,0.05),transparent_34%),linear-gradient(140deg,#151515,#0d0d0d)] sm:rounded-[24px]" />
+              <div className="space-y-3 p-3 sm:p-4">
+                <div className="h-3 w-20 rounded-full bg-brand-strong/10" />
+                <div className="h-5 w-4/5 rounded-md bg-white/10" />
+                <div className="h-6 w-28 rounded-md bg-white/10" />
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
+    </div>
+  )
+}
+
 function DelayedHomeLoadingState() {
   const [isVisible, setIsVisible] = useState(false)
 
@@ -131,7 +184,7 @@ function DelayedHomeLoadingState() {
     return () => window.clearTimeout(timeoutId)
   }, [])
 
-  return isVisible ? <LoadingState label="Preparando la tienda..." /> : null
+  return isVisible ? <HomePageSkeleton /> : null
 }
 
 export function HomePage() {
