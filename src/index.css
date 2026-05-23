@@ -150,6 +150,12 @@
     display: flex;
     width: max-content;
     min-width: max-content;
+    will-change: auto;
+  }
+}
+
+@media (min-width: 768px) {
+  .featured-products-track {
     animation: featuredProductsMarquee 34s linear infinite;
     will-change: transform;
   }

@@ -337,14 +337,14 @@ export function HomePage() {
           </div>
 
           {featuredLoopProducts.length > 0 ? (
-            <div className="relative mt-6 overflow-hidden">
+            <div className="relative mt-6 snap-x snap-mandatory overflow-x-auto overflow-y-hidden px-4 pb-2 scroll-px-4 [scrollbar-width:none] md:overflow-hidden md:px-0 md:pb-0 md:snap-none [&::-webkit-scrollbar]:hidden">
               <div className="pointer-events-none absolute inset-y-0 left-0 z-10 w-8 bg-gradient-to-r from-[#050505] to-transparent sm:w-12 lg:w-16" />
               <div className="pointer-events-none absolute inset-y-0 right-0 z-10 w-8 bg-gradient-to-l from-[#050505] to-transparent sm:w-12 lg:w-16" />
               <div className="featured-products-track flex w-max min-w-max gap-3 sm:gap-4">
                 {featuredLoopProducts.map((product, index) => (
                   <div
                     key={`${product.id}-${index}`}
-                    className="w-[78vw] shrink-0 sm:w-[260px] md:w-[280px] lg:w-[300px] xl:w-[320px]"
+                    className="w-[78vw] shrink-0 snap-start sm:w-[260px] md:w-[280px] lg:w-[300px] xl:w-[320px]"
                   >
                     <ProductCard product={product} />
                   </div>
