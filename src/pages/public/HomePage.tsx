@@ -126,8 +126,7 @@ export function HomePage() {
   const [autoplayVersion, setAutoplayVersion] = useState(0)
   const [isHeroPaused, setIsHeroPaused] = useState(false)
   const featuredScrollerRef = useRef<HTMLDivElement | null>(null)
-  const featuredAutoScrollPausedRef = useRef(false)
-  const featuredResumeTimeoutRef = useRef<number | null>(null)
+  const featuredLastTouchAtRef = useRef(0)
 
   const featuredProducts = products.filter((product) => product.featured)
   const featuredBaseProducts =
@@ -195,16 +194,17 @@ export function HomePage() {
     }
 
     const mobileQuery = window.matchMedia('(max-width: 767px)')
-    const reducedMotionQuery = window.matchMedia('(prefers-reduced-motion: reduce)')
 
-    if (!mobileQuery.matches || reducedMotionQuery.matches) {
+    if (!mobileQuery.matches) {
       return
     }
 
     const activeScroller = scroller
     let frameId = 0
     let lastTimestamp = 0
-    const pixelsPerSecond = 18
+    let pixelAccumulator = 0
+    const pixelsPerSecond = 44
+    const resumeAfterMs = 2000
 
     function tick(timestamp: number) {
       if (!lastTimestamp) {
@@ -214,15 +214,25 @@ export function HomePage() {
       const delta = timestamp - lastTimestamp
       lastTimestamp = timestamp
 
-      if (!featuredAutoScrollPausedRef.current) {
-        activeScroller.scrollLeft += (pixelsPerSecond * delta) / 1000
+      const shouldAutoScroll =
+        Date.now() - featuredLastTouchAtRef.current > resumeAfterMs
 
-        const track =
-          activeScroller.querySelector<HTMLElement>('.featured-products-track')
-        const loopWidth = track ? track.scrollWidth / 4 : 0
+      if (shouldAutoScroll) {
+        pixelAccumulator += (pixelsPerSecond * delta) / 1000
 
-        if (loopWidth > 0 && activeScroller.scrollLeft >= loopWidth) {
-          activeScroller.scrollLeft -= loopWidth
+        if (pixelAccumulator >= 1) {
+          const pixelsToMove = Math.floor(pixelAccumulator)
+          pixelAccumulator -= pixelsToMove
+
+          activeScroller.scrollLeft += pixelsToMove
+
+          const track =
+            activeScroller.querySelector<HTMLElement>('.featured-products-track')
+          const loopWidth = track ? track.scrollWidth / 4 : 0
+
+          if (loopWidth > 0 && activeScroller.scrollLeft >= loopWidth) {
+            activeScroller.scrollLeft -= loopWidth
+          }
         }
       }
 
@@ -233,32 +243,11 @@ export function HomePage() {
 
     return () => {
       window.cancelAnimationFrame(frameId)
-
-      if (featuredResumeTimeoutRef.current) {
-        window.clearTimeout(featuredResumeTimeoutRef.current)
-        featuredResumeTimeoutRef.current = null
-      }
     }
   }, [featuredLoopProducts.length])
 
-  function pauseFeaturedAutoScroll() {
-    featuredAutoScrollPausedRef.current = true
-
-    if (featuredResumeTimeoutRef.current) {
-      window.clearTimeout(featuredResumeTimeoutRef.current)
-      featuredResumeTimeoutRef.current = null
-    }
-  }
-
-  function resumeFeaturedAutoScrollSoon() {
-    if (featuredResumeTimeoutRef.current) {
-      window.clearTimeout(featuredResumeTimeoutRef.current)
-    }
-
-    featuredResumeTimeoutRef.current = window.setTimeout(() => {
-      featuredAutoScrollPausedRef.current = false
-      featuredResumeTimeoutRef.current = null
-    }, 1800)
+  function markFeaturedTouched() {
+    featuredLastTouchAtRef.current = Date.now()
   }
 
   function goToSlide(index: number) {
@@ -416,15 +405,11 @@ export function HomePage() {
           {featuredLoopProducts.length > 0 ? (
             <div
               ref={featuredScrollerRef}
-              className="relative mt-6 snap-x snap-mandatory overflow-x-auto overflow-y-hidden px-4 pb-2 scroll-px-4 [scrollbar-width:none] md:overflow-hidden md:px-0 md:pb-0 md:snap-none [&::-webkit-scrollbar]:hidden"
-              onTouchStart={pauseFeaturedAutoScroll}
-              onTouchEnd={resumeFeaturedAutoScrollSoon}
-              onTouchCancel={resumeFeaturedAutoScrollSoon}
-              onMouseDown={pauseFeaturedAutoScroll}
-              onMouseUp={resumeFeaturedAutoScrollSoon}
-              onMouseLeave={resumeFeaturedAutoScrollSoon}
-              onFocusCapture={pauseFeaturedAutoScroll}
-              onBlurCapture={resumeFeaturedAutoScrollSoon}
+              className="relative mt-6 touch-pan-x overflow-x-auto overflow-y-hidden px-4 pb-2 [scrollbar-width:none] md:overflow-hidden md:px-0 md:pb-0 [&::-webkit-scrollbar]:hidden"
+              onTouchStart={markFeaturedTouched}
+              onTouchMove={markFeaturedTouched}
+              onTouchEnd={markFeaturedTouched}
+              onTouchCancel={markFeaturedTouched}
             >
               <div className="pointer-events-none absolute inset-y-0 left-0 z-10 hidden w-8 bg-gradient-to-r from-[#050505] to-transparent md:block md:w-12 lg:w-16" />
               <div className="pointer-events-none absolute inset-y-0 right-0 z-10 hidden w-8 bg-gradient-to-l from-[#050505] to-transparent md:block md:w-12 lg:w-16" />
@@ -432,7 +417,7 @@ export function HomePage() {
                 {featuredLoopProducts.map((product, index) => (
                   <div
                     key={`${product.id}-${index}`}
-                    className="w-[78vw] shrink-0 snap-start sm:w-[260px] md:w-[280px] lg:w-[300px] xl:w-[320px]"
+                    className="w-[78vw] shrink-0 sm:w-[260px] md:w-[280px] lg:w-[300px] xl:w-[320px]"
                   >
                     <ProductCard product={product} />
                   </div>
