@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/Button'
 import { EmptyState } from '@/components/ui/EmptyState'
 import { LoadingState } from '@/components/ui/LoadingState'
 import { SectionTitle } from '@/components/ui/SectionTitle'
+import { usePageSeo } from '@/hooks/usePageSeo'
 import { useStorefrontData } from '@/hooks/useStorefrontData'
 import { getDiscountPercent } from '@/lib/pricing'
 import type { StorefrontProduct } from '@/types/store'
@@ -114,6 +115,12 @@ function persistCatalogState(snapshot: CatalogStateSnapshot) {
 
 export function CatalogPage() {
   const { categories, products, loading } = useStorefrontData()
+  usePageSeo({
+    title: 'Catálogo de zapatillas en San Juan | City Calzado Urbano',
+    description:
+      'Explorá zapatillas, sneakers, botitas, plataformas y calzado urbano disponible en City Calzado Urbano, San Juan.',
+    path: '/catalogo',
+  })
   const [storedCatalogState] = useState<CatalogStateSnapshot | null>(
     readStoredCatalogState,
   )

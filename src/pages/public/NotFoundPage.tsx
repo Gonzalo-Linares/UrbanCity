@@ -1,7 +1,15 @@
 import { Link } from 'react-router-dom'
 import { EmptyState } from '@/components/ui/EmptyState'
+import { usePageSeo } from '@/hooks/usePageSeo'
 
 export function NotFoundPage() {
+  usePageSeo({
+    title: 'Página no encontrada | City Calzado Urbano',
+    description: 'La página solicitada no está disponible en City Calzado Urbano.',
+    path: '/',
+    robots: 'noindex, follow',
+  })
+
   return (
     <div className="shell-container py-10">
       <EmptyState

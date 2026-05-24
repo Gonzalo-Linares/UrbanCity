@@ -16,6 +16,7 @@ import { EmptyState } from '@/components/ui/EmptyState'
 import { LoadingState } from '@/components/ui/LoadingState'
 import { SectionTitle } from '@/components/ui/SectionTitle'
 import { StatusBadge } from '@/components/ui/StatusBadge'
+import { usePageSeo } from '@/hooks/usePageSeo'
 import { useStorefrontData } from '@/hooks/useStorefrontData'
 import { dispatchCartAddedEvent } from '@/lib/cartEvents'
 import { cn } from '@/lib/cn'
@@ -586,12 +587,21 @@ function ProductDetailContent({
 export function ProductDetailPage() {
   const { slug } = useParams()
   const { products, loading } = useStorefrontData()
+  const product = products.find((item) => item.slug === slug)
+
+  usePageSeo({
+    title: product
+      ? `${product.name} | Zapatillas en San Juan | City Calzado Urbano`
+      : 'Producto | City Calzado Urbano San Juan',
+    description: product
+      ? `Consultá disponibilidad de ${product.name}${product.category?.name ? `, ${product.category.name}` : ''} en City Calzado Urbano, tienda de zapatillas y calzado urbano en San Juan.`
+      : 'Consultá modelos disponibles de zapatillas y calzado urbano en City Calzado Urbano, San Juan.',
+    path: product ? `/catalogo/${product.slug}` : '/catalogo',
+  })
 
   if (loading) {
     return <LoadingState label="Cargando producto..." />
   }
-
-  const product = products.find((item) => item.slug === slug)
 
   if (!product) {
     return (

@@ -1,0 +1,8 @@
+User-agent: *
+Allow: /
+
+Disallow: /admin
+Disallow: /admin/
+Disallow: /admin/login
+
+Sitemap: https://citycalzadourbano.pages.dev/sitemap.xml

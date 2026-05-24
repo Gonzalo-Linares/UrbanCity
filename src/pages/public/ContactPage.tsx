@@ -2,10 +2,17 @@ import { ArrowUpRight, MapPin, Timer } from 'lucide-react'
 import { Card } from '@/components/ui/Card'
 import { SocialIcon } from '@/components/ui/SocialIcon'
 import { SectionTitle } from '@/components/ui/SectionTitle'
+import { usePageSeo } from '@/hooks/usePageSeo'
 import { useStorefrontData } from '@/hooks/useStorefrontData'
 import { buildWhatsAppUrl } from '@/lib/whatsapp'
 
 export function ContactPage() {
+  usePageSeo({
+    title: 'Contacto y ubicación | City Calzado Urbano San Juan',
+    description:
+      'Contactá a City Calzado Urbano en San Juan. Consultá por zapatillas, modelos disponibles, promociones y retiro en Galería Provincial.',
+    path: '/contacto',
+  })
   const { storeSettings } = useStorefrontData()
   const hasWhatsApp = Boolean(storeSettings.whatsapp_phone)
   const instagramUrl =
