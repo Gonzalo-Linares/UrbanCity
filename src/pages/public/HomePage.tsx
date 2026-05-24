@@ -22,6 +22,7 @@ import { EmptyState } from '@/components/ui/EmptyState'
 import { SectionTitle } from '@/components/ui/SectionTitle'
 import { SocialIcon } from '@/components/ui/SocialIcon'
 import { buttonStyles } from '@/components/ui/buttonStyles'
+import { usePageSeo } from '@/hooks/usePageSeo'
 import { useStorefrontData } from '@/hooks/useStorefrontData'
 import { cn } from '@/lib/cn'
 
@@ -189,6 +190,12 @@ function DelayedHomeLoadingState() {
 
 export function HomePage() {
   const { products, storeSettings, homeHeroSlides, loading } = useStorefrontData()
+  usePageSeo({
+    title: 'City Calzado Urbano | Zapatillas y calzado urbano en San Juan',
+    description:
+      'Comprá zapatillas, sneakers, botitas, plataformas y calzado urbano en San Juan. City Calzado Urbano en Galería Provincial.',
+    path: '/',
+  })
   const [activeSlide, setActiveSlide] = useState(0)
   const [autoplayVersion, setAutoplayVersion] = useState(0)
   const [isHeroPaused, setIsHeroPaused] = useState(false)

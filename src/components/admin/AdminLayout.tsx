@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/Button'
 import { LoadingState } from '@/components/ui/LoadingState'
 import { useAuth } from '@/hooks/useAuth'
 import { useAdminShellData } from '@/hooks/useAdminShellData'
+import { usePageSeo } from '@/hooks/usePageSeo'
 
 const pageTitles: Record<string, string> = {
   '/admin': 'Resumen general',
@@ -106,6 +107,12 @@ function AdminShell() {
 }
 
 export function AdminLayout() {
+  usePageSeo({
+    title: 'Administración | City Calzado Urbano',
+    description: 'Acceso administrativo de City Calzado Urbano.',
+    path: '/admin',
+    robots: 'noindex, nofollow',
+  })
   const location = useLocation()
   const { error, isAdmin, isAuthenticated, loading, signOut } = useAuth()
 

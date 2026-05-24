@@ -9,11 +9,18 @@ import { Button } from '@/components/ui/Button'
 import { Card } from '@/components/ui/Card'
 import { Input } from '@/components/ui/Input'
 import { LoadingState } from '@/components/ui/LoadingState'
+import { usePageSeo } from '@/hooks/usePageSeo'
 import { isSupabaseConfigured } from '@/lib/supabase'
 import { adminLoginSchema, type AdminLoginSchema } from '@/schemas/adminLogin'
 import { useAuth } from '@/hooks/useAuth'
 
 export function AdminLoginPage() {
+  usePageSeo({
+    title: 'Administración | City Calzado Urbano',
+    description: 'Acceso administrativo de City Calzado Urbano.',
+    path: '/admin/login',
+    robots: 'noindex, nofollow',
+  })
   const { error, isAdmin, isAuthenticated, loading, signIn, signOut } = useAuth()
   const [submitError, setSubmitError] = useState<string | null>(null)
 
