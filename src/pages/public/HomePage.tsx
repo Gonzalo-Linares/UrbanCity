@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState, type TouchEvent } from 'react'
 import crediAppLogo from '@/assets/CrediApp_icon.png'
 import cuotasSinInteresImage from '@/assets/CuotasSinInteres.webp'
 import estanteriaImage from '@/assets/Estanteria.webp'
@@ -199,6 +199,8 @@ export function HomePage() {
   const [activeSlide, setActiveSlide] = useState(0)
   const [autoplayVersion, setAutoplayVersion] = useState(0)
   const [isHeroPaused, setIsHeroPaused] = useState(false)
+  const heroTouchStartRef = useRef<{ x: number; y: number } | null>(null)
+  const heroTouchCurrentRef = useRef<{ x: number; y: number } | null>(null)
   const featuredScrollerRef = useRef<HTMLDivElement | null>(null)
   const featuredLastTouchAtRef = useRef(0)
 
@@ -324,6 +326,71 @@ export function HomePage() {
     featuredLastTouchAtRef.current = Date.now()
   }
 
+  function handleHeroTouchStart(event: TouchEvent<HTMLDivElement>) {
+    if (slideCount <= 1) {
+      return
+    }
+
+    const touch = event.touches[0]
+
+    if (!touch) {
+      return
+    }
+
+    const point = { x: touch.clientX, y: touch.clientY }
+    heroTouchStartRef.current = point
+    heroTouchCurrentRef.current = point
+    setIsHeroPaused(true)
+  }
+
+  function handleHeroTouchMove(event: TouchEvent<HTMLDivElement>) {
+    if (slideCount <= 1) {
+      return
+    }
+
+    const touch = event.touches[0]
+
+    if (!touch) {
+      return
+    }
+
+    heroTouchCurrentRef.current = { x: touch.clientX, y: touch.clientY }
+  }
+
+  function resetHeroTouch() {
+    heroTouchStartRef.current = null
+    heroTouchCurrentRef.current = null
+    setIsHeroPaused(false)
+  }
+
+  function handleHeroTouchEnd() {
+    const start = heroTouchStartRef.current
+    const current = heroTouchCurrentRef.current
+
+    resetHeroTouch()
+
+    if (!start || !current || slideCount <= 1) {
+      return
+    }
+
+    const deltaX = current.x - start.x
+    const deltaY = current.y - start.y
+    const absoluteX = Math.abs(deltaX)
+    const absoluteY = Math.abs(deltaY)
+    const isHorizontalSwipe = absoluteX >= 48 && absoluteX > absoluteY * 1.25
+
+    if (!isHorizontalSwipe) {
+      return
+    }
+
+    if (deltaX < 0) {
+      goToNextSlide()
+      return
+    }
+
+    goToPreviousSlide()
+  }
+
   function goToSlide(index: number) {
     if (slideCount === 0) {
       return
@@ -355,6 +422,10 @@ export function HomePage() {
           onMouseLeave={() => setIsHeroPaused(false)}
           onFocusCapture={() => setIsHeroPaused(true)}
           onBlurCapture={() => setIsHeroPaused(false)}
+          onTouchStart={handleHeroTouchStart}
+          onTouchMove={handleHeroTouchMove}
+          onTouchEnd={handleHeroTouchEnd}
+          onTouchCancel={resetHeroTouch}
         >
           <div
             className="hero-slider-track"
