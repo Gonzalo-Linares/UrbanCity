@@ -154,6 +154,12 @@
   }
 }
 
+@media (max-width: 767px) {
+  .touch-pan-x {
+    touch-action: auto;
+  }
+}
+
 @media (min-width: 768px) {
   .featured-products-track {
     animation: featuredProductsMarquee 34s linear infinite;
